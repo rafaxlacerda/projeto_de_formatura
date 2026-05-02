@@ -18,9 +18,9 @@ np.random.seed(SEMENTE)
 # =============================================================================
 # PARÂMETROS DA REDE IEEE 34 BARRAS
 # =============================================================================
-N_BARRAS = 34
-BARRAS_SISTEMA = np.arange(1, N_BARRAS + 1)
-CARGA_PICO_TOTAL_MW = 1.769   # Típico da IEEE 34 (Ajuste se necessário)
+N_BARRAS = 32
+BARRAS_SISTEMA = [800,802,806,808,810,812,814,850,816,818,820,822,824,826,828,830,854,832,858,834,860,836,862,838,842,844,846,848,852,856,888,890]
+CARGA_PICO_TOTAL_MW = 2.2   # Ajuste para IEEE 34 (aproximadamente 2.2 MW total)
 
 # =============================================================================
 # PARÂMETROS DO SORTEIO MONTE CARLO
@@ -68,10 +68,10 @@ _PROBS_TIPOS = np.array([TIPOS_DIA[t]["probabilidade"] for t in _NOMES_TIPOS])
 # =============================================================================
 # PERFIS DE CARGA (Residencial, Comercial, Industrial)
 # =============================================================================
-# Dividindo as 34 barras uniformemente (você pode alterar depois)
-BARRAS_RES = BARRAS_SISTEMA[:11]     # Barras 1 a 11
-BARRAS_COM = BARRAS_SISTEMA[11:22]   # Barras 12 a 22
-BARRAS_IND = BARRAS_SISTEMA[22:]     # Barras 23 a 34
+# Dividindo as 32 barras uniformemente (você pode alterar depois)
+BARRAS_RES = BARRAS_SISTEMA[:10]     # Primeiras 10 barras
+BARRAS_COM = BARRAS_SISTEMA[10:21]   # Próximas 11 barras
+BARRAS_IND = BARRAS_SISTEMA[21:]     # Últimas 11 barras
 
 PERFIS_BASE_CARGA = {
     "residencial": np.array([0.4, 0.3, 0.3, 0.3, 0.4, 0.5, 0.6, 0.5, 0.4, 0.4, 0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.6, 0.8, 1.0, 0.9, 0.8, 0.7, 0.6, 0.5]),
@@ -394,9 +394,9 @@ Características gerais:
   - Número de barras: {N_BARRAS}
 
 Distribuição de tipos de carga:
-  - Barras residenciais (1-11): {list(BARRAS_RES)}
-  - Barras comerciais (12-22): {list(BARRAS_COM)}
-  - Barras industriais (23-34): {list(BARRAS_IND)}
+  - Barras residenciais (primeiras 10): {list(BARRAS_RES)}
+  - Barras comerciais (11 seguintes): {list(BARRAS_COM)}
+  - Barras industriais (últimas 11): {list(BARRAS_IND)}
 
 Tipos de dia (pesos iguais):
   - Céu Aberto (33.33%)
@@ -436,9 +436,9 @@ if __name__ == "__main__":
     print(f"  Realizar realizações por nível: {N_REALIZACOES}")
     print(f"  Número de níveis de penetração: {len(PV_PENETRACAO_NIVEIS)}")
     print(f"  Estrutura de carga:")
-    print(f"    - Residencial (11 barras): 1-11")
-    print(f"    - Comercial (11 barras): 12-22")
-    print(f"    - Industrial (12 barras): 23-34")
+    print(f"    - Residencial (10 barras): {BARRAS_SISTEMA[:10]}")
+    print(f"    - Comercial (11 barras): {BARRAS_SISTEMA[10:21]}")
+    print(f"    - Industrial (11 barras): {BARRAS_SISTEMA[21:]}")
     print(f"  Tipos de dia: Pesos iguais (33.33% cada)")
     print(f"\n  DEFINIÇÃO: Cada barra recebe NO MÁXIMO 1 unidade PV e 1 unidade BESS")
     print("=" * 80)
