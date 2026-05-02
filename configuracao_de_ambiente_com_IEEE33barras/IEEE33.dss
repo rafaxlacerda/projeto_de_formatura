@@ -2,15 +2,15 @@ Clear
 
 New Circuit.IEEE33 BasekV=12.66 pu=1.00 frequency=60 phases=3 Bus=b1
 
-New line.1-2 Bus1=b1 Bus2=b2 R1=0.0922 X1=0.0477
-New line.2-3 Bus1=b2 Bus2=b3 R1=0.4930 X1=0.2511
-New line.3-4 Bus1=b3 Bus2=b4 R1=0.3660 X1=0.1864
-New line.4-5 Bus1=b4 Bus2=b5 R1=0.3811 X1=0.1941
-New line.5-6 Bus1=b5 Bus2=b6 R1=0.8190 X1=0.7070
-New line.6-7 Bus1=b6 Bus2=b7 R1=0.1872 X1=0.6188
-New line.7-8 Bus1=b7 Bus2=b8 R1=1.7114 X1=1.2351
-New line.8-9 Bus1=b8 Bus2=b9 R1=1.0300 X1=0.7400
-New line.9-10 Bus1=b9 Bus2=b10 R1=1.0400 X1=0.7400
+New line.1-2   Bus1=b1  Bus2=b2  R1=0.0922 X1=0.0477
+New line.2-3   Bus1=b2  Bus2=b3  R1=0.4930 X1=0.2511
+New line.3-4   Bus1=b3  Bus2=b4  R1=0.3660 X1=0.1864
+New line.4-5   Bus1=b4  Bus2=b5  R1=0.3811 X1=0.1941
+New line.5-6   Bus1=b5  Bus2=b6  R1=0.8190 X1=0.7070
+New line.6-7   Bus1=b6  Bus2=b7  R1=0.1872 X1=0.6188
+New line.7-8   Bus1=b7  Bus2=b8  R1=1.7114 X1=1.2351
+New line.8-9   Bus1=b8  Bus2=b9  R1=1.0300 X1=0.7400
+New line.9-10  Bus1=b9  Bus2=b10 R1=1.0400 X1=0.7400
 New line.10-11 Bus1=b10 Bus2=b11 R1=0.1966 X1=0.0650
 New line.11-12 Bus1=b11 Bus2=b12 R1=0.3744 X1=0.1238
 New line.12-13 Bus1=b12 Bus2=b13 R1=1.4680 X1=1.1550
@@ -19,54 +19,55 @@ New line.14-15 Bus1=b14 Bus2=b15 R1=0.5910 X1=0.5260
 New line.15-16 Bus1=b15 Bus2=b16 R1=0.7463 X1=0.5450
 New line.16-17 Bus1=b16 Bus2=b17 R1=1.2890 X1=1.7210
 New line.17-18 Bus1=b17 Bus2=b18 R1=0.7320 X1=0.5740
-New line.2-19 Bus1=b2 Bus2=b19 R1=0.1640 X1=0.1565
+New line.2-19  Bus1=b2  Bus2=b19 R1=0.1640 X1=0.1565
 New line.19-20 Bus1=b19 Bus2=b20 R1=1.5042 X1=1.3554
 New line.20-21 Bus1=b20 Bus2=b21 R1=0.4095 X1=0.4784
 New line.21-22 Bus1=b21 Bus2=b22 R1=0.7089 X1=0.9373
-New line.3-23 Bus1=b3 Bus2=b23 R1=0.4512 X1=0.3083
+New line.3-23  Bus1=b3  Bus2=b23 R1=0.4512 X1=0.3083
 New line.23-24 Bus1=b23 Bus2=b24 R1=0.8980 X1=0.7091
 New line.24-25 Bus1=b24 Bus2=b25 R1=0.8960 X1=0.7011
-New line.6-26 Bus1=b6 Bus2=b26 R1=0.2030 X1=0.1034
+New line.6-26  Bus1=b6  Bus2=b26 R1=0.2030 X1=0.1034
 New line.26-27 Bus1=b26 Bus2=b27 R1=0.2842 X1=0.1447
 New line.27-28 Bus1=b27 Bus2=b28 R1=1.0590 X1=0.9337
 New line.28-29 Bus1=b28 Bus2=b29 R1=0.8042 X1=0.7006
 New line.29-30 Bus1=b29 Bus2=b30 R1=0.5075 X1=0.2585
 New line.30-31 Bus1=b30 Bus2=b31 R1=0.9744 X1=0.9630
 New line.31-32 Bus1=b31 Bus2=b32 R1=0.3105 X1=0.3619
-New line.32-33 Bus1=b32 Bus2=b33 R1=0 3410 X1=0.5302
+New line.32-33 Bus1=b32 Bus2=b33 R1=0.3410 X1=0.5302
 
 !Cargas
-New Load.B2 Bus1=b2 kW=100 kvar=60 daily=default 
-New Load.B3 Bus1=b3 kW=90 kvar=40 daily=default 
-New Load.B4 Bus1=b4 kW=120 kvar=80 daily=default 
-New Load.B5 Bus1=b5 kW=60 kvar=30 daily=default 
-New Load.B6 Bus1=b6 kW=60 kvar=20 daily=default 
-New Load.B7 Bus1=b7 kW=200 kvar=100 daily=default 
-New Load.B8 Bus1=b8 kW=200 kvar=100 daily=default 
-New Load.B9 Bus1=b9 kW=60 kvar=20 daily=default 
-New Load.B10 Bus1=b10 kW=60 kvar=20 daily=default 
-New Load.B11 Bus1=b11 kW=45 kvar=30 daily=default 
-New Load.B12 Bus1=b12 kW=60 kvar=35 daily=default 
-New Load.B13 Bus1=b13 kW=60 kvar=35 daily=default 
-New Load.B14 Bus1=b14 kW=120 kvar=80 daily=default 
-New Load.B15 Bus1=b15 kW=60 kvar=10 daily=default 
-New Load.B16 Bus1=b16 kW=60 kvar=20 daily=default 
-New Load.B17 Bus1=b17 kW=60 kvar=20 daily=default 
-New Load.B18 Bus1=b18 kW=90 kvar=40 daily=default 
-New Load.B19 Bus1=b19 kW=90 kvar=40 daily=default 
-New Load.B20 Bus1=b20 kW=90 kvar=40 daily=default 
-New Load.B21 Bus1=b21 kW=90 kvar=40 daily=default 
-New Load.B22 Bus1=b22 kW=90 kvar=40 daily=default 
-New Load.B23 Bus1=b23 kW=90 kvar=50 daily=default 
-New Load.B24 Bus1=b24 kW=420 kvar=200 daily=default 
-New Load.B25 Bus1=b25 kW=420 kvar=200 daily=default 
-New Load.B26 Bus1=b26 kW=60 kvar=25 daily=default 
-New Load.B27 Bus1=b27 kW=60 kvar=25 daily=default 
-New Load.B28 Bus1=b28 kW=60 kvar=20 daily=default 
-New Load.B29 Bus1=b29 kW=120 kvar=70 daily=default 
-New Load.B30 Bus1=b30 kW=200 kvar=600 daily=default 
-New Load.B31 Bus1=b31 kW=150 kvar=70 daily=default 
-New Load.B32 Bus1=b32 kW=210 kvar=100 daily=default 
+New Load.B2  Bus1=b2  kW=100  kvar=60  daily=default 
+New Load.B3  Bus1=b3  kW=90   kvar=40  daily=default 
+New Load.B4  Bus1=b4  kW=120  kvar=80  daily=default 
+New Load.B5  Bus1=b5  kW=60   kvar=30  daily=default 
+New Load.B6  Bus1=b6  kW=60   kvar=20  daily=default 
+New Load.B7  Bus1=b7  kW=200  kvar=100 daily=default 
+New Load.B8  Bus1=b8  kW=200  kvar=100 daily=default 
+New Load.B9  Bus1=b9  kW=60   kvar=20  daily=default 
+New Load.B10 Bus1=b10 kW=60   kvar=20  daily=default 
+New Load.B11 Bus1=b11 kW=45   kvar=30  daily=default 
+New Load.B12 Bus1=b12 kW=60   kvar=35  daily=default 
+New Load.B13 Bus1=b13 kW=60   kvar=35  daily=default 
+New Load.B14 Bus1=b14 kW=120  kvar=80  daily=default 
+New Load.B15 Bus1=b15 kW=60   kvar=10  daily=default 
+New Load.B16 Bus1=b16 kW=60   kvar=20  daily=default 
+New Load.B17 Bus1=b17 kW=60   kvar=20  daily=default 
+New Load.B18 Bus1=b18 kW=90   kvar=40  daily=default 
+New Load.B19 Bus1=b19 kW=90   kvar=40  daily=default 
+New Load.B20 Bus1=b20 kW=90   kvar=40  daily=default 
+New Load.B21 Bus1=b21 kW=90   kvar=40  daily=default 
+New Load.B22 Bus1=b22 kW=90   kvar=40  daily=default 
+New Load.B23 Bus1=b23 kW=90   kvar=50  daily=default 
+New Load.B24 Bus1=b24 kW=420  kvar=200 daily=default 
+New Load.B25 Bus1=b25 kW=420  kvar=200 daily=default 
+New Load.B26 Bus1=b26 kW=60   kvar=25  daily=default 
+New Load.B27 Bus1=b27 kW=60   kvar=25  daily=default 
+New Load.B28 Bus1=b28 kW=60   kvar=20  daily=default 
+New Load.B29 Bus1=b29 kW=120  kvar=70  daily=default 
+New Load.B30 Bus1=b30 kW=200  kvar=600 daily=default 
+New Load.B31 Bus1=b31 kW=150  kvar=70  daily=default 
+New Load.B32 Bus1=b32 kW=210  kvar=100 daily=default 
+New Load.B33 Bus1=b33 kW=60   kvar=40  daily=default 
 
 set voltagebase= "12.66 0.48"
 CalcVoltageBases
