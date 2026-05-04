@@ -91,14 +91,14 @@ def _parse_bus_number(nome_load):
 
 
 def criar_elementos_simulacao(pv_df, bess_df, id_realizacao):
-    for _, linha in pv_df.iterrows():
-        nome = f"PV_{id_realizacao}_barra{linha['barra']}"
+    for idx, (_, linha) in enumerate(pv_df.iterrows()):
+        nome = f"PV_{id_realizacao}_{idx}_barra{linha['barra']}"
         barra = int(linha["barra"])
         dss.Text.Command(
             f"New Load.{nome} Bus1={barra} Phases=3 Conn=Wye kW=0 kvar=0"
         )
-    for _, linha in bess_df.iterrows():
-        nome = f"BESS_{id_realizacao}_barra{linha['barra']}"
+    for idx, (_, linha) in enumerate(bess_df.iterrows()):
+        nome = f"BESS_{id_realizacao}_{idx}_barra{linha['barra']}"
         barra = int(linha["barra"])
         dss.Text.Command(
             f"New Load.{nome} Bus1={barra} Phases=3 Conn=Wye kW=0 kvar=0"
@@ -156,7 +156,7 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, perfis
     bess_real = bess_df[bess_df["id_realizacao"] == realizacao_id]
 
     # Criar elementos adicionais para PV e BESS
-    criar_elementos_simulacao(pv_real, bess_real, id_realizacao)
+    criar_elementos_simulacao(pv_real, bess_real, realizacao_id)
 
     tensoes_por_hora = {}
     for hora in range(24):
@@ -167,14 +167,14 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, perfis
             kvar = carga["kvar"] * fator
             editar_load(nome_load, kw, kvar)
 
-        for _, linha in pv_real.iterrows():
-            nome = f"PV_{id_realizacao}_barra{linha['barra']}"
+        for idx, (_, linha) in enumerate(pv_real.iterrows()):
+            nome = f"PV_{realizacao_id}_{idx}_barra{linha['barra']}"
             potencia_kw = float(linha["potencia_kw"])
             kw = -potencia_kw * fatores_irradiancia[hora]
             editar_load(nome, kw, 0.0)
 
-        for _, linha in bess_real.iterrows():
-            nome = f"BESS_{id_realizacao}_barra{linha['barra']}"
+        for idx, (_, linha) in enumerate(bess_real.iterrows()):
+            nome = f"BESS_{realizacao_id}_{idx}_barra{linha['barra']}"
             potencia_kw = float(linha["potencia_kw"])
             kw = -potencia_kw * BESS_PERFIL[hora]
             editar_load(nome, kw, 0.0)
