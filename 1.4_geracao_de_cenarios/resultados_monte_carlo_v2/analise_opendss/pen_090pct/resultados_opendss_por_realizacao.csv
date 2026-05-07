@@ -11,7 +11,7 @@ id_realizacao;tipo_dia;pv_unidades;pv_potencia_total_kw;bess_unidades;bess_poten
 10;parcialmente_nublado;5;1592,1;18;2524,38;24;24;24;90
 11;nublado;4;1592,1;18;3100,52;23;23;23;90
 12;nublado;4;1592,1;18;2723,2;23;23;23;90
-13;ceu_aberto;2;1592,1;18;2402,35;21;21;21;90
+13;ceu_aberto;2;1592,1;18;2402,35;21;21;20;90
 14;parcialmente_nublado;3;1592,1;18;2476,07;22;22;22;90
 15;parcialmente_nublado;6;1592,1;18;2631,17;25;25;25;90
 16;parcialmente_nublado;3;1592,1;18;2676,42;22;22;22;90

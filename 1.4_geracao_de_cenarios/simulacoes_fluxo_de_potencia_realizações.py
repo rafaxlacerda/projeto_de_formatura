@@ -5,19 +5,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-try:
-    from opendssdirect import dss
-except ImportError as exc:
-    raise ImportError(
-        "opendssdirect não está instalado. Instale com `pip install opendssdirect` "
-        "e verifique se o OpenDSS está disponível no ambiente." 
-    ) from exc
+from opendssdirect import dss
 
 # Parâmetros de defeito de tensão
 V_PU_MIN = 0.95
 V_PU_MAX = 1.05
 
-# Caminho padrão do modelo IEEE34
+# Caminho padrão do modelo IEEE34 - Usa arquivo com reguladores
 DEFAULT_DSS_FILE = os.path.join("..", "IEEE34bus", "IEEE34_2.dss")
 
 # Faixas de horário usadas na análise
@@ -89,7 +83,7 @@ def _parse_bus_number(nome_load):
     except ValueError:
         return None
 
-
+# Preciso rever pois criou BESS e PV como barras, mas deveriam ser geradores
 def criar_elementos_simulacao(pv_df, bess_df, id_realizacao):
     for idx, (_, linha) in enumerate(pv_df.iterrows()):
         nome = f"PV_{id_realizacao}_{idx}_barra{linha['barra']}"

@@ -1,7 +1,7 @@
 """
 Geração de Cenários por Simulação de Monte Carlo
 Projeto de Formatura - Poli USP
-Etapa: Geração de cenários de inserção de sistemas FV e BESS (Atualizado IEEE 34)
+Etapa: Geração de cenários de inserção de sistemas FV e BESS (Atualizado com rede IEEE 34)
 """
 
 import numpy as np
@@ -29,7 +29,6 @@ N_REALIZACOES = 50      # Sorteios por nível de penetração
 N_HORAS = 24            # Resolução temporal
 
 # Range de Penetração FV: de 0% a 200% em passos de 10%
-# (Devido a questões de ponto flutuante, usamos np.round)
 PV_PENETRACAO_NIVEIS = np.round(np.arange(0.0, 2.1, 0.1), 2)
 
 # --- BESS ---
@@ -66,19 +65,10 @@ _NOMES_TIPOS = list(TIPOS_DIA.keys())
 _PROBS_TIPOS = np.array([TIPOS_DIA[t]["probabilidade"] for t in _NOMES_TIPOS])
 
 # =============================================================================
-# PERFIS DE CARGA (Residencial, Comercial, Industrial)
+# DESVIO DOS FATORES DE INCERTEZA DE CARGA (multiplicadores hora a hora)
 # =============================================================================
-# Dividindo as 32 barras uniformemente (você pode alterar depois)
-BARRAS_RES = BARRAS_SISTEMA[:10]     # Primeiras 10 barras
-BARRAS_COM = BARRAS_SISTEMA[10:21]   # Próximas 11 barras
-BARRAS_IND = BARRAS_SISTEMA[21:]     # Últimas 11 barras
 
-PERFIS_BASE_CARGA = {
-    "residencial": np.array([0.4, 0.3, 0.3, 0.3, 0.4, 0.5, 0.6, 0.5, 0.4, 0.4, 0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.6, 0.8, 1.0, 0.9, 0.8, 0.7, 0.6, 0.5]),
-    "comercial":   np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.6, 0.8, 0.9, 1.0, 1.0, 0.9, 0.8, 0.9, 1.0, 1.0, 0.9, 0.8, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2]),
-    "industrial":  np.array([0.8, 0.8, 0.8, 0.8, 0.8, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.9, 0.9, 0.8, 0.8, 0.8, 0.8]),
-}
-CARGA_DESVIO_TEMPORAL = 0.05
+CARGA_DESVIO_INCERTEZA = 0.10  
 
 # =============================================================================
 # FUNÇÕES DE ALOCAÇÃO
@@ -162,27 +152,20 @@ def alocar_bess_por_barras(penetracao_pct, barras_com_pv=None):
     
     return bess_alocacao
 
-def gerar_perfis_carga():
-    # Gera perfis estocásticos diários para cada barra
-    perfis_rede = {}
+def gerar_fatores_incerteza_carga():
+    """
+    Gera APENAS fatores de incerteza (multiplicadores) para cada barra e hora.
+    O perfil horário base já está definido no arquivo IEEE34_2.dss via LoadShape.
+    """
+    fatores_rede = {}
     for barra in BARRAS_SISTEMA:
-        if barra in BARRAS_RES:
-            base = PERFIS_BASE_CARGA["residencial"]
-            tipo = "residencial"
-        elif barra in BARRAS_COM:
-            base = PERFIS_BASE_CARGA["comercial"]
-            tipo = "comercial"
-        else:
-            base = PERFIS_BASE_CARGA["industrial"]
-            tipo = "industrial"
-            
-        ruido = np.random.normal(0.0, CARGA_DESVIO_TEMPORAL, size=N_HORAS)
-        perfil_final = np.clip(base * (1.0 + ruido), 0.1, 1.2)
-        perfis_rede[barra] = {
-            "tipo": tipo,
-            "perfil": round_list(perfil_final, 4)
-        }
-    return perfis_rede
+        # Sorteia fatores multiplicativos hora a hora (em torno de 1.0)
+        fatores = np.random.normal(1.0, CARGA_DESVIO_INCERTEZA, size=N_HORAS)
+        # Limita entre 0.5 e 1.5 para manter realismo
+        fatores = np.clip(fatores, 0.5, 1.5)
+        
+        fatores_rede[barra] = round_list(fatores, 4)
+    return fatores_rede
 
 def round_list(lst, decimals=2):
     return [round(float(x), decimals) for x in lst]
@@ -208,8 +191,8 @@ def gerar_realizacoes_por_nivel(nivel_penetracao, n_realizacoes):
         pv_alocacao = alocar_pv_por_barras(target_pv_kw)
         bess_alocacao = alocar_bess_por_barras(penetracao_pct, barras_com_pv=pv_alocacao.keys())
 
-        # 3. Perfis de Carga
-        perfis_carga_barras = gerar_perfis_carga()
+        # 3. Fatores de Incerteza de Carga
+        fatores_incerteza_barras = gerar_fatores_incerteza_carga()
 
         realizacao = {
             "id_realizacao": i + 1,
@@ -228,7 +211,7 @@ def gerar_realizacoes_por_nivel(nivel_penetracao, n_realizacoes):
                 } for b, d in bess_alocacao.items()
             },
             
-            "perfis_carga": perfis_carga_barras,
+            "fatores_incerteza_carga": fatores_incerteza_barras,
         }
         realizacoes.append(realizacao)
 
@@ -276,21 +259,20 @@ def exportar_realizacoes_por_nivel(realizacoes, nivel_penetracao_pct, pasta_said
                   index=False, sep=";", decimal=",")
     
     # =========================================================================
-    # CSV 3: PERFIS DE CARGA POR BARRA (cada barra recebe sua curva 24h)
+    # CSV 3: FATORES DE INCERTEZA DE CARGA POR BARRA (multiplicadores 24h)
     # =========================================================================
-    dados_carga_por_barra = []
+    dados_incerteza_carga = []
     for r in realizacoes:
         for barra in BARRAS_SISTEMA:
             linha = {
                 "id_realizacao": r["id_realizacao"],
                 "barra": barra,
-                "tipo_carga": r["perfis_carga"][barra]["tipo"],
             }
-            linha.update({col: val for col, val in zip(colunas_hora, r["perfis_carga"][barra]["perfil"])})
-            dados_carga_por_barra.append(linha)
-    df_carga = pd.DataFrame(dados_carga_por_barra)
-    df_carga.to_csv(os.path.join(pasta_saida, "03_perfis_carga_por_barra.csv"),
-                    index=False, sep=";", decimal=",")
+            linha.update({col: val for col, val in zip(colunas_hora, r["fatores_incerteza_carga"][barra])})
+            dados_incerteza_carga.append(linha)
+    df_incerteza = pd.DataFrame(dados_incerteza_carga)
+    df_incerteza.to_csv(os.path.join(pasta_saida, "03_fatores_incerteza_carga.csv"),
+                        index=False, sep=";", decimal=",")
     
     # =========================================================================
     # CSV 4: UNIDADES PV (uma linha por barra com PV)
@@ -302,7 +284,6 @@ def exportar_realizacoes_por_nivel(realizacoes, nivel_penetracao_pct, pasta_said
                 "id_realizacao": r["id_realizacao"],
                 "tipo_dia": r["tipo_dia"],
                 "barra": barra,
-                "tipo_carga": r["perfis_carga"][barra]["tipo"],
                 "potencia_kw": potencia_kw,
             })
     if linhas_pv:
@@ -321,7 +302,6 @@ def exportar_realizacoes_por_nivel(realizacoes, nivel_penetracao_pct, pasta_said
                 "id_realizacao": r["id_realizacao"],
                 "tipo_dia": r["tipo_dia"],
                 "barra": barra,
-                "tipo_carga": r["perfis_carga"][barra]["tipo"],
                 "potencia_kw": config_bess["potencia_kw"],
                 "capacidade_kwh": config_bess["capacidade_kwh"],
                 "razao_armazenamento_h": round(razao_h, 3),
@@ -393,10 +373,14 @@ Características gerais:
   - Número de horas: {N_HORAS}
   - Número de barras: {N_BARRAS}
 
-Distribuição de tipos de carga:
-  - Barras residenciais (primeiras 10): {list(BARRAS_RES)}
-  - Barras comerciais (11 seguintes): {list(BARRAS_COM)}
-  - Barras industriais (últimas 11): {list(BARRAS_IND)}
+Perfis base de carga (hora a hora):
+  - Estão definidos em IEEE34_2.dss via LoadShape
+  - Cada carga referencia um LoadShape via atributo daily
+
+Fatores de incerteza de carga:
+  - Multiplicadores estocásticos (média 1.0, desvio ±{CARGA_DESVIO_INCERTEZA*100:.0f}%)
+  - Aplicados sobre o perfil base em IEEE34_2.dss
+  - Variam hora a hora e são salvos em 03_fatores_incerteza_carga.csv
 
 Tipos de dia (pesos iguais):
   - Céu Aberto (33.33%)
@@ -409,17 +393,20 @@ Perfil BESS fixo de carga/descarga:
 
 Arquivos gerados:
   01_resumo_configuracoes.csv ............ Resumo de cada realizacao
-  02_perfis_irradiancia.csv ............. Perfis de irradancia 24h
-  03_perfis_carga_por_barra.csv ......... Perfis de carga por barra
+  02_perfis_irradiancia.csv ............. Perfis de irradancia 24h (estocástico)
+  03_fatores_incerteza_carga.csv ........ Fatores multiplicativos de carga (1.0 ± {CARGA_DESVIO_INCERTEZA*100:.0f}%)
   04_unidades_pv.csv .................... Unidades PV (uma por barra)
   05_unidades_bess.csv .................. Unidades BESS (uma por barra)
   06_elementos_opendss.csv .............. Elementos para integração OpenDSS
+
+NOTA: Os perfis horários base já estão definidos em IEEE34_2.dss.
+Na simulação, multiplique: kW_efetivo = kW_base * perfil_dss(hora) * fator_incerteza(hora)
 """
     
     with open(os.path.join(pasta_saida, "00_informacoes.txt"), "w", encoding="utf-8") as f:
         f.write(info)
     
-    return df_resumo, df_irr, df_carga, df_pv if linhas_pv else None, df_bess if linhas_bess else None
+    return df_resumo, df_irr, df_incerteza, df_pv if linhas_pv else None, df_bess if linhas_bess else None
 
 # =============================================================================
 # EXECUÇÃO PRINCIPAL
@@ -435,11 +422,10 @@ if __name__ == "__main__":
     print(f"  Rede: IEEE {N_BARRAS} Barras")
     print(f"  Realizar realizações por nível: {N_REALIZACOES}")
     print(f"  Número de níveis de penetração: {len(PV_PENETRACAO_NIVEIS)}")
-    print(f"  Estrutura de carga:")
-    print(f"    - Residencial (10 barras): {BARRAS_SISTEMA[:10]}")
-    print(f"    - Comercial (11 barras): {BARRAS_SISTEMA[10:21]}")
-    print(f"    - Industrial (11 barras): {BARRAS_SISTEMA[21:]}")
+    print(f"  Número de barras: {len(BARRAS_SISTEMA)}")
     print(f"  Tipos de dia: Pesos iguais (33.33% cada)")
+    print(f"  Perfis base de carga: Definidos em IEEE34_2.dss (via LoadShape)")
+    print(f"  Fatores de incerteza: Sorteados (média 1.0, desvio ±{CARGA_DESVIO_INCERTEZA*100:.0f}%)")
     print(f"\n  DEFINIÇÃO: Cada barra recebe NO MÁXIMO 1 unidade PV e 1 unidade BESS")
     print("=" * 80)
     
@@ -501,8 +487,12 @@ if __name__ == "__main__":
     print(f"    - 00_informacoes.txt")
     print(f"    - 01_resumo_configuracoes.csv")
     print(f"    - 02_perfis_irradiancia.csv")
-    print(f"    - 03_perfis_carga_por_barra.csv")
+    print(f"    - 03_fatores_incerteza_carga.csv (novo: multiplicadores, não perfis)")
     print(f"    - 04_unidades_pv.csv")
     print(f"    - 05_unidades_bess.csv")
     print(f"    - 06_elementos_opendss.csv")
+    print("\n  ⚠ IMPORTANTE:")
+    print(f"    - Os perfis base estão em IEEE34_2.dss (via LoadShape)")
+    print(f"    - Fatores de incerteza: Use como multiplicadores sobre o perfil base!")
+    print(f"    - Fórmula: kW = kW_base * multiplicador_dss(hora) * fator_incerteza(hora)")
     print("=" * 80 + "\n")
