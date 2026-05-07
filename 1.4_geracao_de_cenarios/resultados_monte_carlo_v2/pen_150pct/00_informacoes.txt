@@ -9,15 +9,19 @@ DEFINIÇÃO DE UNIDADE:
 
 Características gerais:
   - Número de realizações: 50
-  - Total de unidades PV (todas realizações): 365
+  - Total de unidades PV (todas realizações): 463
   - Total de unidades BESS (todas realizações): 1500
   - Número de horas: 24
-  - Número de barras: 34
+  - Número de barras: 32
 
-Distribuição de tipos de carga:
-  - Barras residenciais (1-11): [np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8), np.int64(9), np.int64(10), np.int64(11)]
-  - Barras comerciais (12-22): [np.int64(12), np.int64(13), np.int64(14), np.int64(15), np.int64(16), np.int64(17), np.int64(18), np.int64(19), np.int64(20), np.int64(21), np.int64(22)]
-  - Barras industriais (23-34): [np.int64(23), np.int64(24), np.int64(25), np.int64(26), np.int64(27), np.int64(28), np.int64(29), np.int64(30), np.int64(31), np.int64(32), np.int64(33), np.int64(34)]
+Perfis base de carga (hora a hora):
+  - Estão definidos em IEEE34_2.dss via LoadShape
+  - Cada carga referencia um LoadShape via atributo daily
+
+Fatores de incerteza de carga:
+  - Multiplicadores estocásticos (média 1.0, desvio ±10%)
+  - Aplicados sobre o perfil base em IEEE34_2.dss
+  - Variam hora a hora e são salvos em 03_fatores_incerteza_carga.csv
 
 Tipos de dia (pesos iguais):
   - Céu Aberto (33.33%)
@@ -30,8 +34,11 @@ Perfil BESS fixo de carga/descarga:
 
 Arquivos gerados:
   01_resumo_configuracoes.csv ............ Resumo de cada realizacao
-  02_perfis_irradiancia.csv ............. Perfis de irradancia 24h
-  03_perfis_carga_por_barra.csv ......... Perfis de carga por barra
+  02_perfis_irradiancia.csv ............. Perfis de irradancia 24h (estocástico)
+  03_fatores_incerteza_carga.csv ........ Fatores multiplicativos de carga (1.0 ± 10%)
   04_unidades_pv.csv .................... Unidades PV (uma por barra)
   05_unidades_bess.csv .................. Unidades BESS (uma por barra)
   06_elementos_opendss.csv .............. Elementos para integração OpenDSS
+
+NOTA: Os perfis horários base já estão definidos em IEEE34_2.dss.
+Na simulação, multiplique: kW_efetivo = kW_base * perfil_dss(hora) * fator_incerteza(hora)

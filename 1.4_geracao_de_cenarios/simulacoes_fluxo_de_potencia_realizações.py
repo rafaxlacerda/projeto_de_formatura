@@ -27,8 +27,8 @@ BESS_PERFIL[10:15] = -1.0
 BESS_PERFIL[18:22] = 1.0
 
 
-def ler_perfis_carga(pasta_nivel):
-    caminho = os.path.join(pasta_nivel, "03_perfis_carga_por_barra.csv")
+def ler_fatores_incerteza_carga(pasta_nivel):
+    caminho = os.path.join(pasta_nivel, "03_fatores_incerteza_carga.csv")
     df = pd.read_csv(caminho, sep=";", decimal=",")
     df = df.sort_values(["id_realizacao", "barra"])
     return df
@@ -67,13 +67,25 @@ def carregar_cargas_base():
         kw = dss.Loads.kW()
         kvar = dss.Loads.kvar()
         bus = dss.CktElement.BusNames()[0].split(".")[0]
+        shape_nome = dss.Loads.Daily()
         cargas[nome] = {
             "barra": int(bus),
             "kW": kw,
             "kvar": kvar,
+            "shape": shape_nome
         }
         nome = dss.Loads.Next()
     return cargas
+
+
+def obter_multiplicadores_shapes():
+    shapes = {}
+    nome = dss.LoadShape.First()
+    while nome:
+        # Pmult retorna a lista de multiplicadores (os valores de 'mult' no seu DSS)
+        shapes[nome.lower()] = dss.LoadShape.PMult()
+        nome = dss.LoadShape.Next()
+    return shapes
 
 
 def _parse_bus_number(nome_load):
@@ -136,11 +148,11 @@ def calcular_defeitos_por_faixa(tensoes_por_hora):
     return defeitos
 
 
-def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, perfis_carga, cargas_base):
+def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatores_incerteza, cargas_base):
     radiancias = perfis_irr.loc[perfis_irr["id_realizacao"] == realizacao_id].iloc[0]
     fatores_irradiancia = [float(radiancias[f"h{h:02d}"]) for h in range(24)]
 
-    carga_real = perfis_carga[perfis_carga["id_realizacao"] == realizacao_id]
+    carga_real = fatores_incerteza[fatores_incerteza["id_realizacao"] == realizacao_id]
     fatores_carga = {
         int(linha["barra"]): [float(linha[f"h{h:02d}"]) for h in range(24)]
         for _, linha in carga_real.iterrows()
@@ -151,15 +163,27 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, perfis
 
     # Criar elementos adicionais para PV e BESS
     criar_elementos_simulacao(pv_real, bess_real, realizacao_id)
+    
+    multiplicadores_perfil_carga = obter_multiplicadores_shapes()
 
     tensoes_por_hora = {}
     for hora in range(24):
         for nome_load, carga in cargas_base.items():
             barra = carga["barra"]
-            fator = fatores_carga.get(barra, [1.0] * 24)[hora]
-            kw = carga["kW"] * fator
-            kvar = carga["kvar"] * fator
-            editar_load(nome_load, kw, kvar)
+            base_kw = carga["kW"]
+            base_kvar = carga["kvar"]
+            nome_shape = carga["shape"].lower()
+
+            # Fator 1: Incerteza
+            fator_incerteza = fatores_carga.get(barra)[hora]
+            
+            # Fator 2: LoadShape (comercial, industrial ou residencial)
+            fator_perfil = multiplicadores_perfil_carga.get(nome_shape)[hora]
+
+            kw_final = base_kw * fator_perfil * fator_incerteza
+            kvar_final = base_kvar * fator_perfil * fator_incerteza
+        
+            editar_load(nome_load, kw_final, kvar_final)
 
         for idx, (_, linha) in enumerate(pv_real.iterrows()):
             nome = f"PV_{realizacao_id}_{idx}_barra{linha['barra']}"
@@ -167,9 +191,11 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, perfis
             kw = -potencia_kw * fatores_irradiancia[hora]
             editar_load(nome, kw, 0.0)
 
+        # === PERFIL DE BESS ===
         for idx, (_, linha) in enumerate(bess_real.iterrows()):
             nome = f"BESS_{realizacao_id}_{idx}_barra{linha['barra']}"
             potencia_kw = float(linha["potencia_kw"])
+            # Aplica perfil fixo de carga/descarga (negativo = absorção, positivo = injeção)
             kw = -potencia_kw * BESS_PERFIL[hora]
             editar_load(nome, kw, 0.0)
 
@@ -194,7 +220,7 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, perfis
 def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=None):
     resumo = ler_resumo_configuracoes(pasta_nivel)
     perfis_irr = ler_perfis_irradiancia(pasta_nivel)
-    perfis_carga = ler_perfis_carga(pasta_nivel)
+    fatores_incerteza = ler_fatores_incerteza_carga(pasta_nivel)
     elementos = ler_elementos_opendss(pasta_nivel)
 
     if resumo.empty:
@@ -213,7 +239,7 @@ def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=No
             elementos[elementos["id_realizacao"] == id_realizacao],
             elementos[(elementos["id_realizacao"] == id_realizacao) & (elementos["classe"] == "Storage")],
             perfis_irr,
-            perfis_carga,
+            fatores_incerteza,
             cargas_base,
         )
         resultado["pen_pct"] = int(os.path.basename(pasta_nivel).split("_")[1].replace("pct", ""))
