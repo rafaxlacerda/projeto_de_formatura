@@ -79,12 +79,15 @@ def carregar_cargas_base():
 
 
 def obter_multiplicadores_shapes():
+    """Obtém os multiplicadores (PMult) de todos os LoadShapes definidos no DSS."""
     shapes = {}
-    nome = dss.LoadShape.First()
-    while nome:
-        # Pmult retorna a lista de multiplicadores (os valores de 'mult' no seu DSS)
+    idx = dss.LoadShape.First()
+    while idx > 0:
+        # Name() retorna o nome do LoadShape ativo
+        nome = dss.LoadShape.Name()
+        # PMult retorna a lista de multiplicadores (os valores de 'mult' no seu DSS)
         shapes[nome.lower()] = dss.LoadShape.PMult()
-        nome = dss.LoadShape.Next()
+        idx = dss.LoadShape.Next()
     return shapes
 
 
@@ -174,11 +177,11 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
             base_kvar = carga["kvar"]
             nome_shape = carga["shape"].lower()
 
-            # Fator 1: Incerteza
-            fator_incerteza = fatores_carga.get(barra)[hora]
+            # Fator 1: Incerteza (multiplicador hora a hora, default 1.0 se não definido)
+            fator_incerteza = fatores_carga.get(barra, [1.0] * 24)[hora]
             
             # Fator 2: LoadShape (comercial, industrial ou residencial)
-            fator_perfil = multiplicadores_perfil_carga.get(nome_shape)[hora]
+            fator_perfil = multiplicadores_perfil_carga.get(nome_shape, [1.0] * 24)[hora]
 
             kw_final = base_kw * fator_perfil * fator_incerteza
             kvar_final = base_kvar * fator_perfil * fator_incerteza
