@@ -55,8 +55,8 @@ def ler_elementos_opendss(pasta_nivel):
 
 def redirecionar_circuito(dss_path):
     dss.Basic.ClearAll()
-    comando = f'Redirect "{dss_path.replace("\\", "/")}"'
-    dss.Text.Command(comando)
+    dss.Text.Command(f'Redirect "{dss_path.replace("\\", "/")}"')
+    dss.Text.Command("Set MaxControlIter=50")
 
 
 def carregar_cargas_base():
