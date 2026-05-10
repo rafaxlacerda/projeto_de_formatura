@@ -20,6 +20,7 @@ np.random.seed(SEMENTE)
 # =============================================================================
 N_BARRAS = 32
 BARRAS_SISTEMA = [800,802,806,808,810,812,814,850,816,818,820,822,824,826,828,830,854,832,858,834,860,836,862,838,842,844,846,848,852,856,888,890]
+BARRAS_TRIFASICAS = [860, 840, 844, 848, 890]  # Barras com cargas trifásicas (Phases=3)
 CARGA_PICO_TOTAL_MW = 1.769 
 
 # =============================================================================
@@ -76,7 +77,7 @@ CARGA_DESVIO_INCERTEZA = 0.10
 
 def alocar_pv_por_barras(target_potencia_kw):
     """
-    Aloca PV em barras diferentes até atingir o alvo de potência.
+    Aloca PV em barras trifásicas diferentes até atingir o alvo de potência.
     Cada barra recebe uma única 'unidade PV' com capacidade variável.
     Retorna: dicts {barra: potencia_kw}
     """
@@ -88,7 +89,7 @@ def alocar_pv_por_barras(target_potencia_kw):
     pesos = pesos / np.sum(pesos)
     
     potencia_acumulada = 0.0
-    barras_disponiveis = list(BARRAS_SISTEMA)
+    barras_disponiveis = list(BARRAS_TRIFASICAS)  # Usar apenas barras trifásicas
     
     while potencia_acumulada < target_potencia_kw and barras_disponiveis:
         # Sorteia tamanho da unidade PV
@@ -114,7 +115,7 @@ def alocar_pv_por_barras(target_potencia_kw):
 
 def alocar_bess_por_barras(penetracao_pct, barras_com_pv=None):
     """
-    Aloca BESS em barras diferentes (preferencialmente diferentes de PV).
+    Aloca BESS em barras trifásicas diferentes (preferencialmente diferentes de PV).
     Uma unidade BESS por barra.
     Número total: 1 unidade a cada 5% de penetração PV
     Retorna: dict {barra: {'potencia_kw': ..., 'capacidade_kwh': ...}}
@@ -129,11 +130,11 @@ def alocar_bess_por_barras(penetracao_pct, barras_com_pv=None):
         return {}
     
     bess_alocacao = {}
-    barras_disponiveis = [b for b in BARRAS_SISTEMA if b not in barras_com_pv]
+    barras_disponiveis = [b for b in BARRAS_TRIFASICAS if b not in barras_com_pv]  # Apenas barras trifásicas
     
-    # Se não houver barras suficientes sem PV, usa todas
+    # Se não houver barras suficientes sem PV, usa todas as trifásicas
     if len(barras_disponiveis) < n_unidades_bess:
-        barras_disponiveis = list(BARRAS_SISTEMA)
+        barras_disponiveis = list(BARRAS_TRIFASICAS)
     
     # Seleciona barras aleatoriamente (sem reposição)
     barras_sorteadas = np.random.choice(
@@ -155,7 +156,7 @@ def alocar_bess_por_barras(penetracao_pct, barras_com_pv=None):
 def gerar_fatores_incerteza_carga():
     """
     Gera APENAS fatores de incerteza (multiplicadores) para cada barra e hora.
-    O perfil horário base já está definido no arquivo IEEE34_2.dss via LoadShape.
+    O perfil horário base já está definido no arquivo .dss via LoadShape.
     """
     fatores_rede = {}
     for barra in BARRAS_SISTEMA:
@@ -263,7 +264,7 @@ def exportar_realizacoes_por_nivel(realizacoes, nivel_penetracao_pct, pasta_said
     # =========================================================================
     dados_incerteza_carga = []
     for r in realizacoes:
-        for barra in BARRAS_SISTEMA:
+        for barra in BARRAS_TRIFASICAS:  # Apenas barras trifásicas
             linha = {
                 "id_realizacao": r["id_realizacao"],
                 "barra": barra,
@@ -414,7 +415,7 @@ Na simulação, multiplique: kW_efetivo = kW_base * perfil_dss(hora) * fator_inc
 
 if __name__ == "__main__":
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    PASTA_BASE = os.path.join(BASE_DIR, "resultados_monte_carlo_v2")
+    PASTA_BASE = os.path.join(BASE_DIR, "resultados_monte_carlo")
     
     print("\n" + "=" * 80)
     print("  GERAÇÃO DE CENÁRIOS MONTE CARLO - OPENDSS READY")
