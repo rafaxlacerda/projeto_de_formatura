@@ -6,13 +6,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from opendssdirect import dss
+from dss._cffi_api_util import DSSException
 
 # Parâmetros de defeito de tensão
 V_PU_MIN = 0.95
 V_PU_MAX = 1.05
 
-# Caminho padrão do modelo IEEE34 - Usa arquivo com reguladores
-DEFAULT_DSS_FILE = os.path.join("..", "IEEE34bus", "IEEE34_2.dss")
+# Caminho padrão do modelo IEEE34 - Usa arquivo original com loadshapes.
+DEFAULT_DSS_FILE = os.path.join("..", "IEEE34bus", "IEEE34_original_with_loadshapes.dss")
 
 # Faixas de horário usadas na análise
 TIME_BANDS = {
@@ -56,7 +57,7 @@ def ler_elementos_opendss(pasta_nivel):
 def redirecionar_circuito(dss_path):
     dss.Basic.ClearAll()
     dss.Text.Command(f'Redirect "{dss_path.replace("\\", "/")}"')
-    dss.Text.Command("Set MaxControlIter=50")
+    dss.Text.Command("Set MaxControlIter=100")
 
 
 def carregar_cargas_base():
@@ -141,8 +142,16 @@ def calcular_defeitos_por_faixa(tensoes_por_hora):
     defeitos = {}
     for faixa, horas in TIME_BANDS.items():
         medias_por_barra = {}
+        # Filtrar apenas horas que foram simuladas com sucesso
+        horas_disponiveis = [h for h in horas if h in tensoes_por_hora]
+        
+        if not horas_disponiveis:
+            # Se nenhuma hora da faixa foi simulada, registrar 0 defeitos
+            defeitos[faixa] = 0
+            continue
+            
         for barra in next(iter(tensoes_por_hora.values())).keys():
-            valores = [tensoes_por_hora[h][barra] for h in horas]
+            valores = [tensoes_por_hora[h][barra] for h in horas_disponiveis]
             medias_por_barra[barra] = np.mean(valores)
         defeitos[faixa] = sum(
             1 for media in medias_por_barra.values()
@@ -170,6 +179,7 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
     multiplicadores_perfil_carga = obter_multiplicadores_shapes()
 
     tensoes_por_hora = {}
+    horas_com_erro = 0
     for hora in range(24):
         for nome_load, carga in cargas_base.items():
             barra = carga["barra"]
@@ -202,8 +212,17 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
             kw = -potencia_kw * BESS_PERFIL[hora]
             editar_load(nome, kw, 0.0)
 
-        dss.Solution.Solve()
-        tensoes_por_hora[hora] = extrair_tensoes_por_barra()
+        try:
+            dss.Solution.Solve()
+            tensoes_por_hora[hora] = extrair_tensoes_por_barra()
+        except DSSException as e:
+            # Ignorar erro de Max Control Iterations
+            if e.args[0] == 485 or "Max Control Iterations" in str(e):
+                horas_com_erro += 1
+                # Pular esta hora e continuar com a próxima
+                continue
+            else:
+                raise
 
     defeitos = calcular_defeitos_por_faixa(tensoes_por_hora)
 
@@ -217,6 +236,7 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
         "defeitos_dia": defeitos["dia"],
         "defeitos_tarde": defeitos["tarde"],
         "defeitos_noite": defeitos["noite"],
+        "horas_com_erro_max_control": horas_com_erro,
     }
 
 
@@ -230,6 +250,7 @@ def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=No
         raise ValueError(f"Resumo de configurações não encontrado em {pasta_nivel}")
 
     resultados = []
+    realizacoes_com_erro = 0
     for _, row in resumo.head(max_realizacoes).iterrows():
         id_realizacao = int(row["id_realizacao"])
 
@@ -247,12 +268,17 @@ def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=No
         )
         resultado["pen_pct"] = int(os.path.basename(pasta_nivel).split("_")[1].replace("pct", ""))
         resultados.append(resultado)
-        print(f"  ✓ Realização {id_realizacao} - defeitos: dia={resultado['defeitos_dia']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']}")
+        
+        if resultado["horas_com_erro_max_control"] > 0:
+            realizacoes_com_erro += 1
+            print(f"  ✓ Realização {id_realizacao} - defeitos: dia={resultado['defeitos_dia']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']} ⚠ {resultado['horas_com_erro_max_control']} hora(s) com erro Max Control Iter")
+        else:
+            print(f"  ✓ Realização {id_realizacao} - defeitos: dia={resultado['defeitos_dia']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']}")
 
     df_resultados = pd.DataFrame(resultados)
     os.makedirs(pasta_saida_nivel, exist_ok=True)
     df_resultados.to_csv(os.path.join(pasta_saida_nivel, "resultados_opendss_por_realizacao.csv"), index=False, sep=";", decimal=",")
-    return df_resultados
+    return df_resultados, realizacoes_com_erro
 
 
 def plotar_boxplot(df_master, pasta_saida):
@@ -326,12 +352,14 @@ def main():
         niveis = [nivel_dir]
 
     todos_resultados = []
+    total_realizacoes_com_erro = 0
     for nivel_dir in niveis:
         pasta_nivel = os.path.join(pasta_montecarlo, nivel_dir)
         pasta_saida_nivel = os.path.join(pasta_saida, nivel_dir)
         print(f"Processando nível: {nivel_dir}")
-        df_nivel = processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=args.max_realizacoes)
+        df_nivel, realizacoes_com_erro = processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=args.max_realizacoes)
         todos_resultados.append(df_nivel)
+        total_realizacoes_com_erro += realizacoes_com_erro
 
     if todos_resultados:
         df_master = pd.concat(todos_resultados, ignore_index=True)
@@ -339,6 +367,10 @@ def main():
         path_plot = plotar_boxplot(df_master, pasta_saida)
         print(f"\nAnálise finalizada. Master CSV salvo em: {os.path.join(pasta_saida, 'master_resultados_opendss.csv')}")
         print(f"Boxplot salvo em: {path_plot}")
+        print(f"\n⚠ RESUMO DE ERROS:")
+        print(f"  Total de realizações com erro 'Max Control Iterations': {total_realizacoes_com_erro}")
+        if total_realizacoes_com_erro > 0:
+            print(f"  Detalhes por realização disponíveis na coluna 'horas_com_erro_max_control' do CSV de resultados.")
     else:
         print("Nenhum nível de penetração encontrado em resultados_monte_carlo_v2.")
 
