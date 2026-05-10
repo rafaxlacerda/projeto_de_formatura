@@ -17,9 +17,10 @@ DEFAULT_DSS_FILE = os.path.join("..", "IEEE34bus", "IEEE34_original_with_loadsha
 
 # Faixas de horário usadas na análise
 TIME_BANDS = {
-    "dia": list(range(7, 18)),       # 07h-17h
-    "tarde": list(range(18, 22)),    # 18h-21h
-    "noite": list(range(22, 24)) + list(range(0, 7)),  # 22h-06h
+    "manhã": list(range(6, 12)),       # 06h-11h
+    "tarde": list(range(12, 18)),       # 12h-17h
+    "noite": list(range(18, 24)),       # 18h-23h
+    "madrugada": list(range(0, 6)),     # 00h-05h
 }
 
 # Perfil fixo de BESS (o sinal negativo significa absorção/recarga)
@@ -233,9 +234,10 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
         "pv_potencia_total_kw": float(resumo.loc[resumo["id_realizacao"] == realizacao_id, "pv_potencia_total_kw"].iloc[0]),
         "bess_unidades": int(resumo.loc[resumo["id_realizacao"] == realizacao_id, "bess_unidades"].iloc[0]),
         "bess_potencia_total_kw": float(bess_real["potencia_kw"].sum()) if not bess_real.empty else 0.0,
-        "defeitos_dia": defeitos["dia"],
+        "defeitos_manhã": defeitos["manhã"],
         "defeitos_tarde": defeitos["tarde"],
         "defeitos_noite": defeitos["noite"],
+        "defeitos_madrugada": defeitos["madrugada"],
         "horas_com_erro_max_control": horas_com_erro,
     }
 
@@ -271,9 +273,9 @@ def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=No
         
         if resultado["horas_com_erro_max_control"] > 0:
             realizacoes_com_erro += 1
-            print(f"  ✓ Realização {id_realizacao} - defeitos: dia={resultado['defeitos_dia']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']} ⚠ {resultado['horas_com_erro_max_control']} hora(s) com erro Max Control Iter")
+            print(f"  ✓ Realização {id_realizacao} - defeitos: manhã={resultado['defeitos_manhã']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']} madrugada={resultado['defeitos_madrugada']} ⚠ {resultado['horas_com_erro_max_control']} hora(s) com erro Max Control Iter")
         else:
-            print(f"  ✓ Realização {id_realizacao} - defeitos: dia={resultado['defeitos_dia']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']}")
+            print(f"  ✓ Realização {id_realizacao} - defeitos: manhã={resultado['defeitos_manhã']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']} madrugada={resultado['defeitos_madrugada']}")
 
     df_resultados = pd.DataFrame(resultados)
     os.makedirs(pasta_saida_nivel, exist_ok=True)
@@ -285,20 +287,20 @@ def plotar_boxplot(df_master, pasta_saida):
     grupos = [group for _, group in df_master.groupby("pen_pct")]
     niveis = sorted(df_master["pen_pct"].unique())
 
-    fig, axes = plt.subplots(3, 1, figsize=(16, 18), constrained_layout=True)
-    for ax, faixa in zip(axes, ["dia", "tarde", "noite"]):
+    fig, axes = plt.subplots(4, 1, figsize=(16, 20), constrained_layout=True)
+    for ax, faixa in zip(axes, ["manhã", "tarde", "noite", "madrugada"]):
         data = [
             df_master.loc[df_master["pen_pct"] == nivel, f"defeitos_{faixa}"]
             for nivel in niveis
         ]
         ax.boxplot(data, labels=[str(n) for n in niveis], showfliers=False)
-        ax.set_title(f"Número de barras com defeito de tensão - faixa {faixa}")
+        ax.set_title(f"Número de barras com defeito de tensão - faixa {faixa.capitalize()}")
         ax.set_xlabel("Penetração PV (%)")
         ax.set_ylabel("Barras defectivas")
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_ylim(0, max(df_master[f"defeitos_{faixa}"].max() + 2, 5))
 
-    fig.suptitle("Defeitos de tensão por faixa de horário e nível de penetração", fontsize=18)
+    fig.suptitle("Defeitos de tensão por faixa de horário (6h cada) e nível de penetração", fontsize=18)
     caminho_imagem = os.path.join(pasta_saida, "boxplot_defeitos_por_faixa.png")
     fig.savefig(caminho_imagem, dpi=200)
     plt.close(fig)
