@@ -1,0 +1,196 @@
+! Modified IEEE 34 bus Test Feeder
+! Modified to be a balanced circuit
+! Changes:
+! 1. All lines are 3 phase
+! 3. All loads are 3 phase
+
+Clear
+Set DefaultBaseFrequency=60
+
+New object=circuit.ieee34-1
+~ basekv=69 pu=1.05 angle=30 mvasc3=200000  !stiffen up a bit over DSS default
+
+! Substation Transformer  -- Modification: Make source very stiff by defining a tiny leakage Z
+New Transformer.SubXF Phases=3 Windings=2 Xhl=0.01    ! normally 8
+~ wdg=1 bus=sourcebus conn=Delta kv=69    kva=25000   %r=0.0005   !reduce %r, too
+~ wdg=2 bus=800       conn=wye   kv=24.9  kva=25000   %r=0.0005
+
+! import line codes with phase impedance matrices
+Redirect        IEEELineCodes.dss   ! revised according to Later test feeder doc
+
+! Lines
+New Line.L1     Phases=3 Bus1=800.1.2.3  Bus2=802.1.2.3  LineCode=300  Length=2.58   units=kft
+New Line.L2     Phases=3 Bus1=802.1.2.3  Bus2=806.1.2.3  LineCode=300  Length=1.73   units=kft
+New Line.L3     Phases=3 Bus1=806.1.2.3  Bus2=808.1.2.3  LineCode=300  Length=32.23  units=kft
+New Line.L4     Phases=3 Bus1=808.1.2.3  Bus2=810.1.2.3  LineCode=300  Length=5.804  units=kft
+New Line.L5     Phases=3 Bus1=808.1.2.3  Bus2=812.1.2.3  LineCode=300  Length=37.5   units=kft
+New Line.L6     Phases=3 Bus1=812.1.2.3  Bus2=814.1.2.3  LineCode=300  Length=29.73  units=kft
+New Line.L7     Phases=3 Bus1=814r.1.2.3 Bus2=850.1.2.3  LineCode=301  Length=0.01   units=kft
+New Line.L8     Phases=3 Bus1=816.1.2.3  Bus2=818.1.2.3  LineCode=301  Length=1.71   units=kft
+New Line.L9     Phases=3 Bus1=816.1.2.3  Bus2=824.1.2.3  LineCode=301  Length=10.21  units=kft
+New Line.L10    Phases=3 Bus1=818.1.2.3  Bus2=820.1.2.3  LineCode=301  Length=48.15  units=kft
+New Line.L11    Phases=3 Bus1=820.1.2.3  Bus2=822.1.2.3  LineCode=301  Length=13.74  units=kft
+New Line.L12    Phases=3 Bus1=824.1.2.3  Bus2=826.1.2.3  LineCode=301  Length=3.03   units=kft
+New Line.L13    Phases=3 Bus1=824.1.2.3  Bus2=828.1.2.3  LineCode=301  Length=0.84   units=kft
+New Line.L14    Phases=3 Bus1=828.1.2.3  Bus2=830.1.2.3  LineCode=301  Length=20.44  units=kft
+New Line.L15    Phases=3 Bus1=830.1.2.3  Bus2=854.1.2.3  LineCode=301  Length=0.52   units=kft
+New Line.L16    Phases=3 Bus1=832.1.2.3  Bus2=858.1.2.3  LineCode=301  Length=4.9    units=kft
+New Line.L17    Phases=3 Bus1=834.1.2.3  Bus2=860.1.2.3  LineCode=301  Length=2.02   units=kft
+New Line.L18    Phases=3 Bus1=834.1.2.3  Bus2=842.1.2.3  LineCode=301  Length=0.28   units=kft
+New Line.L19    Phases=3 Bus1=836.1.2.3  Bus2=840.1.2.3  LineCode=301  Length=0.86   units=kft
+New Line.L20    Phases=3 Bus1=836.1.2.3  Bus2=862.1.2.3  LineCode=301  Length=0.28   units=kft
+New Line.L21    Phases=3 Bus1=842.1.2.3  Bus2=844.1.2.3  LineCode=301  Length=1.35   units=kft
+New Line.L22    Phases=3 Bus1=844.1.2.3  Bus2=846.1.2.3  LineCode=301  Length=3.64   units=kft
+New Line.L23    Phases=3 Bus1=846.1.2.3  Bus2=848.1.2.3  LineCode=301  Length=0.53   units=kft
+New Line.L24    Phases=3 Bus1=850.1.2.3  Bus2=816.1.2.3  LineCode=301  Length=0.31   units=kft
+New Line.L25    Phases=3 Bus1=852r.1.2.3 Bus2=832.1.2.3  LineCode=301  Length=0.01   units=kft
+New Line.L26    Phases=3 Bus1=854.1.2.3  Bus2=856.1.2.3  LineCode=301  Length=23.33  units=kft
+New Line.L27    Phases=3 Bus1=854.1.2.3  Bus2=852.1.2.3  LineCode=301  Length=36.83  units=kft
+New Line.L28    Phases=3 Bus1=858.1.2.3  Bus2=864.1.2.3  LineCode=301  Length=1.62   units=kft
+New Line.L29    Phases=3 Bus1=858.1.2.3  Bus2=834.1.2.3  LineCode=301  Length=5.83   units=kft
+New Line.L30    Phases=3 Bus1=860.1.2.3  Bus2=836.1.2.3  LineCode=301  Length=2.68   units=kft
+New Line.L31    Phases=3 Bus1=862.1.2.3  Bus2=838.1.2.3  LineCode=301  Length=4.86   units=kft
+New Line.L32    Phases=3 Bus1=888.1.2.3  Bus2=890.1.2.3  LineCode=300  Length=10.56  units=kft
+
+! 24.9/4.16 kV  Transformer
+New Transformer.XFM1  Phases=3 Windings=2 Xhl=4.08
+~ wdg=1 bus=832       conn=wye   kv=24.9  kva=500    %r=0.95
+~ wdg=2 bus=888       conn=Wye   kv=4.16  kva=500    %r=0.95
+
+! Capacitors
+New Capacitor.C844      Bus1=844        Phases=3        kVAR=300        kV=24.9
+New Capacitor.C848      Bus1=848        Phases=3        kVAR=450        kV=24.9
+
+! Regulators - three independent phases
+! Regulator 1
+new transformer.reg1a phases=1 windings=2 bank=reg1 buses=(814.1 814r.1) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg1a transformer=reg1a winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
+new transformer.reg1b phases=1 windings=2 bank=reg1 buses=(814.2 814r.2) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg1b transformer=reg1b winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
+new transformer.reg1c phases=1 windings=2 bank=reg1 buses=(814.3 814r.3) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg1c transformer=reg1c winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
+
+! Regulator 2
+new transformer.reg2a phases=1 windings=2 bank=reg2 buses=(852.1 852r.1) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg2a transformer=reg2a winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5
+new transformer.reg2b phases=1 windings=2 bank=reg2 buses=(852.2 852r.2) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg2b transformer=reg2b winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5
+new transformer.reg2c phases=1 windings=2 bank=reg2 buses=(852.3 852r.3) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg2c transformer=reg2c winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5
+
+! loadshapes
+
+New LoadShape.Residencial npts=24 interval=1
+~ mult=[0.175 0.175 0.175 0.175 0.175 0.175 0.200 0.375 0.600 0.600 0.600 0.600 0.375 0.375 0.250 0.325 0.325 0.425 0.925 0.950 1.000 0.775 0.425 0.325]
+
+New LoadShape.Comercial npts=24 interval=1
+~ mult=[0.300 0.300 0.325 0.350 0.400 0.450 0.600 0.750 0.900 0.925 0.950 0.925 0.900 0.750 0.675 0.500 0.500 0.500 0.725 0.750 0.600 0.500 0.325 0.325]
+
+New LoadShape.Industrial npts=24 interval=1
+~ mult=[0.325 0.325 0.350 0.375 0.375 0.375 0.500 0.750 1.250 1.750 1.750 1.750 1.500 1.000 1.000 0.750 0.550 0.475 0.475 0.475 0.450 0.425 0.350 0.325]
+
+! SPOT LOADS
+
+! S860: 3x(20+16) = 60 kW / 48 kVAR  -> Residencial (periferia, porte pequeno)
+New Load.S860  Bus1=860  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=60.0   kVAR=48.0   daily=Residencial vminpu=0.85
+
+! S840: 3x(9+7) = 27 kW / 21 kVAR    -> Comercial (bus intermediário, porte pequeno-médio)
+New Load.S840  Bus1=840  Phases=3 Conn=Wye  Model=5 kV=24.900 kW=27.0   kVAR=21.0   daily=Comercial   vminpu=0.85
+
+! S844: 3x(135+105) = 405 kW / 315 kVAR -> Industrial (maior carga spot da rede)
+New Load.S844  Bus1=844  Phases=3 Conn=Wye  Model=2 kV=24.900 kW=405.0  kVAR=315.0  daily=Industrial  vminpu=0.85
+
+! S848: 3x(20+16) = 60 kW / 48 kVAR  -> Residencial (extremidade, porte pequeno)
+New Load.S848  Bus1=848  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=60.0   kVAR=48.0   daily=Residencial vminpu=0.85
+
+! S830: 10+10+25 = 45 kW / 20 kVAR   -> Industrial (carga delta 3 fases, subestação intermediária)
+New Load.S830  Bus1=830  Phases=3 Conn=Wye  Model=2 kV=24.900 kW=45.0   kVAR=20.0   daily=Industrial  vminpu=0.85
+
+! S890: 3x(150+75) = 450 kW / 225 kVAR -> Industrial (secundário do transformador 4.16 kV dedicado)
+New Load.S890  Bus1=890  Phases=3 Conn=Wye  Model=5 kV=4.160  kW=450.0  kVAR=225.0  daily=Industrial  vminpu=0.85
+
+! DISTRIBUTED LOADS
+! Alocadas no bus de envio (send) do segmento.
+! kW/kVAR = soma dos dois extremos originais (send + receive).
+
+! D802_806: fases B+C, 2x(15+15+12.5+12.5) = 55 kW / 29 kVAR
+! -> Residencial (início do alimentador, pequenas cargas residenciais)
+New Load.D802_806  Bus1=802  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=55.0   kVAR=29.0   daily=Residencial vminpu=0.85
+
+! D808_810: fase B, 2x(8+4) = 16 kW / 8 kVAR
+! -> Residencial (ramal lateral curto, porte muito pequeno)
+New Load.D808_810  Bus1=808  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=16.0   kVAR=8.0    daily=Residencial vminpu=0.85
+
+! D818_820: fase A, 2x(17+8.5) = 34 kW / 17 kVAR
+! -> Residencial (ramal longo 818-820, porte pequeno)
+New Load.D818_820  Bus1=818  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=34.0   kVAR=17.0   daily=Residencial vminpu=0.85
+
+! D820_822: fase A, 2x(67.5+35) = 135 kW / 70 kVAR
+! -> Comercial (porte médio, maior carga distribuída do ramal 818-822)
+New Load.D820_822  Bus1=820  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=135.0  kVAR=70.0   daily=Comercial   vminpu=0.85
+
+! D816_824: fases B+C delta, 2x(2.5+1) = 5 kW / 2 kVAR
+! -> Residencial (porte muito pequeno)
+New Load.D816_824  Bus1=816  Phases=3 Conn=Wye  Model=5 kV=24.900 kW=5.0    kVAR=2.0    daily=Residencial vminpu=0.85
+
+! D824_826: fase B, 2x(20+10) = 40 kW / 20 kVAR
+! -> Comercial (bus 824 é nó importante de distribuição, porte médio)
+New Load.D824_826  Bus1=824  Phases=3 Conn=Wye  Model=5 kV=24.900 kW=40.0   kVAR=20.0   daily=Comercial   vminpu=0.85
+
+! D824_828: fase C, 2x(2+1) = 4 kW / 2 kVAR
+! -> Residencial (porte muito pequeno)
+New Load.D824_828  Bus1=824  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=4.0    kVAR=2.0    daily=Residencial vminpu=0.85
+
+! D828_830: fase A, 2x(3.5+1.5) = 7 kW / 3 kVAR
+! -> Residencial (porte muito pequeno)
+New Load.D828_830  Bus1=828  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=7.0    kVAR=3.0    daily=Residencial vminpu=0.85
+
+! D854_856: fase B, 2x(2+1) = 4 kW / 2 kVAR
+! -> Residencial (ramal periférico, porte mínimo)
+New Load.D854_856  Bus1=854  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=4.0    kVAR=2.0    daily=Residencial vminpu=0.85
+
+! D832_858: fases A+B+C delta, 2x(3.5+1.0+3.0+1.5+0.5+1.5) = 15 kW / 7.5 kVAR
+! -> Comercial (bus 832 é nó central, ligado ao transformador XFM1)
+New Load.D832_858  Bus1=832  Phases=3 Conn=Wye  Model=2 kV=24.900 kW=15.0   kVAR=7.5    daily=Comercial   vminpu=0.85
+
+! D858_864: fase A, 2x(1+0.5) = 2 kW / 1 kVAR
+! -> Residencial (ramal lateral mínimo)
+New Load.D858_864  Bus1=858  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=2.0    kVAR=1.0    daily=Residencial vminpu=0.85
+
+! D858_834: fases A+B+C delta, 2x(2+1+7.5+4+6.5+3.5) = 32 kW / 17 kVAR
+! -> Comercial (trecho central 858-834, porte médio)
+New Load.D858_834  Bus1=858  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=32.0   kVAR=17.0   daily=Comercial   vminpu=0.85
+
+! D834_860: fases A+B+C delta, 2x(8+4+10+5+55+27.5) = 146 kW / 73 kVAR
+! -> Industrial (maior carga distribuída da rede, porte industrial)
+New Load.D834_860  Bus1=834  Phases=3 Conn=Wye  Model=2 kV=24.900 kW=146.0  kVAR=73.0   daily=Industrial  vminpu=0.85
+
+! D860_836: fases A+B+C delta, 2x(15+7.5+5+3+21+11) = 82 kW / 43 kVAR
+! -> Comercial (trecho 860-836, porte médio)
+New Load.D860_836  Bus1=860  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=82.0   kVAR=43.0   daily=Comercial   vminpu=0.85
+
+! D836_840: fases A+B delta, 2x(9+4.5+11+5.5) = 40 kW / 20 kVAR
+! -> Comercial (bus 836-840, porte médio)
+New Load.D836_840  Bus1=836  Phases=3 Conn=Wye  Model=5 kV=24.900 kW=40.0   kVAR=20.0   daily=Comercial   vminpu=0.85
+
+! D862_838: fase B, 2x(14+7) = 28 kW / 14 kVAR
+! -> Residencial (ramal lateral periférico)
+New Load.D862_838  Bus1=862  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=28.0   kVAR=14.0   daily=Residencial vminpu=0.85
+
+! D842_844: fase A, 2x(4.5+2.5) = 9 kW / 5 kVAR
+! -> Residencial (ramal periférico, porte pequeno)
+New Load.D842_844  Bus1=842  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=9.0    kVAR=5.0    daily=Residencial vminpu=0.85
+
+! D844_846: fases B+C, 2x(12.5+6+10+5.5) = 45 kW / 23 kVAR
+! -> Residencial (ramal 844-846-848, extremidade da rede)
+New Load.D844_846  Bus1=844  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=45.0   kVAR=23.0   daily=Residencial vminpu=0.85
+
+! D846_848: fase B, 2x(11.5+5.5) = 23 kW / 11 kVAR
+! -> Residencial (extremidade da rede, porte pequeno)
+New Load.D846_848  Bus1=846  Phases=3 Conn=Wye  Model=1 kV=24.900 kW=23.0   kVAR=11.0   daily=Residencial vminpu=0.85
+
+! let the DSS estimate voltage bases automatically
+Set VoltageBases = "69,24.9,4.16, .48"
+CalcVoltageBases
+
+Solve
