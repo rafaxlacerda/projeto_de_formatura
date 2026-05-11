@@ -264,7 +264,7 @@ def exportar_realizacoes_por_nivel(realizacoes, nivel_penetracao_pct, pasta_said
     # =========================================================================
     dados_incerteza_carga = []
     for r in realizacoes:
-        for barra in BARRAS_TRIFASICAS:  # Apenas barras trifásicas
+        for barra in BARRAS_SISTEMA: 
             linha = {
                 "id_realizacao": r["id_realizacao"],
                 "barra": barra,
@@ -440,7 +440,7 @@ if __name__ == "__main__":
     
     for nivel in PV_PENETRACAO_NIVEIS:
         pen_pct = int(nivel * 100)
-        pasta_nivel = os.path.join(PASTA_BASE, f"pen_{pen_pct:03d}pct")
+        pasta_nivel = os.path.join(PASTA_BASE, "realizacoes_sorteadas", f"pen_{pen_pct:03d}pct")
         
         print(f"\n➤ Processando: {pen_pct}% de Penetração PV", end=" ")
         print(f"(alvo: {nivel * CARGA_PICO_TOTAL_MW * 1000:.1f} kW)")
@@ -480,10 +480,11 @@ if __name__ == "__main__":
     print(f"  Total de níveis processados: {len(PV_PENETRACAO_NIVEIS)}")
     print(f"  Total de realizações geradas: {len(PV_PENETRACAO_NIVEIS) * N_REALIZACOES}")
     print("\n  Estrutura de saída (por nível de penetração):")
-    print(f"    - pen_000pct/  [0% PV]")
-    print(f"    - pen_010pct/  [10% PV]")
-    print(f"    - ...")
-    print(f"    - pen_200pct/  [200% PV]")
+    print(f"    realizacoes_sorteadas/")
+    print(f"      - pen_000pct/  [0% PV]")
+    print(f"      - pen_010pct/  [10% PV]")
+    print(f"      - ...")
+    print(f"      - pen_200pct/  [200% PV]")
     print("\n  Cada pasta contém:")
     print(f"    - 00_informacoes.txt")
     print(f"    - 01_resumo_configuracoes.csv")
