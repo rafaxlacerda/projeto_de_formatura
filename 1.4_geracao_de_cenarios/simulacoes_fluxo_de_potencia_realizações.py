@@ -100,7 +100,7 @@ def _parse_bus_number(nome_load):
     except ValueError:
         return None
 
-# Preciso rever pois criou BESS e PV como barras, mas deveriam ser geradores
+# Alternativa ao PVsystem e Storage nativos 
 def criar_elementos_simulacao(pv_df, bess_df, id_realizacao):
     for idx, (_, linha) in enumerate(pv_df.iterrows()):
         nome = f"PV_{id_realizacao}_{idx}_barra{linha['barra']}"
@@ -182,6 +182,7 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
     tensoes_por_hora = {}
     horas_com_erro = 0
     for hora in range(24):
+        # Perfil carga
         for nome_load, carga in cargas_base.items():
             barra = carga["barra"]
             base_kw = carga["kW"]
@@ -199,13 +200,14 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
         
             editar_load(nome_load, kw_final, kvar_final)
 
+        # Perfil PV (o - define que é gerador, injeção de potência)
         for idx, (_, linha) in enumerate(pv_real.iterrows()):
             nome = f"PV_{realizacao_id}_{idx}_barra{linha['barra']}"
             potencia_kw = float(linha["potencia_kw"])
             kw = -potencia_kw * fatores_irradiancia[hora]
             editar_load(nome, kw, 0.0)
 
-        # === PERFIL DE BESS ===
+        # Perfil BESS
         for idx, (_, linha) in enumerate(bess_real.iterrows()):
             nome = f"BESS_{realizacao_id}_{idx}_barra{linha['barra']}"
             potencia_kw = float(linha["potencia_kw"])
