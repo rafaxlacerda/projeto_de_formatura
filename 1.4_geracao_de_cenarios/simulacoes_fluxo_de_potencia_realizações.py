@@ -217,7 +217,7 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
             dss.Solution.Solve()
             tensoes_por_hora[hora] = extrair_tensoes_por_barra()
         except DSSException as e:
-            # Ignorar erro de Max Control Iterations
+            # Ignorar erro de Max Control Iterations (pode ocorrer devido a não convergência do controle dos reguladores)
             if e.args[0] == 485 or "Max Control Iterations" in str(e):
                 horas_com_erro += 1
                 # Pular esta hora e continuar com a próxima
@@ -336,7 +336,7 @@ def main():
     args = parse_args()
     base_dir = os.path.dirname(os.path.abspath(__file__))
     dss_path = os.path.abspath(os.path.join(base_dir, args.dss_file))
-    pasta_montecarlo = os.path.join(base_dir, "resultados_monte_carlo_v2")
+    pasta_montecarlo = os.path.join(base_dir, "resultados_monte_carlo", "realizacoes_sorteadas")
     pasta_saida = os.path.join(pasta_montecarlo, "analise_opendss")
     os.makedirs(pasta_saida, exist_ok=True)
 
@@ -374,7 +374,7 @@ def main():
         if total_realizacoes_com_erro > 0:
             print(f"  Detalhes por realização disponíveis na coluna 'horas_com_erro_max_control' do CSV de resultados.")
     else:
-        print("Nenhum nível de penetração encontrado em resultados_monte_carlo_v2.")
+        print("Nenhum nível de penetração encontrado em realizacoes_sorteadas.")
 
 
 if __name__ == "__main__":

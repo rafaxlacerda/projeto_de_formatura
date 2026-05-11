@@ -1,0 +1,44 @@
+
+NÍVEL DE PENETRAÇÃO: 110%
+======================================================================
+
+DEFINIÇÃO DE UNIDADE:
+  - Uma UNIDADE PV = capacidade total de PV instalada em uma barra
+  - Uma UNIDADE BESS = armazenamento total BESS instalado em uma barra
+  - Cada barra recebe NO MÁXIMO 1 unidade de cada (PV e BESS independentes)
+
+Características gerais:
+  - Número de realizações: 50
+  - Total de unidades PV (todas realizações): 236
+  - Total de unidades BESS (todas realizações): 250
+  - Número de horas: 24
+  - Número de barras: 32
+
+Perfis base de carga (hora a hora):
+  - Estão definidos em IEEE34_2.dss via LoadShape
+  - Cada carga referencia um LoadShape via atributo daily
+
+Fatores de incerteza de carga:
+  - Multiplicadores estocásticos (média 1.0, desvio ±10%)
+  - Aplicados sobre o perfil base em IEEE34_2.dss
+  - Variam hora a hora e são salvos em 03_fatores_incerteza_carga.csv
+
+Tipos de dia (pesos iguais):
+  - Céu Aberto (33.33%)
+  - Parcialmente Nublado (33.33%)
+  - Nublado (33.33%)
+
+Perfil BESS fixo de carga/descarga:
+  - Carregamento: horas 10-15 (valor: -1.0)
+  - Descarregamento: horas 18-22 (valor: +1.0)
+
+Arquivos gerados:
+  01_resumo_configuracoes.csv ............ Resumo de cada realizacao
+  02_perfis_irradiancia.csv ............. Perfis de irradancia 24h (estocástico)
+  03_fatores_incerteza_carga.csv ........ Fatores multiplicativos de carga (1.0 ± 10%)
+  04_unidades_pv.csv .................... Unidades PV (uma por barra)
+  05_unidades_bess.csv .................. Unidades BESS (uma por barra)
+  06_elementos_opendss.csv .............. Elementos para integração OpenDSS
+
+NOTA: Os perfis horários base já estão definidos em IEEE34_2.dss.
+Na simulação, multiplique: kW_efetivo = kW_base * perfil_dss(hora) * fator_incerteza(hora)
