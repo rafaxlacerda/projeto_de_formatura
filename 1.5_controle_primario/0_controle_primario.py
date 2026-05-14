@@ -10,6 +10,9 @@ Curva Volt-VAr (Figura 2 da norma):
 Reguladores: taps congelados no valor do snapshot inicial.
              RegControl desabilitado durante o controle primário.
 """
+#TODO: como influencia no tempo de carregamente/descarregamento do bess? comparar sem o controle primario
+#TODO: o que acontece se pede injeção de potencia e a bateria não tem energia?
+#TODO: definição de barras com defeito: a tensão de alguma fase é < 0.95 pu ou > 1.05 pu  
 
 from opendssdirect import dss
 import pandas as pd
@@ -25,17 +28,15 @@ import matplotlib.pyplot as plt
 # CONFIGURAÇÕES
 # ---------------------------------------------------------------------------
 SCRIPT_DIR    = os.path.dirname(os.path.abspath(__file__))
-BASE_DSS      = os.path.join(SCRIPT_DIR, "..", "IEEE34bus", "IEEE34_original.dss")
+BASE_DSS      = os.path.join(SCRIPT_DIR, "..", "IEEE34bus", "IEEE34_original_with_loadshapes.dss")
 MC_DIR        = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
-                              "resultados_monte_carlo_v2")
+                              "resultados_monte_carlo", "realizacoes_sorteadas")
 
 # Selecione o cenário Monte Carlo desejado:
-PEN_PCT       = 50   # nível de penetração em % (ex.: 50 → pen_050pct)
+PEN_PCT       = 90   # nível de penetração em % (ex.: 50 → pen_050pct)
 ID_REALIZACAO = 1    # ID da realização (1 a 50)
 
 TOTAL_HOURS   = 24          # número de passos horários
-MAX_ITER      = 50          # iterações máximas do loop Volt-VAr por timestep
-TOL_VMAG      = 1e-4        # tolerância de convergência (p.u.)
 V_NOM_PU      = 1.0         # tensão nominal (p.u.) — referência para a curva
 
 # Agregação de tensão nas fases: "min" usa a menor fase; "mean" usa a média
@@ -329,17 +330,17 @@ print(f"[RegControl] {len(reg_names)} regulador(es) encontrado(s): {reg_names}")
 # Gera o gráfico da curva Volt-VAr uma única vez
 plot_voltvar_curve()
 
-# Tolerância de convergência absoluta (kvar)
-tol_kvar = TOL_VMAG * min(info["pnom_kw"] for info in bess_dict.values())
-
 # ---------------------------------------------------------------------------
 # ESTRUTURAS DE SAÍDA
 # ---------------------------------------------------------------------------
 records      = []   # uma linha por (hora, BESS)
 hour_records = []   # uma linha por hora (violações)
 
+# Q aplicado na hora anterior; zero na primeira hora
+#q_applied = {name: 0.0 for name in bess_dict}
+
 # ---------------------------------------------------------------------------
-# LOOP HORÁRIO PRINCIPAL
+# LOOP HORÁRIO PRINCIPAL  (1 avaliação Volt-VAr por hora)
 # ---------------------------------------------------------------------------
 for hour in range(TOTAL_HOURS):
 
@@ -348,12 +349,17 @@ for hour in range(TOTAL_HOURS):
     print(f"{'='*60}")
 
     # -----------------------------------------------------------------
-    # PASSO NATURAL: reguladores livres, Q = 0
-    # Captura os taps que o regulador escolheria sem controle primário
+    # Passo 1: aplica Q da hora anterior a todos os BESSs
+    # -----------------------------------------------------------------
+    #for name, q in q_applied.items():
+    #    set_bess_kvar(name, q)
+
+    # -----------------------------------------------------------------
+    # Passo 2: daily solve — avança o tempo, aplica LoadShapes corretos
+    # Reguladores habilitados → ajustam taps com base no estado real
+    # da rede (incluindo Q_anterior dos BESSs)
     # -----------------------------------------------------------------
     enable_regulators(reg_names)
-    for name in bess_dict:
-        set_bess_kvar(name, 0.0)
     dss.Command("solve")
     tap_snapshot = capture_taps(reg_names)
     disable_regulators(reg_names)
@@ -363,80 +369,63 @@ for hour in range(TOTAL_HOURS):
             print(f"  [Tap hora {hour+1:02d}] {reg}: tap={info['tap']:.6f}")
 
     # -----------------------------------------------------------------
-    # LOOP INTERNO DE CONVERGÊNCIA VOLT-VAr
+    # Passo 3: lê tensão em cada barra de BESS (com Q anterior aplicado)
     # -----------------------------------------------------------------
-    q_current = {name: 0.0 for name in bess_dict}
-    converged = False
-
-    for iteration in range(MAX_ITER):
-
-        # 1) Aplica os Q da iteração anterior
-        for name, q_kvar in q_current.items():
-            set_bess_kvar(name, q_kvar)
-
-        # 2) Resolve o fluxo de potência
-        dss.Command("solve")
-
-        # 3) Restaura taps naturais desta hora
-        restore_tap(tap_snapshot)
-
-        # 4) Calcula novo Q para cada BESS e verifica convergência
-        q_new  = {}
-        max_dq = 0.0
-        for name, info in bess_dict.items():
-            v_pu  = get_bus_vmag_pu(info["bus"])
-            q_ref = volt_var_curve(v_pu, info["pnom_kw"])
-            q_new[name] = q_ref
-            max_dq = max(max_dq, abs(q_ref - q_current[name]))
-
-        print(f"  iter {iteration+1:3d} | max ΔQ = {max_dq:.4f} kvar")
-        q_current = q_new
-
-        if max_dq < tol_kvar:
-            print(f"  → Convergiu em {iteration+1} iterações.")
-            converged = True
-            break
-
-    if not converged:
-        print(f"  ⚠ Não convergiu em {MAX_ITER} iterações (hora {hour+1}).")
+    v_measured = {name: get_bus_vmag_pu(info["bus"]) for name, info in bess_dict.items()}
 
     # -----------------------------------------------------------------
-    # APLICA Q FINAL E FAZ SOLVE DEFINITIVO DO TIMESTEP
+    # Passo 4: UMA avaliação da curva Volt-VAr
     # -----------------------------------------------------------------
-    for name, q_kvar in q_current.items():
-        set_bess_kvar(name, q_kvar)
-    dss.Command("solve")
-    restore_tap(tap_snapshot)
+    q_new = {
+        name: volt_var_curve(v_measured[name], info["pnom_kw"])
+        for name, info in bess_dict.items()
+    }
 
     # -----------------------------------------------------------------
-    # COLETA RESULTADOS POR BESS
+    # Passo 5: aplica Q novo e re-resolve a MESMA hora em snapshot
+    # (sem avançar o contador de tempo do modo daily)
+    # -----------------------------------------------------------------
+    for name, q in q_new.items():
+        set_bess_kvar(name, q)
+    #dss.Command("set mode=snapshot")
+    #dss.Command("solve")
+    #dss.Command("set mode=daily")
+    #restore_tap(tap_snapshot)
+
+    # -----------------------------------------------------------------
+    # Passo 6: coleta resultados por BESS
     # -----------------------------------------------------------------
     for name, info in bess_dict.items():
-        v_pu   = get_bus_vmag_pu(info["bus"])
-        q_kvar = q_current[name]
-        q_max  = Q_MAX_PU * info["pnom_kw"]
+        v_final = get_bus_vmag_pu(info["bus"])
+        q_kvar  = q_new[name]
+        q_max   = Q_MAX_PU * info["pnom_kw"]
         records.append({
-            "hour":    hour + 1,
-            "bess":    name,
-            "bus":     info["bus"],
-            "v_pu":    round(v_pu, 6),
-            "q_kvar":  round(q_kvar, 4),
-            "q_pu":    round(q_kvar / q_max, 4) if q_max > 0 else 0.0,
-            "q_active": q_kvar != 0.0,
-            "pnom_kw": info["pnom_kw"],
+            "hour":       hour + 1,
+            "bess":       name,
+            "bus":        info["bus"],
+            "v_pu":       round(v_measured[name], 6),
+            "q_kvar":     round(q_kvar, 4),
+            "q_pu":       round(q_kvar / q_max, 4) if q_max > 0 else 0.0,
+            "q_active":   q_kvar != 0.0,
+            "pnom_kw":    info["pnom_kw"],
         })
-        print(f"  [BESS {name}] bus={info['bus']} | V={v_pu:.4f} p.u. | "
+        print(f"  [BESS {name}] V_med={v_measured[name]:.4f} → V_fin={v_final:.4f} p.u. | "
               f"Q={q_kvar:.2f} kvar ({'ativo' if q_kvar != 0 else 'zona morta'})")
 
     # -----------------------------------------------------------------
-    # COLETA VIOLAÇÕES DE TENSÃO DESTA HORA
+    # Passo 7: violações de tensão (após snapshot com Q novo)
     # -----------------------------------------------------------------
     n_viol, viol_dict = count_voltage_violations()
-    print(f"  [Violações] hora {hour+1:02d}: {n_viol} barra(s) com V fora de [0.95, 1.05] p.u.")
+    print(f"  [Violações] hora {hour+1:02d}: {n_viol} barra(s) fora de [0.95, 1.05] p.u.")
     if viol_dict:
         for b, v in sorted(viol_dict.items()):
             print(f"    barra {b}: {v:.4f} p.u.")
     hour_records.append({"hour": hour + 1, "n_violations": n_viol, "violations": viol_dict})
+
+    # -----------------------------------------------------------------
+    # Atualiza Q para a próxima hora
+    # -----------------------------------------------------------------
+    #q_applied = q_new
 
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE VISUALIZAÇÃO PÓS-SIMULAÇÃO
