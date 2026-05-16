@@ -8,9 +8,21 @@ DEFINIÇÃO DE UNIDADE:
   - Cada barra recebe NO MÁXIMO 1 unidade de cada (PV e BESS independentes)
 
 Características gerais:
+<<<<<<< HEAD
+<<<<<<<< HEAD:1.4_geracao_de_cenarios/resultados_monte_carlo/realizacoes_sorteadas/pen_020pct/00_informacoes.txt
   - Número de realizações: 150
   - Total de unidades PV (todas realizações): 246
   - Total de unidades BESS (todas realizações): 600
+========
+  - Número de realizações: 50
+  - Total de unidades PV (todas realizações): 156
+  - Total de unidades BESS (todas realizações): 250
+>>>>>>>> origin/feature/controle_primario:1.4_geracao_de_cenarios/resultados_monte_carlo/realizacoes_sorteadas/pen_060pct/00_informacoes.txt
+=======
+  - Número de realizações: 50
+  - Total de unidades PV (todas realizações): 77
+  - Total de unidades BESS (todas realizações): 200
+>>>>>>> origin/feature/controle_primario
   - Número de horas: 24
   - Número de barras: 32
 

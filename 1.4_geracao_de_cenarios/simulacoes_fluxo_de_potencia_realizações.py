@@ -32,10 +32,11 @@ BESS_BANDS = {
 }
 
 # Perfil fixo de BESS (o sinal negativo significa absorção/recarga)
+# TODO: definir de acordo com perfil de cargas da rede -> que gera o melhor perfil de tensão ao longo das 24h ( menos barras com problema)
 BESS_PERFIL = np.zeros(24)
 BESS_PERFIL[10:15] = -1.0
 BESS_PERFIL[18:22] = 1.0
-
+# controle intermediario: ativa ou desativa carregamento - etapa 2
 
 def ler_fatores_incerteza_carga(pasta_nivel):
     caminho = os.path.join(pasta_nivel, "03_fatores_incerteza_carga.csv")

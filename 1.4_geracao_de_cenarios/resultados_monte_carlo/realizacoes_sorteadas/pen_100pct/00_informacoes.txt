@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 NÍVEL DE PENETRAÇÃO: 100%
+=======
+NÍVEL DE PENETRAÇÃO: 30%
+>>>>>>> origin/feature/controle_primario
 ======================================================================
 
 DEFINIÇÃO DE UNIDADE:
@@ -8,9 +12,21 @@ DEFINIÇÃO DE UNIDADE:
   - Cada barra recebe NO MÁXIMO 1 unidade de cada (PV e BESS independentes)
 
 Características gerais:
+<<<<<<< HEAD
   - Número de realizações: 150
   - Total de unidades PV (todas realizações): 688
   - Total de unidades BESS (todas realizações): 750
+=======
+<<<<<<<< HEAD:1.4_geracao_de_cenarios/resultados_monte_carlo/realizacoes_sorteadas/pen_030pct/00_informacoes.txt
+  - Número de realizações: 150
+  - Total de unidades PV (todas realizações): 306
+  - Total de unidades BESS (todas realizações): 750
+========
+  - Número de realizações: 50
+  - Total de unidades PV (todas realizações): 222
+  - Total de unidades BESS (todas realizações): 250
+>>>>>>>> origin/feature/controle_primario:1.4_geracao_de_cenarios/resultados_monte_carlo/realizacoes_sorteadas/pen_100pct/00_informacoes.txt
+>>>>>>> origin/feature/controle_primario
   - Número de horas: 24
   - Número de barras: 32
 

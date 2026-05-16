@@ -49,6 +49,7 @@ id_realizacao;tipo_dia;penetracao_pct;pv_unidades;pv_potencia_total_kw;bess_unid
 48;ceu_aberto;0,0;0;0;0
 49;nublado;0,0;0;0;0
 50;parcialmente_nublado;0,0;0;0;0
+<<<<<<< HEAD
 51;parcialmente_nublado;0,0;0;0;0
 52;ceu_aberto;0,0;0;0;0
 53;ceu_aberto;0,0;0;0;0
@@ -149,3 +150,5 @@ id_realizacao;tipo_dia;penetracao_pct;pv_unidades;pv_potencia_total_kw;bess_unid
 148;parcialmente_nublado;0,0;0;0;0
 149;parcialmente_nublado;0,0;0;0;0
 150;ceu_aberto;0,0;0;0;0
+=======
+>>>>>>> origin/feature/controle_primario
