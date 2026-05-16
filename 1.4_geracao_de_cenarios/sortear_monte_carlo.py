@@ -26,7 +26,7 @@ CARGA_PICO_TOTAL_MW = 1.769
 # =============================================================================
 # PARÂMETROS DO SORTEIO MONTE CARLO
 # =============================================================================
-N_REALIZACOES = 50      # Sorteios por nível de penetração
+N_REALIZACOES = 150     # Sorteios por nível de penetração
 N_HORAS = 24            # Resolução temporal
 
 # Range de Penetração FV: de 0% a 200% em passos de 10%
