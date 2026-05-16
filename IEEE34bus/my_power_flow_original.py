@@ -2,6 +2,8 @@ import os
 from opendssdirect import dss
 import pandas as pd
 import math
+import matplotlib.pyplot as plt
+import re
 
 # 1. Inicialização e Carga do Circuito
 dss.Basic.ClearAll()
@@ -86,9 +88,12 @@ df_linhas = pd.DataFrame(registros_linhas)
 print("TENSÕES NAS BARRAS (Amostra):")
 print(df_tensoes.head(10).to_string(index=False))
 
-# Exportação para a mesma pasta do script
-caminho_tensoes = os.path.join(diretorio_atual, "tensoes_barras.csv")
-caminho_linhas = os.path.join(diretorio_atual, "correntes_linhas.csv")
+# Exportação para pasta resultados
+caminho_tensoes = os.path.join(diretorio_atual, "resultados", "tensoes_barras.csv")
+caminho_linhas = os.path.join(diretorio_atual, "resultados", "correntes_linhas.csv")
+
+# Cria a pasta "resultados" se não existir
+os.makedirs(os.path.dirname(caminho_tensoes), exist_ok=True)
 
 df_tensoes.to_csv(caminho_tensoes, index=False)
 df_linhas.to_csv(caminho_linhas, index=False)
