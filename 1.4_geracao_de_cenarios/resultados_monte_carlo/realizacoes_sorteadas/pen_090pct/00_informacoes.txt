@@ -8,15 +8,9 @@ DEFINIÇÃO DE UNIDADE:
   - Cada barra recebe NO MÁXIMO 1 unidade de cada (PV e BESS independentes)
 
 Características gerais:
-<<<<<<< HEAD
-  - Número de realizações: 150
-  - Total de unidades PV (todas realizações): 663
-  - Total de unidades BESS (todas realizações): 750
-=======
-  - Número de realizações: 50
-  - Total de unidades PV (todas realizações): 216
-  - Total de unidades BESS (todas realizações): 250
->>>>>>> origin/feature/controle_primario
+  - Número de realizações: 500
+  - Total de unidades PV (todas realizações): 2500
+  - Total de unidades BESS (todas realizações): 2500
   - Número de horas: 24
   - Número de barras: 32
 

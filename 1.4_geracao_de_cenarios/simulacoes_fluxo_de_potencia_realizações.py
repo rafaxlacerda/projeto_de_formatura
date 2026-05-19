@@ -33,9 +33,11 @@ BESS_BANDS = {
 
 # Perfil fixo de BESS (o sinal negativo significa absorção/recarga)
 # TODO: definir de acordo com perfil de cargas da rede -> que gera o melhor perfil de tensão ao longo das 24h ( menos barras com problema)
+
 BESS_PERFIL = np.zeros(24)
 BESS_PERFIL[10:15] = -1.0
 BESS_PERFIL[18:22] = 1.0
+
 # controle intermediario: ativa ou desativa carregamento - etapa 2
 
 def ler_fatores_incerteza_carga(pasta_nivel):
@@ -48,6 +50,7 @@ def ler_fatores_incerteza_carga(pasta_nivel):
 def ler_perfis_irradiancia(pasta_nivel):
     caminho = os.path.join(pasta_nivel, "02_perfis_irradiancia.csv")
     df = pd.read_csv(caminho, sep=";", decimal=",")
+    df["id_realizacao"] = pd.to_numeric(df["id_realizacao"], errors="coerce").astype("Int64")
     df = df.sort_values("id_realizacao")
     return df
 
@@ -137,7 +140,7 @@ def extrair_tensoes_por_barra():
         mags = pu_vals[0::2]
         if not mags:
             continue
-        dados[bus.lower()] = float(np.mean(mags))
+        dados[bus.lower()] = list(mags)  # Retorna lista das tensões das fases
     return dados
 
 
@@ -149,52 +152,111 @@ def agrupar_horas_por_faixa(horas):
 
 
 def calcular_defeitos_por_faixa(tensoes_por_hora):
+    """
+    Calcula subtensão e sobretensão por faixa horária.
+    Subtensão: alguma fase < 0.95 pu
+    Sobretensão: alguma fase > 1.05 pu
+    Retorna dict com keys: subtensao_{faixa}, sobretensao_{faixa}
+    """
     defeitos = {}
     for faixa, horas in TIME_BANDS.items():
-        medias_por_barra = {}
-        # Filtrar apenas horas que foram simuladas com sucesso
         horas_disponiveis = [h for h in horas if h in tensoes_por_hora]
         
         if not horas_disponiveis:
-            # Se nenhuma hora da faixa foi simulada, registrar 0 defeitos
-            defeitos[faixa] = 0
+            defeitos[f"subtensao_{faixa}"] = 0
+            defeitos[f"sobretensao_{faixa}"] = 0
             continue
-            
+        
+        # Coleta todas as barras com subtensão ou sobretensão nesta faixa
+        barras_com_subtensao = set()
+        barras_com_sobretensao = set()
+        
         for barra in next(iter(tensoes_por_hora.values())).keys():
-            valores = [tensoes_por_hora[h][barra] for h in horas_disponiveis]
-            medias_por_barra[barra] = np.mean(valores)
-        defeitos[faixa] = sum(
-            1 for media in medias_por_barra.values()
-            if media < V_PU_MIN or media > V_PU_MAX
-        )
+            tensoes_fases = []
+            for h in horas_disponiveis:
+                tensoes_fases.extend(tensoes_por_hora[h][barra])
+            
+            # Se alguma fase está em subtensão
+            if any(t < V_PU_MIN for t in tensoes_fases):
+                barras_com_subtensao.add(barra)
+            
+            # Se alguma fase está em sobretensão
+            if any(t > V_PU_MAX for t in tensoes_fases):
+                barras_com_sobretensao.add(barra)
+        
+        defeitos[f"subtensao_{faixa}"] = len(barras_com_subtensao)
+        defeitos[f"sobretensao_{faixa}"] = len(barras_com_sobretensao)
+    
     return defeitos
 
 
 def calcular_defeitos_por_faixa_bess(tensoes_por_hora):
-    """Calcula defeitos de tensão para as faixas de operação da bateria"""
+    """
+    Calcula subtensão e sobretensão para as faixas de operação da BESS.
+    Subtensão: alguma fase < 0.95 pu
+    Sobretensão: alguma fase > 1.05 pu
+    Retorna dict com keys: subtensao_{faixa}, sobretensao_{faixa}
+    """
     defeitos = {}
     for faixa, horas in BESS_BANDS.items():
-        medias_por_barra = {}
-        # Filtrar apenas horas que foram simuladas com sucesso
         horas_disponiveis = [h for h in horas if h in tensoes_por_hora]
         
         if not horas_disponiveis:
-            # Se nenhuma hora da faixa foi simulada, registrar 0 defeitos
-            defeitos[faixa] = 0
+            defeitos[f"subtensao_{faixa}"] = 0
+            defeitos[f"sobretensao_{faixa}"] = 0
             continue
-            
+        
+        # Coleta todas as barras com subtensão ou sobretensão nesta faixa
+        barras_com_subtensao = set()
+        barras_com_sobretensao = set()
+        
         for barra in next(iter(tensoes_por_hora.values())).keys():
-            valores = [tensoes_por_hora[h][barra] for h in horas_disponiveis]
-            medias_por_barra[barra] = np.mean(valores)
-        defeitos[faixa] = sum(
-            1 for media in medias_por_barra.values()
-            if media < V_PU_MIN or media > V_PU_MAX
-        )
+            tensoes_fases = []
+            for h in horas_disponiveis:
+                tensoes_fases.extend(tensoes_por_hora[h][barra])
+            
+            # Se alguma fase está em subtensão
+            if any(t < V_PU_MIN for t in tensoes_fases):
+                barras_com_subtensao.add(barra)
+            
+            # Se alguma fase está em sobretensão
+            if any(t > V_PU_MAX for t in tensoes_fases):
+                barras_com_sobretensao.add(barra)
+        
+        defeitos[f"subtensao_{faixa}"] = len(barras_com_subtensao)
+        defeitos[f"sobretensao_{faixa}"] = len(barras_com_sobretensao)
+    
     return defeitos
 
-
-def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatores_incerteza, cargas_base):
-    radiancias = perfis_irr.loc[perfis_irr["id_realizacao"] == realizacao_id].iloc[0]
+def simular_realizacao(realizacao_id, row_info, pv_df, bess_df, perfis_irr, fatores_incerteza, cargas_base):
+    """
+    Simula uma realização específica do Monte Carlo.
+    
+    Parameters:
+    -----------
+    realizacao_id : int
+        ID da realização
+    row_info : pd.Series
+        Série com informações da realização (tipo_dia, pv_unidades, etc.)
+    pv_df : pd.DataFrame
+        DataFrame com dados de PV filtrado para esta realização
+    bess_df : pd.DataFrame
+        DataFrame com dados de BESS filtrado para esta realização
+    perfis_irr : pd.DataFrame
+        DataFrame com perfis de irradiância
+    fatores_incerteza : pd.DataFrame
+        DataFrame com fatores de incerteza de carga
+    cargas_base : dict
+        Dicionário com cargas base da rede
+    """
+    # Buscar perfis de irradiância da realização
+    perfis_irr_realizacao = perfis_irr.loc[perfis_irr["id_realizacao"] == realizacao_id]
+    if perfis_irr_realizacao.empty:
+        raise ValueError(
+            f"Perfis de irradiância não encontrados para id_realizacao={realizacao_id}. "
+            f"IDs disponíveis: {sorted(perfis_irr['id_realizacao'].unique())}"
+        )
+    radiancias = perfis_irr_realizacao.iloc[0]
     fatores_irradiancia = [float(radiancias[f"h{h:02d}"]) for h in range(24)]
 
     carga_real = fatores_incerteza[fatores_incerteza["id_realizacao"] == realizacao_id]
@@ -264,19 +326,27 @@ def simular_realizacao(realizacao_id, resumo, pv_df, bess_df, perfis_irr, fatore
 
     return {
         "id_realizacao": realizacao_id,
-        "tipo_dia": resumo.loc[resumo["id_realizacao"] == realizacao_id, "tipo_dia"].iloc[0],
-        "pv_unidades": int(resumo.loc[resumo["id_realizacao"] == realizacao_id, "pv_unidades"].iloc[0]),
-        "pv_potencia_total_kw": float(resumo.loc[resumo["id_realizacao"] == realizacao_id, "pv_potencia_total_kw"].iloc[0]),
-        "bess_unidades": int(resumo.loc[resumo["id_realizacao"] == realizacao_id, "bess_unidades"].iloc[0]),
+        "tipo_dia": row_info["tipo_dia"],
+        "pv_unidades": int(row_info["pv_unidades"]),
+        "pv_potencia_total_kw": float(row_info["pv_potencia_total_kw"]),
+        "bess_unidades": int(row_info["bess_unidades"]),
         "bess_potencia_total_kw": float(bess_real["potencia_kw"].sum()) if not bess_real.empty else 0.0,
-        "defeitos_manhã": defeitos["manhã"],
-        "defeitos_tarde": defeitos["tarde"],
-        "defeitos_noite": defeitos["noite"],
-        "defeitos_madrugada": defeitos["madrugada"],
-        "defeitos_bess_carga": defeitos_bess["carga"],
-        "defeitos_bess_pós_carga_pré_descarga": defeitos_bess["pós_carga_pré_descarga"],
-        "defeitos_bess_descarga": defeitos_bess["descarga"],
-        "defeitos_bess_fora_de_operacao": defeitos_bess["fora_de_operacao"],
+        "subtensao_manhã": defeitos["subtensao_manhã"],
+        "sobretensao_manhã": defeitos["sobretensao_manhã"],
+        "subtensao_tarde": defeitos["subtensao_tarde"],
+        "sobretensao_tarde": defeitos["sobretensao_tarde"],
+        "subtensao_noite": defeitos["subtensao_noite"],
+        "sobretensao_noite": defeitos["sobretensao_noite"],
+        "subtensao_madrugada": defeitos["subtensao_madrugada"],
+        "sobretensao_madrugada": defeitos["sobretensao_madrugada"],
+        "subtensao_bess_carga": defeitos_bess["subtensao_carga"],
+        "sobretensao_bess_carga": defeitos_bess["sobretensao_carga"],
+        "subtensao_bess_pós_carga_pré_descarga": defeitos_bess["subtensao_pós_carga_pré_descarga"],
+        "sobretensao_bess_pós_carga_pré_descarga": defeitos_bess["sobretensao_pós_carga_pré_descarga"],
+        "subtensao_bess_descarga": defeitos_bess["subtensao_descarga"],
+        "sobretensao_bess_descarga": defeitos_bess["sobretensao_descarga"],
+        "subtensao_bess_fora_de_operacao": defeitos_bess["subtensao_fora_de_operacao"],
+        "sobretensao_bess_fora_de_operacao": defeitos_bess["sobretensao_fora_de_operacao"],
         "horas_com_erro_max_control": horas_com_erro,
     }
 
@@ -300,7 +370,7 @@ def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=No
 
         resultado = simular_realizacao(
             id_realizacao,
-            resumo,
+            row,
             elementos[elementos["id_realizacao"] == id_realizacao],
             elementos[(elementos["id_realizacao"] == id_realizacao) & (elementos["classe"] == "Storage")],
             perfis_irr,
@@ -312,9 +382,9 @@ def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=No
         
         if resultado["horas_com_erro_max_control"] > 0:
             realizacoes_com_erro += 1
-            print(f"  ✓ Realização {id_realizacao} - defeitos: manhã={resultado['defeitos_manhã']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']} madrugada={resultado['defeitos_madrugada']} ⚠ {resultado['horas_com_erro_max_control']} hora(s) com erro Max Control Iter")
+            print(f"  ✓ Realização {id_realizacao} - Subtensão: manhã={resultado['subtensao_manhã']} tarde={resultado['subtensao_tarde']} noite={resultado['subtensao_noite']} madrugada={resultado['subtensao_madrugada']} | Sobretensão: manhã={resultado['sobretensao_manhã']} tarde={resultado['sobretensao_tarde']} noite={resultado['sobretensao_noite']} madrugada={resultado['sobretensao_madrugada']} ⚠ {resultado['horas_com_erro_max_control']} hora(s) com erro Max Control Iter")
         else:
-            print(f"  ✓ Realização {id_realizacao} - defeitos: manhã={resultado['defeitos_manhã']} tarde={resultado['defeitos_tarde']} noite={resultado['defeitos_noite']} madrugada={resultado['defeitos_madrugada']}")
+            print(f"  ✓ Realização {id_realizacao} - Subtensão: manhã={resultado['subtensao_manhã']} tarde={resultado['subtensao_tarde']} noite={resultado['subtensao_noite']} madrugada={resultado['subtensao_madrugada']} | Sobretensão: manhã={resultado['sobretensao_manhã']} tarde={resultado['sobretensao_tarde']} noite={resultado['sobretensao_noite']} madrugada={resultado['sobretensao_madrugada']}")
 
     df_resultados = pd.DataFrame(resultados)
     os.makedirs(pasta_saida_nivel, exist_ok=True)
@@ -323,59 +393,102 @@ def processar_nivel(pasta_nivel, dss_path, pasta_saida_nivel, max_realizacoes=No
 
 
 def plotar_boxplot_geral(df_master, pasta_saida):
-    """Gera boxplot geral sem segmentação por tipo de dia"""
+    """Gera boxplots gerais separados para subtensão e sobretensão"""
     niveis = sorted(df_master["pen_pct"].unique())
+    faixas = ["manhã", "tarde", "noite", "madrugada"]
     
+    # Boxplot para Subtensão
     fig, axes = plt.subplots(4, 1, figsize=(16, 20), constrained_layout=True)
-    for ax, faixa in zip(axes, ["manhã", "tarde", "noite", "madrugada"]):
+    for ax, faixa in zip(axes, faixas):
         data = [
-            df_master.loc[df_master["pen_pct"] == nivel, f"defeitos_{faixa}"]
+            df_master.loc[df_master["pen_pct"] == nivel, f"subtensao_{faixa}"]
             for nivel in niveis
         ]
-        ax.boxplot(data, labels=[str(n) for n in niveis], showfliers=False)
-        ax.set_title(f"Número de barras com defeito de tensão - faixa {faixa.capitalize()}")
+        ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+        ax.set_title(f"Número de barras com SUBTENSÃO (V < 0.95 pu) - faixa {faixa.capitalize()}")
         ax.set_xlabel("Penetração PV (%)")
-        ax.set_ylabel("Barras defectivas")
+        ax.set_ylabel("Barras com subtensão")
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_ylim(0, 35)
 
-    fig.suptitle("Defeitos de tensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
-    caminho_imagem = os.path.join(pasta_saida, "boxplot_defeitos_geral.png")
-    fig.savefig(caminho_imagem, dpi=200)
+    fig.suptitle("Subtensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    caminho_subtensao = os.path.join(pasta_saida, "boxplot_subtensao_geral.png")
+    fig.savefig(caminho_subtensao, dpi=200)
     plt.close(fig)
-    print(f"  Boxplot geral salvo em: {caminho_imagem}")
-    return caminho_imagem
+    
+    # Boxplot para Sobretensão
+    fig, axes = plt.subplots(4, 1, figsize=(16, 20), constrained_layout=True)
+    for ax, faixa in zip(axes, faixas):
+        data = [
+            df_master.loc[df_master["pen_pct"] == nivel, f"sobretensao_{faixa}"]
+            for nivel in niveis
+        ]
+        ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+        ax.set_title(f"Número de barras com SOBRETENSÃO (V > 1.05 pu) - faixa {faixa.capitalize()}")
+        ax.set_xlabel("Penetração PV (%)")
+        ax.set_ylabel("Barras com sobretensão")
+        ax.grid(True, linestyle="--", alpha=0.4)
+        ax.set_ylim(0, 35)
+
+    fig.suptitle("Sobretensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    caminho_sobretensao = os.path.join(pasta_saida, "boxplot_sobretensao_geral.png")
+    fig.savefig(caminho_sobretensao, dpi=200)
+    plt.close(fig)
+    
+    return caminho_subtensao, caminho_sobretensao
 
 
 def plotar_boxplot_por_time_bands(df_master, pasta_saida):
-    """Gera boxplots segmentados apenas por time bands (sem separar por tipo de dia)"""
+    """Gera boxplots separados por time bands, com distinção entre subtensão e sobretensão"""
     niveis = sorted(df_master["pen_pct"].unique())
+    faixas = ["manhã", "tarde", "noite", "madrugada"]
     
+    # Boxplot para Subtensão
     fig, axes = plt.subplots(4, 1, figsize=(16, 20), constrained_layout=True)
-    for ax, faixa in zip(axes, ["manhã", "tarde", "noite", "madrugada"]):
+    for ax, faixa in zip(axes, faixas):
         data = [
-            df_master.loc[df_master["pen_pct"] == nivel, f"defeitos_{faixa}"]
+            df_master.loc[df_master["pen_pct"] == nivel, f"subtensao_{faixa}"]
             for nivel in niveis
         ]
-        ax.boxplot(data, labels=[str(n) for n in niveis], showfliers=False)
-        ax.set_title(f"Número de barras com defeito de tensão - faixa {faixa.capitalize()}")
+        ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+        ax.set_title(f"Número de barras com SUBTENSÃO (V < 0.95 pu) - faixa {faixa.capitalize()}")
         ax.set_xlabel("Penetração PV (%)")
-        ax.set_ylabel("Barras defectivas")
+        ax.set_ylabel("Barras com subtensão")
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_ylim(0, 35)
 
-    fig.suptitle("Defeitos de tensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
-    caminho_imagem = os.path.join(pasta_saida, "boxplot_defeitos_por_time_bands.png")
-    fig.savefig(caminho_imagem, dpi=200)
+    fig.suptitle("Subtensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    caminho_subtensao = os.path.join(pasta_saida, "boxplot_subtensao_por_time_bands.png")
+    fig.savefig(caminho_subtensao, dpi=200)
     plt.close(fig)
-    print(f"  Boxplot por time bands salvo em: {caminho_imagem}")
-    return caminho_imagem
+    
+    # Boxplot para Sobretensão
+    fig, axes = plt.subplots(4, 1, figsize=(16, 20), constrained_layout=True)
+    for ax, faixa in zip(axes, faixas):
+        data = [
+            df_master.loc[df_master["pen_pct"] == nivel, f"sobretensao_{faixa}"]
+            for nivel in niveis
+        ]
+        ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+        ax.set_title(f"Número de barras com SOBRETENSÃO (V > 1.05 pu) - faixa {faixa.capitalize()}")
+        ax.set_xlabel("Penetração PV (%)")
+        ax.set_ylabel("Barras com sobretensão")
+        ax.grid(True, linestyle="--", alpha=0.4)
+        ax.set_ylim(0, 35)
+
+    fig.suptitle("Sobretensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    caminho_sobretensao = os.path.join(pasta_saida, "boxplot_sobretensao_por_time_bands.png")
+    fig.savefig(caminho_sobretensao, dpi=200)
+    plt.close(fig)
+    
+    return caminho_subtensao, caminho_sobretensao
 
 
 def plotar_boxplot(df_master, pasta_saida):
-    """Gera boxplots separados por tipo de dia de irradiância"""
+    """Gera boxplots separados por tipo de dia e por tipo de defeito (subtensão/sobretensão)"""
     niveis = sorted(df_master["pen_pct"].unique())
     tipos_dia = sorted(df_master["tipo_dia"].unique())
+    faixas = ["manhã", "tarde", "noite", "madrugada"]
     
     caminhos_imagens = []
     
@@ -383,69 +496,118 @@ def plotar_boxplot(df_master, pasta_saida):
     for tipo_dia in tipos_dia:
         df_filtrado = df_master[df_master["tipo_dia"] == tipo_dia]
         
+        # Gráfico para Subtensão
         fig, axes = plt.subplots(4, 1, figsize=(16, 20), constrained_layout=True)
-        for ax, faixa in zip(axes, ["manhã", "tarde", "noite", "madrugada"]):
+        for ax, faixa in zip(axes, faixas):
             data = [
-                df_filtrado.loc[df_filtrado["pen_pct"] == nivel, f"defeitos_{faixa}"]
+                df_filtrado.loc[df_filtrado["pen_pct"] == nivel, f"subtensao_{faixa}"]
                 for nivel in niveis
             ]
-            ax.boxplot(data, labels=[str(n) for n in niveis], showfliers=False)
-            ax.set_title(f"Número de barras com defeito de tensão - faixa {faixa.capitalize()}")
+            ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+            ax.set_title(f"Número de barras com SUBTENSÃO (V < 0.95 pu) - faixa {faixa.capitalize()}")
             ax.set_xlabel("Penetração PV (%)")
-            ax.set_ylabel("Barras defectivas")
+            ax.set_ylabel("Barras com subtensão")
             ax.grid(True, linestyle="--", alpha=0.4)
             ax.set_ylim(0, 35)
 
-        fig.suptitle(f"Defeitos de tensão por faixa de horário - Tipo de dia: {tipo_dia}", fontsize=18)
-        caminho_imagem = os.path.join(pasta_saida, f"boxplot_defeitos_por_faixa_{tipo_dia}.png")
+        fig.suptitle(f"Subtensão por faixa de horário - Tipo de dia: {tipo_dia}", fontsize=18)
+        caminho_imagem = os.path.join(pasta_saida, f"boxplot_subtensao_por_faixa_{tipo_dia}.png")
         fig.savefig(caminho_imagem, dpi=200)
         plt.close(fig)
         caminhos_imagens.append(caminho_imagem)
-        print(f"  Boxplot para tipo de dia '{tipo_dia}' salvo em: {caminho_imagem}")
+        
+        # Gráfico para Sobretensão
+        fig, axes = plt.subplots(4, 1, figsize=(16, 20), constrained_layout=True)
+        for ax, faixa in zip(axes, faixas):
+            data = [
+                df_filtrado.loc[df_filtrado["pen_pct"] == nivel, f"sobretensao_{faixa}"]
+                for nivel in niveis
+            ]
+            ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+            ax.set_title(f"Número de barras com SOBRETENSÃO (V > 1.05 pu) - faixa {faixa.capitalize()}")
+            ax.set_xlabel("Penetração PV (%)")
+            ax.set_ylabel("Barras com sobretensão")
+            ax.grid(True, linestyle="--", alpha=0.4)
+            ax.set_ylim(0, 35)
+
+        fig.suptitle(f"Sobretensão por faixa de horário - Tipo de dia: {tipo_dia}", fontsize=18)
+        caminho_imagem = os.path.join(pasta_saida, f"boxplot_sobretensao_por_faixa_{tipo_dia}.png")
+        fig.savefig(caminho_imagem, dpi=200)
+        plt.close(fig)
+        caminhos_imagens.append(caminho_imagem)
     
     return caminhos_imagens
 
 
 def plotar_boxplot_por_faixa_bess(df_master, pasta_saida):
-    """Gera boxplots separados por faixa de operação da bateria (BESS)"""
+    """Gera boxplots separados por faixa de operação BESS, com distinção entre subtensão/sobretensão"""
     niveis = sorted(df_master["pen_pct"].unique())
     tipos_dia = sorted(df_master["tipo_dia"].unique())
     
-    caminhos_imagens = []
-    
-    # Mapeamento de nomes das colunas e títulos para melhor legibilidade
-    faixas_bess = {
-        "defeitos_bess_carga": "Carga (10h-14h)",
-        "defeitos_bess_pós_carga_pré_descarga": "Pós-carga/Pré-descarga (15h-17h)",
-        "defeitos_bess_descarga": "Descarga (18h-21h)",
-        "defeitos_bess_fora_de_operacao": "Fora de operação (22h-09h)"
+    mapeamento_faixas = {
+        "subtensao_carga": ("Subtensão", "Carga (10h-14h)"),
+        "sobretensao_carga": ("Sobretensão", "Carga (10h-14h)"),
+        "subtensao_pós_carga_pré_descarga": ("Subtensão", "Pós-carga/Pré-descarga (15h-17h)"),
+        "sobretensao_pós_carga_pré_descarga": ("Sobretensão", "Pós-carga/Pré-descarga (15h-17h)"),
+        "subtensao_descarga": ("Subtensão", "Descarga (18h-21h)"),
+        "sobretensao_descarga": ("Sobretensão", "Descarga (18h-21h)"),
+        "subtensao_fora_de_operacao": ("Subtensão", "Fora de operação (22h-09h)"),
+        "sobretensao_fora_de_operacao": ("Sobretensão", "Fora de operação (22h-09h)"),
     }
+    
+    caminhos_imagens = []
     
     # Gerar um gráfico para cada tipo de dia
     for tipo_dia in tipos_dia:
         df_filtrado = df_master[df_master["tipo_dia"] == tipo_dia]
         
+        # Gráfico para Subtensão
         fig, axes = plt.subplots(2, 2, figsize=(16, 12), constrained_layout=True)
         axes_flat = axes.flatten()
         
-        for ax, (coluna, titulo) in zip(axes_flat, faixas_bess.items()):
+        faixas_subtensao = [f"subtensao_{faixa}" for faixa in ["carga", "pós_carga_pré_descarga", "descarga", "fora_de_operacao"]]
+        for ax, coluna in zip(axes_flat, faixas_subtensao):
             data = [
-                df_filtrado.loc[df_filtrado["pen_pct"] == nivel, coluna]
+                df_filtrado.loc[df_filtrado["pen_pct"] == nivel, f"subtensao_bess_{coluna.split('_', 1)[1]}"]
                 for nivel in niveis
             ]
-            ax.boxplot(data, labels=[str(n) for n in niveis], showfliers=False)
-            ax.set_title(f"Número de barras com defeito de tensão - {titulo}")
+            ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+            _, titulo = mapeamento_faixas[coluna]
+            ax.set_title(f"Número de barras com SUBTENSÃO (V < 0.95 pu) - {titulo}")
             ax.set_xlabel("Penetração PV (%)")
-            ax.set_ylabel("Barras defectivas")
+            ax.set_ylabel("Barras com subtensão")
             ax.grid(True, linestyle="--", alpha=0.4)
             ax.set_ylim(0, 35)
 
-        fig.suptitle(f"Defeitos de tensão por faixa de operação BESS - Tipo de dia: {tipo_dia}", fontsize=18)
-        caminho_imagem = os.path.join(pasta_saida, f"boxplot_defeitos_por_faixa_bess_{tipo_dia}.png")
+        fig.suptitle(f"Subtensão por faixa de operação BESS - Tipo de dia: {tipo_dia}", fontsize=18)
+        caminho_imagem = os.path.join(pasta_saida, f"boxplot_subtensao_por_faixa_bess_{tipo_dia}.png")
         fig.savefig(caminho_imagem, dpi=200)
         plt.close(fig)
         caminhos_imagens.append(caminho_imagem)
-        print(f"  Boxplot BESS para tipo de dia '{tipo_dia}' salvo em: {caminho_imagem}")
+        
+        # Gráfico para Sobretensão
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12), constrained_layout=True)
+        axes_flat = axes.flatten()
+        
+        faixas_sobretensao = [f"sobretensao_{faixa}" for faixa in ["carga", "pós_carga_pré_descarga", "descarga", "fora_de_operacao"]]
+        for ax, coluna in zip(axes_flat, faixas_sobretensao):
+            data = [
+                df_filtrado.loc[df_filtrado["pen_pct"] == nivel, f"sobretensao_bess_{coluna.split('_', 1)[1]}"]
+                for nivel in niveis
+            ]
+            ax.boxplot(data, tick_labels=[str(n) for n in niveis], showfliers=False)
+            _, titulo = mapeamento_faixas[coluna]
+            ax.set_title(f"Número de barras com SOBRETENSÃO (V > 1.05 pu) - {titulo}")
+            ax.set_xlabel("Penetração PV (%)")
+            ax.set_ylabel("Barras com sobretensão")
+            ax.grid(True, linestyle="--", alpha=0.4)
+            ax.set_ylim(0, 35)
+
+        fig.suptitle(f"Sobretensão por faixa de operação BESS - Tipo de dia: {tipo_dia}", fontsize=18)
+        caminho_imagem = os.path.join(pasta_saida, f"boxplot_sobretensao_por_faixa_bess_{tipo_dia}.png")
+        fig.savefig(caminho_imagem, dpi=200)
+        plt.close(fig)
+        caminhos_imagens.append(caminho_imagem)
     
     return caminhos_imagens
 
@@ -512,11 +674,11 @@ def main():
         
         # Gerar boxplot geral (sem segmentação)
         print(f"\nGerando boxplot geral (sem segmentação)...")
-        caminho_plot_geral = plotar_boxplot_geral(df_master, pasta_saida)
+        caminhos_geral_subtensao, caminhos_geral_sobretensao = plotar_boxplot_geral(df_master, pasta_saida)
         
         # Gerar boxplots por time bands apenas
         print(f"\nGerando boxplots por time bands...")
-        caminho_plot_time_bands = plotar_boxplot_por_time_bands(df_master, pasta_saida)
+        caminhos_time_bands_subtensao, caminhos_time_bands_sobretensao = plotar_boxplot_por_time_bands(df_master, pasta_saida)
         
         # Gerar boxplots por tipo de dia
         print(f"\nGerando boxplots por tipo de dia...")
@@ -527,16 +689,8 @@ def main():
         caminhos_plots_bess = plotar_boxplot_por_faixa_bess(df_master, pasta_saida)
         
         print(f"\nAnálise finalizada. Master CSV salvo em: {os.path.join(pasta_saida, 'master_resultados_opendss.csv')}")
-        print(f"\nBoxplot geral salvo em:")
-        print(f"  - {caminho_plot_geral}")
-        print(f"\nBoxplot por time bands salvo em:")
-        print(f"  - {caminho_plot_time_bands}")
-        print(f"\nBoxplots por tipo de dia salvos em:")
-        for caminho in caminhos_plots:
-            print(f"  - {caminho}")
-        print(f"\nBoxplots por faixa de operação BESS salvos em:")
-        for caminho in caminhos_plots_bess:
-            print(f"  - {caminho}")
+        print(f"\nBoxplots salvos")
+        
         print(f"\n⚠ RESUMO DE ERROS:")
         print(f"  Total de realizações com erro 'Max Control Iterations': {total_realizacoes_com_erro}")
         if total_realizacoes_com_erro > 0:
