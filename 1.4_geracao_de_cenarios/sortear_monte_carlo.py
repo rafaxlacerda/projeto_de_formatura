@@ -23,18 +23,20 @@ CARGA_PICO_TOTAL_MW = 1.769
 
 # PARÂMETROS DO SORTEIO MONTE CARLO
 
-N_REALIZACOES = 500     # Sorteios por nível de penetração
+N_REALIZACOES = 200     # Sorteios por nível de penetração
 N_HORAS = 24            # Resolução temporal
 
 # Range de Penetração FV: de 0% a 150% em passos de 10%
 PV_PENETRACAO_NIVEIS = np.round(np.arange(0.0, 1.6, 0.1), 2)
 
 # --- BESS ---
-# BESS inserido: 1 unidade para cada 5% de penetração
-BESS_CAP_MIN_KWH = 100
-BESS_CAP_MAX_KWH = 500
-BESS_KW_MIN = 50
-BESS_KW_MAX = 250
+# Potência total de BESS como fração da potência FV instalada
+BESS_FRACAO_PV = 0.35
+# Desvio relativo da perturbação gaussiana na alocação de BESS entre barras
+BESS_DESVIO_ALOCACAO = 0.10
+# Intervalo da razão de armazenamento τ (em horas)
+BESS_TAU_MIN_H = 2.0
+BESS_TAU_MAX_H = 4.0
 
 # Perfil fixo de carga e descarga do BESS
 # Carrega (-1) das 10h às 14h, Descarrega (+1) das 18h às 21h
@@ -96,34 +98,41 @@ def alocar_pv_por_barras(target_potencia_kw):
  
     return pv_alocacao
 
-def alocar_bess_por_barras(penetracao_pct):
+def alocar_bess_por_barras(target_pv_kw):
     """
     Aloca BESS em barras trifásicas.
-    Uma unidade BESS por barra.
-    Número total: 1 unidade a cada 5% de penetração PV
+    A potência total de BESS é BESS_FRACAO_PV * target_pv_kw.
+    Distribui essa potência entre todas as barras trifásicas usando perturbação gaussiana.
+    A capacidade de energia é calculada como: Ej = Pj * τj, onde τj ~ U(BESS_TAU_MIN_H, BESS_TAU_MAX_H).
     Retorna: dict {barra: {'potencia_kw': ..., 'capacidade_kwh': ...}}
     """
-    n_unidades_bess = int(penetracao_pct / 5)
-    if n_unidades_bess == 0:
+    target_bess_kw = BESS_FRACAO_PV * target_pv_kw
+    
+    if target_bess_kw <= 0:
         return {}
     
+    n_barras = len(BARRAS_TRIFASICAS)
+    
+    # Sorteia fatores multiplicativos para cada barra e trunca
+    fatores = np.random.normal(1.0, BESS_DESVIO_ALOCACAO, size=n_barras)
+    fatores = np.clip(fatores, 0.5, 1.5)
+    
+    # Normaliza para que a soma dos pesos seja 1
+    pesos = fatores / fatores.sum()
+    
+    # Calcula potência alocada em cada barra
+    potencias = pesos * target_bess_kw
+    
+    # Calcula capacidade de energia para cada barra
     bess_alocacao = {}
-    barras_disponiveis = list(BARRAS_TRIFASICAS)
-    
-    # Seleciona barras aleatoriamente (sem reposição)
-    barras_sorteadas = np.random.choice(
-        barras_disponiveis, 
-        size=min(n_unidades_bess, len(barras_disponiveis)), 
-        replace=False
-    ).tolist()
-    
-    for barra in barras_sorteadas:
-        potencia_kw = np.random.uniform(BESS_KW_MIN, BESS_KW_MAX)
-        capacidade_kwh = np.random.uniform(BESS_CAP_MIN_KWH, BESS_CAP_MAX_KWH)
-        bess_alocacao[barra] = {
-            "potencia_kw": potencia_kw,
-            "capacidade_kwh": capacidade_kwh,
-        }
+    for barra, pot in zip(BARRAS_TRIFASICAS, potencias):
+        if pot >= 1.0:  # descarta parcelas residuais irrelevantes
+            tau_h = np.random.uniform(BESS_TAU_MIN_H, BESS_TAU_MAX_H)
+            capacidade_kwh = pot * tau_h
+            bess_alocacao[barra] = {
+                "potencia_kw": round(float(pot), 2),
+                "capacidade_kwh": round(float(capacidade_kwh), 2),
+            }
     
     return bess_alocacao
 
@@ -164,7 +173,7 @@ def gerar_realizacoes_por_nivel(nivel_penetracao, n_realizacoes):
 
         # 2. PV e BESS (Estocásticos e Independentes)
         pv_alocacao = alocar_pv_por_barras(target_pv_kw)
-        bess_alocacao = alocar_bess_por_barras(penetracao_pct)
+        bess_alocacao = alocar_bess_por_barras(target_pv_kw)
 
         # 3. Fatores de Incerteza de Carga
         fatores_incerteza_barras = gerar_fatores_incerteza_carga()
@@ -209,13 +218,18 @@ def exportar_realizacoes_por_nivel(realizacoes, nivel_penetracao_pct, pasta_said
     # =========================================================================
     linhas_resumo = []
     for r in realizacoes:
+        pv_total = sum(r["pv_alocacao"].values()) if r["pv_alocacao"] else 0
+        bess_total = sum(config["potencia_kw"] for config in r["bess_alocacao"].values()) if r["bess_alocacao"] else 0
+        razao_bess_pv = bess_total / pv_total if pv_total > 0 else 0
         linhas_resumo.append({
             "id_realizacao": r["id_realizacao"],
             "tipo_dia": r["tipo_dia"],
             "penetracao_pct": r["penetracao_pct"],
             "pv_unidades": r["pv_unidades"],
-            "pv_potencia_total_kw": sum(r["pv_alocacao"].values()) if r["pv_alocacao"] else 0,
+            "pv_potencia_total_kw": pv_total,
             "bess_unidades": r["bess_unidades"],
+            "bess_potencia_total_kw": round(bess_total, 2),
+            "razao_bess_pv": round(razao_bess_pv, 4),
         })
     df_resumo = pd.DataFrame(linhas_resumo)
     df_resumo.to_csv(os.path.join(pasta_saida, "01_resumo_configuracoes.csv"),
