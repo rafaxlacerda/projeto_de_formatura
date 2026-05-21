@@ -12,11 +12,9 @@ Reguladores: taps congelados no valor do snapshot inicial.
 """
 #TODO: como influencia no tempo de carregamente/descarregamento do bess? comparar sem o controle primario
 #TODO: o que acontece se pede injeção de potencia e a bateria não tem energia?
-#TODO: definição de barras com defeito: a tensão de alguma fase é < 0.95 pu ou > 1.05 pu  
 
 from opendssdirect import dss
 import pandas as pd
-import math
 import os
 import numpy as np
 import matplotlib
@@ -28,6 +26,8 @@ import matplotlib.pyplot as plt
 # CONFIGURAÇÕES
 # ---------------------------------------------------------------------------
 SCRIPT_DIR    = os.path.dirname(os.path.abspath(__file__))
+FIG_DIR       = os.path.join(SCRIPT_DIR, "figuras")
+os.makedirs(FIG_DIR, exist_ok=True)
 BASE_DSS      = os.path.join(SCRIPT_DIR, "..", "IEEE34bus", "IEEE34_original_with_loadshapes.dss")
 MC_DIR        = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
                               "resultados_monte_carlo", "realizacoes_sorteadas")
@@ -100,17 +100,29 @@ def volt_var_curve(v_pu: float, p_nom_kw: float) -> float:
 
 def get_bus_vmag_pu(bus_name: str) -> float:
     """
-    Retorna a tensão representativa em p.u. nas fases presentes da barra.
-    V_AGGREGATION = "min"  → menor fase (mais conservador)
+    Tensão representativa da barra para a curva Volt-VAr.
+    V_AGGREGATION = "min"  → menor fase (mais conservador para subtensão)
     V_AGGREGATION = "mean" → média das fases
     """
     dss.Circuit.SetActiveBus(bus_name)
-    vmag_list  = dss.Bus.puVmagAngle()   # [mag1, ang1, mag2, ang2, ...]
-    magnitudes = vmag_list[0::2]         # pega só as magnitudes
+    magnitudes = dss.Bus.puVmagAngle()[0::2]
     valid = [v for v in magnitudes if v > 0.1]
     if not valid:
         return 1.0
     return min(valid) if V_AGGREGATION == "min" else sum(valid) / len(valid)
+
+
+def get_bus_vmin_vmax_pu(bus_name: str) -> tuple:
+    """
+    Retorna (v_min, v_max) entre as fases válidas da barra.
+    Usado para detectar sub e sobretensão independentemente.
+    """
+    dss.Circuit.SetActiveBus(bus_name)
+    magnitudes = dss.Bus.puVmagAngle()[0::2]
+    valid = [v for v in magnitudes if v > 0.1]
+    if not valid:
+        return 1.0, 1.0
+    return min(valid), max(valid)
 
 
 def enable_regulators(reg_names: list):
@@ -188,16 +200,86 @@ def set_bess_kvar(name: str, kvar: float):
     dss.Command(f"Storage.{name}.kvar={kvar:.4f}")
 
 
+def set_bess_dispatch(name: str, mult: float, pnom_kw: float):
+    """
+    Define State e kW do BESS para a hora corrente antes do daily solve.
+    O OpenDSS Storage não atualiza SOC automaticamente com State=Idling;
+    o controle explícito aqui é necessário para o SOC evoluir corretamente.
+      mult < 0 → Charging  (absorve da rede, SOC sobe)
+      mult > 0 → Discharging (injeta na rede, SOC desce)
+      mult = 0 → Idling
+    """
+    if mult < 0:
+        dss.Command(f"Storage.{name}.State=Charging kW={abs(mult) * pnom_kw:.4f}")
+    elif mult > 0:
+        dss.Command(f"Storage.{name}.State=Discharging kW={mult * pnom_kw:.4f}")
+    else:
+        dss.Command(f"Storage.{name}.State=Idling")
+
+
+def carregar_cargas_base() -> dict:
+    """
+    Lê kW/kvar base de cada Load logo após a compilação da rede.
+    Deve ser chamada antes do primeiro solve para capturar os valores nominais.
+    """
+    cargas = {}
+    nome = dss.Loads.First()
+    while nome:
+        dss.Circuit.SetActiveElement(f"Load.{nome}")
+        bus_str = dss.CktElement.BusNames()[0].split(".")[0]
+        try:
+            bus_int = int(bus_str)
+        except ValueError:
+            bus_int = None
+        cargas[nome] = {
+            "kw":   dss.Loads.kW(),
+            "kvar": dss.Loads.kvar(),
+            "bus":  bus_int,
+        }
+        nome = dss.Loads.Next()
+    return cargas
+
+
+def aplicar_fatores_carga(hora: int, cargas_base: dict, fatores_carga: dict):
+    """
+    Escala cada Load pelo fator de incerteza da realização para a hora dada.
+    O solve diário aplica o shape multiplier em cima desse valor base escalado:
+      kW_efetivo = kW_base × fator_incerteza × shape_multiplier(hora)
+    """
+    for nome, carga in cargas_base.items():
+        fator = fatores_carga.get(carga["bus"], [1.0] * 24)[hora]
+        dss.Command(
+            f"Edit Load.{nome} kW={carga['kw'] * fator:.6f} kvar={carga['kvar'] * fator:.6f}"
+        )
+
+
+def get_bess_soc(name: str) -> tuple:
+    """Retorna (%stored, state_str) do BESS após um solve."""
+    dss.Command(f"? Storage.{name}.%stored")
+    soc = float(dss.Text.Result()) if dss.Text.Result() else 0.0
+    dss.Command(f"? Storage.{name}.State")
+    state = dss.Text.Result().strip() if dss.Text.Result() else "Unknown"
+    return soc, state
+
+
 def count_voltage_violations() -> tuple:
     """
-    Retorna (n_violacoes, dict{bus: v_pu}) para todas as barras com
-    V < 0.95 p.u. ou V > 1.05 p.u. após o solve atual.
+    Retorna (n_violacoes, dict{bus: info}) onde info contém v_min, v_max,
+    e flags 'under' (v_min < 0.95) e 'over' (v_max > 1.05).
+    Uma barra é violadora se qualquer fase estiver fora do intervalo [0.95, 1.05].
     """
     violations = {}
     for bus in dss.Circuit.AllBusNames():
-        v = get_bus_vmag_pu(bus)
-        if v < 0.95 or v > 1.05:
-            violations[bus] = round(v, 6)
+        v_min, v_max = get_bus_vmin_vmax_pu(bus)
+        under = v_min < 0.95
+        over  = v_max > 1.05
+        if under or over:
+            violations[bus] = {
+                "v_min": round(v_min, 6),
+                "v_max": round(v_max, 6),
+                "under": under,
+                "over":  over,
+            }
     return len(violations), violations
 
 
@@ -229,16 +311,19 @@ def plot_voltvar_curve():
     ax.legend()
     ax.grid(True, linestyle="--", alpha=0.4)
 
-    path = os.path.join(SCRIPT_DIR, "fig_voltvar_curve.png")
+    path = os.path.join(FIG_DIR, "fig_voltvar_curve.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"[Plot] Curva Volt-VAr salva em: {path}")
 
 
-def add_realizacao_elements(pen_pct: int, id_realizacao: int):
+def add_realizacao_elements(pen_pct: int, id_realizacao: int) -> tuple:
     """
     Lê os CSVs da realização Monte Carlo e adiciona PVSystem e Storage
-    à rede já compilada. Retorna (n_pv, n_bess).
+    à rede já compilada.
+    Retorna (n_pv, n_bess, bess_prof, fatores_carga) onde:
+      bess_prof    — lista 24h de multiplicadores de despacho (−1=carga, +1=descarga)
+      fatores_carga — {barra_int: [fator_h00, ..., fator_h23]}
     """
     pasta = os.path.join(MC_DIR, f"pen_{pen_pct:03d}pct")
 
@@ -251,7 +336,8 @@ def add_realizacao_elements(pen_pct: int, id_realizacao: int):
     irr_ls   = f"PV_irr_real{id_realizacao}"
     dss.Command(f"New LoadShape.{irr_ls} npts=24 interval=1 mult=[{irr_str}]")
 
-    # LoadShape fixo de BESS (carga 10–14 h, descarga 18–21 h)
+    # Perfil de despacho do BESS — idêntico a BESS_PERFIL em simulacoes_fluxo_de_potencia_realizações.py
+    # carga h10–14 (mult = −1), descarga h18–21 (mult = +1), ocioso no restante
     bess_prof = [0.0] * 24
     for h in range(10, 15):
         bess_prof[h] = -1.0
@@ -259,6 +345,15 @@ def add_realizacao_elements(pen_pct: int, id_realizacao: int):
         bess_prof[h] =  1.0
     bess_str = " ".join(f"{v:.1f}" for v in bess_prof)
     dss.Command(f"New LoadShape.BESS_fixo npts=24 interval=1 mult=[{bess_str}]")
+
+    # Fatores de incerteza de carga por barra e hora
+    df_fat = pd.read_csv(os.path.join(pasta, "03_fatores_incerteza_carga.csv"),
+                         sep=";", decimal=",")
+    df_fat_real = df_fat[df_fat["id_realizacao"] == id_realizacao]
+    fatores_carga = {
+        int(row["barra"]): [float(row[f"h{h:02d}"]) for h in range(24)]
+        for _, row in df_fat_real.iterrows()
+    }
 
     # Lê elementos da realização
     df_elem = pd.read_csv(os.path.join(pasta, "06_elementos_opendss.csv"),
@@ -291,15 +386,16 @@ def add_realizacao_elements(pen_pct: int, id_realizacao: int):
             n_bess += 1
 
     dss.Command("CalcVoltageBases")
-    print(f"[Cenário] pen={pen_pct}% | real={id_realizacao} | PV={n_pv} | BESS={n_bess}")
-    return n_pv, n_bess
+    print(f"[Cenário] pen={pen_pct}% | real={id_realizacao} | PV={n_pv} | BESS={n_bess} "
+          f"| cargas com fator={len(fatores_carga)}")
+    return n_pv, n_bess, bess_prof, fatores_carga
 
 
 # ---------------------------------------------------------------------------
 # COMPILAR A REDE
 # ---------------------------------------------------------------------------
 dss.Command(f"compile [{BASE_DSS}]")
-add_realizacao_elements(PEN_PCT, ID_REALIZACAO)
+n_pv, n_bess, bess_prof, fatores_carga = add_realizacao_elements(PEN_PCT, ID_REALIZACAO)
 
 # Garante que o modo diário está ativo
 dss.Command("set mode=daily")
@@ -322,6 +418,10 @@ bess_dict = discover_bess_buses()
 if not bess_dict:
     raise RuntimeError("Nenhum elemento Storage trifásico encontrado. "
                        "Verifique se os BESSs foram inseridos na rede.")
+
+# Captura kW/kvar base de cada Load (antes do primeiro solve)
+cargas_base = carregar_cargas_base()
+print(f"[Cargas] {len(cargas_base)} Load(s) com fator de incerteza disponível para {len(fatores_carga)} barra(s).")
 
 # Lista de nomes dos RegControls (pode ser vazia se não houver reguladores)
 reg_names = dss.RegControls.AllNames() or []
@@ -349,10 +449,14 @@ for hour in range(TOTAL_HOURS):
     print(f"{'='*60}")
 
     # -----------------------------------------------------------------
-    # Passo 1: aplica Q da hora anterior a todos os BESSs
+    # Passo 1: despacho ativo do BESS e fatores de incerteza de carga
+    # O State/kW precisam ser definidos antes do solve; o OpenDSS Storage
+    # não segue a daily LoadShape automaticamente com State=Idling.
     # -----------------------------------------------------------------
-    #for name, q in q_applied.items():
-    #    set_bess_kvar(name, q)
+    mult = bess_prof[hour]
+    for name, info in bess_dict.items():
+        set_bess_dispatch(name, mult, info["pnom_kw"])
+    aplicar_fatores_carga(hour, cargas_base, fatores_carga)
 
     # -----------------------------------------------------------------
     # Passo 2: daily solve — avança o tempo, aplica LoadShapes corretos
@@ -392,6 +496,9 @@ for hour in range(TOTAL_HOURS):
     #dss.Command("set mode=daily")
     #restore_tap(tap_snapshot)
 
+    # Consulta SOC e estado de cada BESS após o solve desta hora (TODOs 3 e 4)
+    soc_info = {name: get_bess_soc(name) for name in bess_dict}
+
     # -----------------------------------------------------------------
     # Passo 6: coleta resultados por BESS
     # -----------------------------------------------------------------
@@ -399,6 +506,12 @@ for hour in range(TOTAL_HOURS):
         v_final = get_bus_vmag_pu(info["bus"])
         q_kvar  = q_new[name]
         q_max   = Q_MAX_PU * info["pnom_kw"]
+        soc, bess_state = soc_info[name]
+        soc_warn = soc < 5.0 and q_kvar != 0.0
+        if soc_warn:
+            print(f"  [AVISO] BESS {name}: SOC={soc:.1f}% (bateria quase vazia) "
+                  f"mas Q={q_kvar:.1f} kvar solicitado. "
+                  f"Inversor ainda pode fornecer Q (sem consumo de kWh).")
         records.append({
             "hour":       hour + 1,
             "bess":       name,
@@ -408,9 +521,13 @@ for hour in range(TOTAL_HOURS):
             "q_pu":       round(q_kvar / q_max, 4) if q_max > 0 else 0.0,
             "q_active":   q_kvar != 0.0,
             "pnom_kw":    info["pnom_kw"],
+            "soc_pct":    round(soc, 2),
+            "bess_state": bess_state,
+            "soc_warn":   soc_warn,
         })
         print(f"  [BESS {name}] V_med={v_measured[name]:.4f} → V_fin={v_final:.4f} p.u. | "
-              f"Q={q_kvar:.2f} kvar ({'ativo' if q_kvar != 0 else 'zona morta'})")
+              f"Q={q_kvar:.2f} kvar ({'ativo' if q_kvar != 0 else 'zona morta'}) | "
+              f"SOC={soc:.1f}% [{bess_state}]")
 
     # -----------------------------------------------------------------
     # Passo 7: violações de tensão (após snapshot com Q novo)
@@ -418,8 +535,11 @@ for hour in range(TOTAL_HOURS):
     n_viol, viol_dict = count_voltage_violations()
     print(f"  [Violações] hora {hour+1:02d}: {n_viol} barra(s) fora de [0.95, 1.05] p.u.")
     if viol_dict:
-        for b, v in sorted(viol_dict.items()):
-            print(f"    barra {b}: {v:.4f} p.u.")
+        for b, info in sorted(viol_dict.items()):
+            partes = []
+            if info["under"]: partes.append(f"↓V_min={info['v_min']:.4f}")
+            if info["over"]:  partes.append(f"↑V_max={info['v_max']:.4f}")
+            print(f"    barra {b}: {', '.join(partes)}")
     hour_records.append({"hour": hour + 1, "n_violations": n_viol, "violations": viol_dict})
 
     # -----------------------------------------------------------------
@@ -458,7 +578,7 @@ def plot_q_activation(df: pd.DataFrame):
                         fontsize=6, color="black")
 
     fig.colorbar(im, ax=ax, label="Q / Q$_{max}$")
-    path = os.path.join(SCRIPT_DIR, "fig_q_activation.png")
+    path = os.path.join(FIG_DIR, "fig_q_activation.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"[Plot] Heatmap de ativação Q salvo em: {path}")
@@ -475,7 +595,7 @@ def plot_violations(hr: pd.DataFrame):
     hours  = hr["hour"].tolist()
     counts = hr["n_violations"].tolist()
 
-    bars = ax.bar(hours, counts, color="steelblue", edgecolor="white", linewidth=0.5)
+    bars = ax.bar(hours, counts, color="steelblue", edgecolor="white", linewidth=1.0)
 
     # Linhas de referência
     ax.axhline(0, color="gray", linewidth=0.8, linestyle="--")
@@ -488,43 +608,115 @@ def plot_violations(hr: pd.DataFrame):
         f"Limites: V < 0.95 p.u. ou V > 1.05 p.u."
     )
 
-    # Anota cada barra com "barra: tensão" das barras violadoras
+    # Anota cada barra com chips coloridos por tipo de violação
+    # Vermelho = subtensão (v_min < 0.95), Amarelo = sobretensão (v_max > 1.05)
     for bar, (_, row) in zip(bars, hr.iterrows()):
         viol = row["violations"]
         if not viol:
             continue
 
-        # Monta o texto: uma linha por barra violadora, ordenada por tensão
-        linhas = [f"{b}: {v:.3f}" for b, v in sorted(viol.items(), key=lambda x: x[1])]
-        texto  = "\n".join(linhas)
+        n_viols = len(viol)
+        bar_h   = bar.get_height()
+        bar_x   = bar.get_x() + bar.get_width() / 2
 
-        bar_h = bar.get_height()
-        bar_x = bar.get_x() + bar.get_width() / 2
+        for i, (b, info) in enumerate(sorted(viol.items())):
+            if info["under"] and info["over"]:
+                bg = "orange"
+                val = f"{b}"
+            elif info["under"]:
+                bg  = "#fdd835"   # vermelho
+                val = f"{b}"
+            else:
+                bg  = "#e53935"   # amarelo
+                val = f"{b}"
 
-        # Posição: dentro da barra se couber, acima caso contrário
-        y_pos   = bar_h / 2
-        v_align = "center"
-        color   = "white" if bar_h >= 2 else "black"
-        y_above = bar_h + 0.05
-        if bar_h < 1:
-            y_pos, v_align, color = y_above, "bottom", "black"
+            # empilha dentro da barra ou acima dela
+            if bar_h >= 1.0:
+                y_pos = bar_h * (i + 0.5) / n_viols
+                va    = "center"
+            else:
+                y_pos = bar_h + 0.05 + i * 0.28
+                va    = "bottom"
 
-        ax.text(
-            bar_x, y_pos, texto,
-            ha="center", va=v_align,
-            fontsize=6, color=color,
-            rotation=90,
-            linespacing=1.3,
-        )
+            ax.text(
+                bar_x, y_pos, val,
+                ha="center", va=va,
+                fontsize=6, rotation=45, color="black",
+                bbox=dict(facecolor=bg, alpha=0.85, pad=1.2,
+                          edgecolor="none", boxstyle="round,pad=0.25"),
+            )
+
+    # Legenda de cores
+    from matplotlib.patches import Patch
+    ax.legend(
+        handles=[
+            Patch(facecolor="#fdd835", label="Subtensão  (V_min < 0.95 p.u.)"),
+            Patch(facecolor="#e53935", label="Sobretensão (V_max > 1.05 p.u.)"),
+            Patch(facecolor="orange",  label="Sub e sobretensão"),
+        ],
+        loc="upper right", fontsize=8, framealpha=0.9,
+    )
 
     # Margem extra no topo para anotações acima das barras
     if counts:
-        ax.set_ylim(0, max(counts) * 1.4 + 1)
+        ax.set_ylim(0, max(counts) + 1)
 
-    path = os.path.join(SCRIPT_DIR, "fig_violations_with_control.png")
+    path = os.path.join(FIG_DIR, "fig_violations_with_control.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"[Plot] Violações com controle salvo em: {path}")
+
+
+def plot_bess_soc(df: pd.DataFrame):
+    """
+    Linha de SOC (%) por BESS ao longo das 24h.
+    Marcadores indicam horas com controle Q ativo: azul (capacitivo) e vermelho (indutivo).
+    Nota: no modelo OpenDSS, kvar não consome kWh — SOC com e sem controle é idêntico.
+    """
+    bess_names = df["bess"].unique().tolist()
+    n = len(bess_names)
+    fig, axes = plt.subplots(n, 1, figsize=(12, 3 * n), sharex=True)
+    if n == 1:
+        axes = [axes]
+
+    for ax, bess in zip(axes, bess_names):
+        sub = df[df["bess"] == bess].sort_values("hour")
+        hours = sub["hour"].tolist()
+        soc   = sub["soc_pct"].tolist()
+        q_pu  = sub["q_pu"].tolist()
+
+        ax.plot(hours, soc, color="steelblue", linewidth=2, marker="o", markersize=4, label="SOC (%)")
+        ax.set_ylim(0, 110)
+        ax.set_ylabel("SOC (%)")
+        ax.set_title(f"BESS: {bess}")
+        ax.grid(True, linestyle="--", alpha=0.4)
+        ax.axhline(0, color="gray", linewidth=0.6)
+
+        # Marca horas com Q ativo
+        for h, soc_h, q in zip(hours, soc, q_pu):
+            if q > 0:
+                ax.plot(h, soc_h, marker="^", color="blue", markersize=8, zorder=5)
+            elif q < 0:
+                ax.plot(h, soc_h, marker="v", color="red", markersize=8, zorder=5)
+
+        from matplotlib.lines import Line2D
+        ax.legend(handles=[
+            Line2D([0], [0], color="steelblue", linewidth=2, label="SOC (%)"),
+            Line2D([0], [0], marker="^", color="blue", linestyle="None", markersize=8, label="Q capacitivo (↑V)"),
+            Line2D([0], [0], marker="v", color="red",  linestyle="None", markersize=8, label="Q indutivo (↓V)"),
+        ], fontsize=8, loc="upper right")
+
+    axes[-1].set_xlabel("Hora do dia")
+    axes[0].set_title(
+        f"Estado de carga (SOC) dos BESSs — pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
+        f"Nota: injeção de Q não consome energia da bateria neste modelo\n"
+        + axes[0].get_title()
+    )
+    fig.tight_layout()
+    path = os.path.join(FIG_DIR, "fig_bess_soc.png")
+    fig.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[Plot] SOC dos BESSs salvo em: {path}")
 
 
 # ---------------------------------------------------------------------------
@@ -540,3 +732,4 @@ print(df.to_string(index=False))
 
 plot_q_activation(df)
 plot_violations(df_hours)
+plot_bess_soc(df)
