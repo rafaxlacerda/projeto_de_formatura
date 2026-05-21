@@ -9,28 +9,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# =============================================================================
 # SEMENTE ALEATÓRIA
-# =============================================================================
+
 SEMENTE = 42
 np.random.seed(SEMENTE)
 
-# =============================================================================
 # PARÂMETROS DA REDE IEEE 34 BARRAS
-# =============================================================================
+
 N_BARRAS = 32
 BARRAS_SISTEMA = [800,802,806,808,810,812,814,850,816,818,820,822,824,826,828,830,854,832,858,834,860,836,862,838,842,844,846,848,852,856,888,890]
-BARRAS_TRIFASICAS = [860, 840, 844, 848, 890]  # Barras com cargas trifásicas (Phases=3)
-CARGA_PICO_TOTAL_MW = 1.769 
+BARRAS_TRIFASICAS = [860, 840, 844, 848, 890]  # Barras com cargas trifásicas (Phases=3) antes [860, 840, 844, 848, 890]
+CARGA_PICO_TOTAL_MW = 1.769
 
-# =============================================================================
 # PARÂMETROS DO SORTEIO MONTE CARLO
-# =============================================================================
-N_REALIZACOES = 50      # Sorteios por nível de penetração
+
+N_REALIZACOES = 500     # Sorteios por nível de penetração
 N_HORAS = 24            # Resolução temporal
 
-# Range de Penetração FV: de 0% a 200% em passos de 10%
-PV_PENETRACAO_NIVEIS = np.round(np.arange(0.0, 2.1, 0.1), 2)
+# Range de Penetração FV: de 0% a 150% em passos de 10%
+PV_PENETRACAO_NIVEIS = np.round(np.arange(0.0, 1.6, 0.1), 2)
 
 # --- BESS ---
 # BESS inserido: 1 unidade para cada 5% de penetração
@@ -40,101 +37,78 @@ BESS_KW_MIN = 50
 BESS_KW_MAX = 250
 
 # Perfil fixo de carga e descarga do BESS
-# Exemplo: Carrega (-1) das 10h às 14h, Descarrega (+1) das 18h às 21h
+# Carrega (-1) das 10h às 14h, Descarrega (+1) das 18h às 21h
 PERFIL_BESS_FIXO = np.zeros(N_HORAS)
 PERFIL_BESS_FIXO[10:15] = -1.0 
 PERFIL_BESS_FIXO[18:22] = 1.0  
 
-# =============================================================================
 # IRRADIÂNCIA SOLAR — PESOS IGUAIS
-# =============================================================================
 TIPOS_DIA = {
     "ceu_aberto": {
-        "label": "Céu Aberto", "probabilidade": 1/3, "desvio_rel": 0.12, "cor": "#FF8C00",
+        "label": "Céu Aberto", "probabilidade": 0.493, "desvio_rel": 0.07, "cor": "#FF8C00",
         "perfil_medio": np.array([0.0000, 0.0000, 0.0000, 0.0000, 0.0001, 0.0030, 0.0440, 0.2110, 0.4546, 0.7038, 0.8908, 0.9835, 0.9823, 0.8985, 0.7267, 0.5005, 0.2370, 0.0463, 0.0021, 0.0003, 0.0000, 0.0000, 0.0000, 0.0001]),
     },
     "parcialmente_nublado": {
-        "label": "Parc. Nublado", "probabilidade": 1/3, "desvio_rel": 0.12, "cor": "#4169E1",
+        "label": "Parc. Nublado", "probabilidade": 0.372, "desvio_rel": 0.12, "cor": "#4169E1",
         "perfil_medio": np.array([0.0010, 0.0009, 0.0011, 0.0011, 0.0008, 0.0042, 0.0534, 0.1890, 0.3924, 0.6090, 0.7773, 0.8749, 0.8760, 0.7534, 0.5791, 0.3876, 0.1909, 0.0517, 0.0053, 0.0008, 0.0006, 0.0004, 0.0004, 0.0004]),
     },
     "nublado": {
-        "label": "Nublado", "probabilidade": 1/3, "desvio_rel": 0.12, "cor": "#708090",
+        "label": "Nublado", "probabilidade": 0.135, "desvio_rel": 0.17, "cor": "#708090", 
         "perfil_medio": np.array([0.0005, 0.0000, 0.0000, 0.0001, 0.0000, 0.0118, 0.0876, 0.2579, 0.4096, 0.5360, 0.6646, 0.6854, 0.6593, 0.5984, 0.4774, 0.3438, 0.1885, 0.0524, 0.0040, 0.0000, 0.0002, 0.0016, 0.0016, 0.0018]),
     },
 }
 _NOMES_TIPOS = list(TIPOS_DIA.keys())
 _PROBS_TIPOS = np.array([TIPOS_DIA[t]["probabilidade"] for t in _NOMES_TIPOS])
 
-# =============================================================================
 # DESVIO DOS FATORES DE INCERTEZA DE CARGA (multiplicadores hora a hora)
-# =============================================================================
+CARGA_DESVIO_INCERTEZA = 0.10
 
-CARGA_DESVIO_INCERTEZA = 0.10  
+# Desvio relativo da perturbação gaussiana sobre a parcela igualitária de cada barra.
+PV_DESVIO_ALOCACAO = 0.10
 
-# =============================================================================
 # FUNÇÕES DE ALOCAÇÃO
-# =============================================================================
-
 def alocar_pv_por_barras(target_potencia_kw):
     """
-    Aloca PV em barras trifásicas diferentes até atingir o alvo de potência.
-    Cada barra recebe uma única 'unidade PV' com capacidade variável.
-    Retorna: dicts {barra: potencia_kw}
+    Aloca PV em todas as barras trifásicas com distribuição proporcional
+    e perturbação gaussiana controlada.
+    Retorna: dict {barra: potencia_kw}
     """
-    pv_alocacao = {}
-    tamanhos_possiveis = np.arange(50, 1050, 50)  # 50 a 1000 kW
-    
-    # Pesos dando preferência a instalações menores
-    pesos = np.linspace(10, 1, len(tamanhos_possiveis))
-    pesos = pesos / np.sum(pesos)
-    
-    potencia_acumulada = 0.0
-    barras_disponiveis = list(BARRAS_TRIFASICAS)  # Usar apenas barras trifásicas
-    
-    while potencia_acumulada < target_potencia_kw and barras_disponiveis:
-        # Sorteia tamanho da unidade PV
-        tamanho = np.random.choice(tamanhos_possiveis, p=pesos)
-        
-        # Ajusta para não ultrapassar meta
-        if potencia_acumulada + tamanho > target_potencia_kw:
-            tamanho = target_potencia_kw - potencia_acumulada
-            if tamanho < 10:  # Ignora restos muito pequenos
-                break
-        
-        # Sorteia uma barra que ainda não tem PV
-        if not barras_disponiveis:
-            break
-        barra = np.random.choice(barras_disponiveis)
-        barras_disponiveis.remove(barra)
-        
-        pv_alocacao[barra] = tamanho
-        potencia_acumulada += tamanho
-    
+    if target_potencia_kw <= 0:
+        return {}
+ 
+    n_barras = len(BARRAS_TRIFASICAS)
+ 
+    # Sorteia fatores multiplicativos para cada barra e trunca
+    fatores = np.random.normal(1.0, PV_DESVIO_ALOCACAO, size=n_barras)
+    fatores = np.clip(fatores, 0.5, 1.5)
+ 
+    # Normaliza para que a soma dos pesos seja 1
+    pesos = fatores / fatores.sum()
+ 
+    # Calcula potência alocada em cada barra
+    potencias = pesos * target_potencia_kw
+ 
+    pv_alocacao = {
+        barra: round(float(pot), 2)
+        for barra, pot in zip(BARRAS_TRIFASICAS, potencias)
+        if pot >= 1.0  # descarta parcelas residuais irrelevantes
+    }
+ 
     return pv_alocacao
 
-
-def alocar_bess_por_barras(penetracao_pct, barras_com_pv=None):
+def alocar_bess_por_barras(penetracao_pct):
     """
-    Aloca BESS em barras trifásicas diferentes (preferencialmente diferentes de PV).
+    Aloca BESS em barras trifásicas.
     Uma unidade BESS por barra.
     Número total: 1 unidade a cada 5% de penetração PV
     Retorna: dict {barra: {'potencia_kw': ..., 'capacidade_kwh': ...}}
     """
-    if barras_com_pv is None:
-        barras_com_pv = set()
-    else:
-        barras_com_pv = set(barras_com_pv)
-    
     n_unidades_bess = int(penetracao_pct / 5)
     if n_unidades_bess == 0:
         return {}
     
     bess_alocacao = {}
-    barras_disponiveis = [b for b in BARRAS_TRIFASICAS if b not in barras_com_pv]  # Apenas barras trifásicas
-    
-    # Se não houver barras suficientes sem PV, usa todas as trifásicas
-    if len(barras_disponiveis) < n_unidades_bess:
-        barras_disponiveis = list(BARRAS_TRIFASICAS)
+    barras_disponiveis = list(BARRAS_TRIFASICAS)
     
     # Seleciona barras aleatoriamente (sem reposição)
     barras_sorteadas = np.random.choice(
@@ -162,8 +136,8 @@ def gerar_fatores_incerteza_carga():
     for barra in BARRAS_SISTEMA:
         # Sorteia fatores multiplicativos hora a hora (em torno de 1.0)
         fatores = np.random.normal(1.0, CARGA_DESVIO_INCERTEZA, size=N_HORAS)
-        # Limita entre 0.5 e 1.5 para manter realismo
-        fatores = np.clip(fatores, 0.5, 1.5)
+        # Limita entre 0.8 e 1.2 para manter realismo
+        fatores = np.clip(fatores, 0.8, 1.2)
         
         fatores_rede[barra] = round_list(fatores, 4)
     return fatores_rede
@@ -190,7 +164,7 @@ def gerar_realizacoes_por_nivel(nivel_penetracao, n_realizacoes):
 
         # 2. PV e BESS (Estocásticos e Independentes)
         pv_alocacao = alocar_pv_por_barras(target_pv_kw)
-        bess_alocacao = alocar_bess_por_barras(penetracao_pct, barras_com_pv=pv_alocacao.keys())
+        bess_alocacao = alocar_bess_por_barras(penetracao_pct)
 
         # 3. Fatores de Incerteza de Carga
         fatores_incerteza_barras = gerar_fatores_incerteza_carga()
