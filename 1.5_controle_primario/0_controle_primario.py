@@ -380,7 +380,7 @@ def add_realizacao_elements(pen_pct: int, id_realizacao: int) -> tuple:
             dss.Command(
                 f"New Storage.{nome} Bus1={barra} Phases=3 Conn=Wye "
                 f"kV=24.9 kWrated={p_kw:.2f} kWhrated={e_kwh:.2f} "
-                f"%stored=50 State=Idling daily=BESS_fixo"
+                f"%stored=50 dispmode=follow daily=BESS_fixo"
             )
             print(f"[BESS] '{nome}' | bus={barra} | Pnom={p_kw:.1f} kW | E={e_kwh:.1f} kWh")
             n_bess += 1
@@ -394,6 +394,7 @@ def add_realizacao_elements(pen_pct: int, id_realizacao: int) -> tuple:
 # ---------------------------------------------------------------------------
 # COMPILAR A REDE
 # ---------------------------------------------------------------------------
+dss.Command("Clear")
 dss.Command(f"compile [{BASE_DSS}]")
 n_pv, n_bess, bess_prof, fatores_carga = add_realizacao_elements(PEN_PCT, ID_REALIZACAO)
 
@@ -448,62 +449,44 @@ for hour in range(TOTAL_HOURS):
     print(f"Hora {hour+1:02d}/{TOTAL_HOURS}")
     print(f"{'='*60}")
 
-    # -----------------------------------------------------------------
-    # Passo 1: despacho ativo do BESS e fatores de incerteza de carga
-    # O State/kW precisam ser definidos antes do solve; o OpenDSS Storage
-    # não segue a daily LoadShape automaticamente com State=Idling.
-    # -----------------------------------------------------------------
-    mult = bess_prof[hour]
-    for name, info in bess_dict.items():
-        set_bess_dispatch(name, mult, info["pnom_kw"])
-    aplicar_fatores_carga(hour, cargas_base, fatores_carga)
+    aplicar_fatores_carga(hour, cargas_base, fatores_carga) # cenário
 
     # -----------------------------------------------------------------
-    # Passo 2: daily solve — avança o tempo, aplica LoadShapes corretos
+    # daily solve — avança o tempo, aplica LoadShapes corretos
     # Reguladores habilitados → ajustam taps com base no estado real
     # da rede (incluindo Q_anterior dos BESSs)
     # -----------------------------------------------------------------
-    enable_regulators(reg_names)
     dss.Command("solve")
-    tap_snapshot = capture_taps(reg_names)
-    disable_regulators(reg_names)
 
+    tap_snapshot = capture_taps(reg_names)
     if reg_names:
         for reg, info in tap_snapshot.items():
             print(f"  [Tap hora {hour+1:02d}] {reg}: tap={info['tap']:.6f}")
+    enable_regulators(reg_names)
 
-    # -----------------------------------------------------------------
-    # Passo 3: lê tensão em cada barra de BESS (com Q anterior aplicado)
-    # -----------------------------------------------------------------
+    # lê tensão em cada barra de BESS (com Q anterior aplicado)
     v_measured = {name: get_bus_vmag_pu(info["bus"]) for name, info in bess_dict.items()}
 
-    # -----------------------------------------------------------------
-    # Passo 4: UMA avaliação da curva Volt-VAr
-    # -----------------------------------------------------------------
+    # UMA avaliação da curva Volt-VAr
     q_new = {
         name: volt_var_curve(v_measured[name], info["pnom_kw"])
         for name, info in bess_dict.items()
     }
 
-    # -----------------------------------------------------------------
-    # Passo 5: aplica Q novo e re-resolve a MESMA hora em snapshot
-    # (sem avançar o contador de tempo do modo daily)
-    # -----------------------------------------------------------------
+    # aplica Q novo no BESSs (desabilitando reguladores para evitar interferência, se q!=0)
     for name, q in q_new.items():
-        set_bess_kvar(name, q)
-    #dss.Command("set mode=snapshot")
-    #dss.Command("solve")
-    #dss.Command("set mode=daily")
-    #restore_tap(tap_snapshot)
+        if q != 0:
+            disable_regulators(reg_names)
+            set_bess_kvar(name, q)
 
-    # Consulta SOC e estado de cada BESS após o solve desta hora (TODOs 3 e 4)
+
+    # Consulta SOC e estado de cada BESS após o solve desta hora
     soc_info = {name: get_bess_soc(name) for name in bess_dict}
 
     # -----------------------------------------------------------------
-    # Passo 6: coleta resultados por BESS
+    # Coleta resultados por BESS
     # -----------------------------------------------------------------
     for name, info in bess_dict.items():
-        v_final = get_bus_vmag_pu(info["bus"])
         q_kvar  = q_new[name]
         q_max   = Q_MAX_PU * info["pnom_kw"]
         soc, bess_state = soc_info[name]
@@ -525,12 +508,12 @@ for hour in range(TOTAL_HOURS):
             "bess_state": bess_state,
             "soc_warn":   soc_warn,
         })
-        print(f"  [BESS {name}] V_med={v_measured[name]:.4f} → V_fin={v_final:.4f} p.u. | "
+        print(f"  [BESS {name}] V_med={v_measured[name]:.4f} | "
               f"Q={q_kvar:.2f} kvar ({'ativo' if q_kvar != 0 else 'zona morta'}) | "
               f"SOC={soc:.1f}% [{bess_state}]")
 
     # -----------------------------------------------------------------
-    # Passo 7: violações de tensão (após snapshot com Q novo)
+    # violações de tensão (naquela hora)
     # -----------------------------------------------------------------
     n_viol, viol_dict = count_voltage_violations()
     print(f"  [Violações] hora {hour+1:02d}: {n_viol} barra(s) fora de [0.95, 1.05] p.u.")
@@ -541,11 +524,6 @@ for hour in range(TOTAL_HOURS):
             if info["over"]:  partes.append(f"↑V_max={info['v_max']:.4f}")
             print(f"    barra {b}: {', '.join(partes)}")
     hour_records.append({"hour": hour + 1, "n_violations": n_viol, "violations": viol_dict})
-
-    # -----------------------------------------------------------------
-    # Atualiza Q para a próxima hora
-    # -----------------------------------------------------------------
-    #q_applied = q_new
 
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE VISUALIZAÇÃO PÓS-SIMULAÇÃO
