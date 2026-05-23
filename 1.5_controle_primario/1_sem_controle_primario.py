@@ -28,7 +28,7 @@ BASE_DSS      = os.path.join(SCRIPT_DIR, "..", "IEEE34bus", "IEEE34_original_wit
 MC_DIR        = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
                               "resultados_monte_carlo", "realizacoes_sorteadas")
 
-PEN_PCT       = 120
+PEN_PCT       = 90
 ID_REALIZACAO = 1
 
 TOTAL_HOURS   = 24

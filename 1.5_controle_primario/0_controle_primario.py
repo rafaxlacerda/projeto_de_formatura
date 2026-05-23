@@ -35,7 +35,7 @@ MC_DIR        = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
                               "resultados_monte_carlo", "realizacoes_sorteadas")
 
 # Selecione o cenário Monte Carlo desejado:
-PEN_PCT       = 80   # nível de penetração em % (ex.: 50 → pen_050pct)
+PEN_PCT       = 90   # nível de penetração em % (ex.: 50 → pen_050pct)
 ID_REALIZACAO = 1    # ID da realização (1 a 50)
 
 TOTAL_HOURS   = 24          # número de passos horários

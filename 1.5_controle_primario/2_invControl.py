@@ -48,7 +48,7 @@ MC_DIR        = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
                               "resultados_monte_carlo", "realizacoes_sorteadas")
 
 # Selecione o cenário Monte Carlo desejado:
-PEN_PCT       = 120   # nível de penetração em % (ex.: 50 → pen_050pct)
+PEN_PCT       = 90   # nível de penetração em % (ex.: 50 → pen_050pct)
 ID_REALIZACAO = 1    # ID da realização (1 a 50)
 
 TOTAL_HOURS   = 24          # número de passos horários
@@ -302,7 +302,9 @@ def add_realizacao_elements(pen_pct: int, id_realizacao: int) -> tuple:
         if classe == "PVSystem":
             dss.Command(
                 f"New PVSystem.{nome} Bus1={barra} Phases=3 Conn=Wye "
-                f"kV={kv_ll:.4f} kVA={p_kw:.2f} Pmpp={p_kw:.2f} irradiance=1 daily={irr_ls}"
+                f"kV={kv_ll:.4f} kVA={p_kw:.2f} Pmpp={p_kw:.2f} "
+                f"kvarmax={Q_MAX_PU * p_kw:.4f} "
+                f"irradiance=1 daily={irr_ls}"
             )
             elementos_por_barra[barra]["PVSystem"].append(nome)
             print(f"[PV]   '{nome}' | bus={barra} | kV={kv_ll:.4f} | Pmpp={p_kw:.1f} kW")
@@ -313,6 +315,7 @@ def add_realizacao_elements(pen_pct: int, id_realizacao: int) -> tuple:
             dss.Command(
                 f"New Storage.{nome} Bus1={barra} Phases=3 Conn=Wye "
                 f"kV={kv_ll:.4f} kWrated={p_kw:.2f} kWhrated={e_kwh:.2f} "
+                f"kvarmax={Q_MAX_PU * p_kw:.4f} "
                 f"%stored=0 dispmode=follow daily=BESS_fixo"
             )
             elementos_por_barra[barra]["Storage"].append(nome)
