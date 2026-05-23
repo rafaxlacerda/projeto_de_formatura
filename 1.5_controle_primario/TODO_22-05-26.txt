@@ -1,0 +1,2 @@
+- deixar o código de 2_controle_primário.py mais limpo. só com o necessário para o 
+controle mesmo.

@@ -1,0 +1,6 @@
+quando congelo os reguladores no estado inicial por toda a simulação, varias barras (umas 20, próximas 
+a 890 ficam com subtensão), fica pior do que no caso sem controle primário.
+
+o melhor resultado que obtive é deixando os reguladores serem ajustados livremente, e o controle
+primário é feito a partir dos resultados de tensão da simulação com os taps ja ajustados. (como
+está agora) 
