@@ -1,0 +1,174 @@
+"""
+Heatmap de tensão — caso base (0% de penetração FV e BESS)
+Eixo X: hora do dia (1–24)
+Eixo Y: barras na ordem topológica do alimentador IEEE 34
+Cor   : módulo de tensão máximo entre fases (pu)
+
+O gráfico corrobora a ausência de subtensão na rede base,
+com exceção da barra 890 (extremidade do ramal de 4,16 kV).
+"""
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import matplotlib.patches as mpatches
+
+# =============================================================================
+# LEITURA DOS DADOS
+# =============================================================================
+df = pd.read_csv("C:\\Users\\anajm\\OneDrive\\Documentos\\Git_Hub_PF\\projeto_de_formatura\\IEEE34bus\\resultados_24h\\tensoes_24h_consolidado.csv")
+df.columns = df.columns.str.strip()
+df["Hora"] = df["Hora"].astype(int)
+df["Fase"] = df["Fase"].astype(int)
+df["V"] = pd.to_numeric(df["V (p.u.)"], errors="coerce")
+
+# Remove barras auxiliares sem relevância topológica
+BARRAS_EXCLUIR = {"SOURCEBUS", "864"}
+df = df[~df["Barra"].isin(BARRAS_EXCLUIR)]
+
+# Ordem topológica do alimentador IEEE34 (subestação → extremidades)
+ORDEM_TOPOLOGICA = [
+    "800", "802", "806", "808", "810", "812", "814", "814R", "850",
+    "816", "818", "820", "822", "824", "826", "828", "830",
+    "854", "832", "858", "834", "860", "836", "862", "838",
+    "842", "844", "846", "848", "852", "852R", "856", "888", "890",
+]
+# Mantém apenas barras que existem nos dados
+barras_presentes = [b for b in ORDEM_TOPOLOGICA if b in df["Barra"].unique()]
+
+# =============================================================================
+# AGREGA: mínimo entre fases por barra e hora
+# (consistente com o critério de defeito: any(fase < limite))
+# =============================================================================
+pivot = (
+    df.groupby(["Barra", "Hora"])["V"]
+    .min()
+    .reset_index()
+    .pivot(index="Barra", columns="Hora", values="V")
+)
+pivot = pivot.loc[barras_presentes]          # reordena topologicamente
+horas = sorted(pivot.columns.tolist())
+
+# =============================================================================
+# COLORMAP CUSTOMIZADO (GRADIENTE CONTÍNUO)
+# Azul escuro (< 0.95) -> Verde claro (0.95 a 1.00) -> Amarelo/Laranja (1.00 a 1.05) -> Vermelho (> 1.05)
+# =============================================================================
+
+# Definimos os "nós" do nosso gradiente
+# 0.0 será o valor mínimo (ex: 0.88), 1.0 será o máximo (ex: 1.12)
+vmin = 0.88
+vmax = 1.12
+
+# Precisamos dizer onde cada cor principal vai ficar em uma escala de 0 a 1
+pos_095 = (0.95 - vmin) / (vmax - vmin)
+pos_100 = (1.00 - vmin) / (vmax - vmin)
+pos_105 = (1.05 - vmin) / (vmax - vmin)
+
+cdict = {
+    'red': [
+        (0.0,     0.03, 0.03), # Azul muito escuro (V=0.88)
+        (pos_095, 0.42, 0.42), # Azul claro (limite 0.95)
+        (pos_100, 0.45, 0.45), # Verde central (V=1.00)
+        (pos_105, 0.99, 0.99), # Laranja (limite 1.05)
+        (1.0,     0.40, 0.40)  # Vermelho escuro (V=1.12)
+    ],
+    'green': [
+        (0.0,     0.19, 0.19), 
+        (pos_095, 0.68, 0.68), 
+        (pos_100, 0.77, 0.77), 
+        (pos_105, 0.55, 0.55), 
+        (1.0,     0.00, 0.00)  
+    ],
+    'blue': [
+        (0.0,     0.42, 0.42), 
+        (pos_095, 0.84, 0.84), 
+        (pos_100, 0.46, 0.46), 
+        (pos_105, 0.24, 0.24), 
+        (1.0,     0.05, 0.05)  
+    ]
+}
+
+cmap = mcolors.LinearSegmentedColormap('Tensaocmap', segmentdata=cdict, N=256)
+
+# Como é contínuo, não usamos mais o BoundaryNorm. 
+# Usamos Normalize para mapear os dados linearmente para o colormap.
+norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
+
+# =============================================================================
+# FIGURA
+# =============================================================================
+fig, ax = plt.subplots(figsize=(16, 9))
+
+im = ax.imshow(
+    pivot.values,
+    aspect="auto",
+    cmap=cmap,
+    norm=norm,
+    interpolation="nearest",
+    origin="upper",
+)
+
+# Eixos
+ax.set_xticks(range(len(horas)))
+ax.set_xticklabels([f"{h:02d}h" for h in horas], fontsize=8, rotation=45)
+ax.set_yticks(range(len(barras_presentes)))
+ax.set_yticklabels(barras_presentes, fontsize=8)
+
+ax.set_xlabel("Hora do dia", fontsize=12, labelpad=8)
+ax.set_ylabel("Barra (ordem topológica — subestação → extremidades)", fontsize=12, labelpad=8)
+ax.set_title(
+    "Perfil de tensão ao longo do alimentador IEEE 34 — Caso base (0% de penetração FV e BESS)\n"
+    "Módulo de tensão mínimo entre fases por barra e hora do dia",
+    fontsize=13, pad=12,
+)
+
+# Linhas guia nas faixas horárias
+for hora_limite in [5.5, 11.5, 17.5, 23.5]:  # madrugada|manhã|tarde|noite
+    ax.axvline(hora_limite, color="white", linewidth=0.8, linestyle="--", alpha=0.6)
+
+# Destaque da barra 890
+idx_890 = barras_presentes.index("890")
+ax.axhline(idx_890 - 0.5, color="white", linewidth=0.5, linestyle=":")
+ax.axhline(idx_890 + 0.5, color="white", linewidth=0.5, linestyle=":")
+ax.annotate(
+    "Barra 890\n(subtensão)",
+    xy=(0, idx_890),
+    xytext=(-1.5, idx_890),
+    fontsize=8, color="#08306b", fontweight="bold",
+    ha="right", va="center",
+    arrowprops=dict(arrowstyle="->", color="#08306b", lw=0.4),
+)
+
+# Colorbar
+# Colorbar
+cbar = fig.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
+cbar.set_label("Módulo de tensão (pu)", fontsize=11)
+
+# Agora definimos onde queremos os 'ticks' (os números) na barra lateral
+ticks_importantes = [0.88, 0.92, 0.95, 0.98, 1.00, 1.02, 1.05, 1.08, 1.12]
+cbar.set_ticks(ticks_importantes)
+cbar.set_ticklabels([f"{t:.2f}" for t in ticks_importantes], fontsize=8)
+
+# Linhas de limite regulatório na colorbar (ajustadas para o Normalize)
+for lim in [0.95, 1.05]:
+    # A posição Y na colorbar contínua é linear entre vmin e vmax
+    y_pos = (lim - vmin) / (vmax - vmin)
+    cbar.ax.axhline(
+        y_pos,
+        color="black", linewidth=1.5, linestyle="--"
+    )
+
+# Linhas de limite no heatmap (referência visual)
+ax.axhline(-0.5, color="none")  # padding
+fig.text(
+    0.92, 0.13,
+    "-- 0,95 pu (limite inf.)\n-- 1,05 pu (limite sup.)",
+    fontsize=7.5, color="#555555", ha="center",
+    bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#cccccc", alpha=0.8),
+)
+
+plt.tight_layout()
+plt.savefig("C:\\Users\\anajm\\OneDrive\\Documentos\\Git_Hub_PF\\projeto_de_formatura\\IEEE34bus\\resultados_24h\\heatmap_tensao_caso_base.png", dpi=200, bbox_inches="tight")
+plt.close()
+print("Salvo com sucesso.")

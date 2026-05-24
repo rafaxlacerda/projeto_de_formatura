@@ -2,15 +2,10 @@
 NÍVEL DE PENETRAÇÃO: 50%
 ======================================================================
 
-DEFINIÇÃO DE UNIDADE:
-  - Uma UNIDADE PV = capacidade total de PV instalada em uma barra
-  - Uma UNIDADE BESS = armazenamento total BESS instalado em uma barra
-  - Cada barra recebe NO MÁXIMO 1 unidade de cada (PV e BESS independentes)
-
 Características gerais:
-  - Número de realizações: 200
-  - Total de unidades PV (todas realizações): 1000
-  - Total de unidades BESS (todas realizações): 1000
+  - Número de realizações: 500
+  - Total de unidades PV (todas realizações): 2500
+  - Total de unidades BESS (todas realizações): 2500
   - Número de horas: 24
   - Número de barras: 32
 
@@ -23,10 +18,10 @@ Fatores de incerteza de carga:
   - Aplicados sobre o perfil base em IEEE34_2.dss
   - Variam hora a hora e são salvos em 03_fatores_incerteza_carga.csv
 
-Tipos de dia (pesos iguais):
-  - Céu Aberto (33.33%)
-  - Parcialmente Nublado (33.33%)
-  - Nublado (33.33%)
+Tipos de dia:
+  - Céu Aberto (49.30%)
+  - Parcialmente Nublado (37.20%)
+  - Nublado (13.50%)
 
 Perfil BESS fixo de carga/descarga:
   - Carregamento: horas 10-15 (valor: -1.0)
@@ -40,5 +35,3 @@ Arquivos gerados:
   05_unidades_bess.csv .................. Unidades BESS (uma por barra)
   06_elementos_opendss.csv .............. Elementos para integração OpenDSS
 
-NOTA: Os perfis horários base já estão definidos em IEEE34_2.dss.
-Na simulação, multiplique: kW_efetivo = kW_base * perfil_dss(hora) * fator_incerteza(hora)
