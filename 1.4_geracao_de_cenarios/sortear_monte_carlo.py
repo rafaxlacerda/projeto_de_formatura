@@ -1,7 +1,7 @@
 """
 Geração de Cenários por Simulação de Monte Carlo
 Projeto de Formatura - Poli USP
-Etapa: Geração de cenários de inserção de sistemas FV e BESS (Atualizado com rede IEEE 34)
+Etapa: Geração de cenários de inserção de sistemas FV e BESS - IEEE 34 bus
 """
 
 import numpy as np
@@ -15,15 +15,13 @@ SEMENTE = 42
 np.random.seed(SEMENTE)
 
 # PARÂMETROS DA REDE IEEE 34 BARRAS
-
 N_BARRAS = 32
 BARRAS_SISTEMA = [800,802,806,808,810,812,814,850,816,818,820,822,824,826,828,830,854,832,858,834,860,836,862,838,842,844,846,848,852,856,888,890]
-BARRAS_TRIFASICAS = [860, 840, 844, 848, 890]  # Barras com cargas trifásicas (Phases=3) antes [860, 840, 844, 848, 890]
+BARRAS_TRIFASICAS = [860, 840, 844, 848, 890]  # Barras com cargas trifásicas
 CARGA_PICO_TOTAL_MW = 1.769
 
 # PARÂMETROS DO SORTEIO MONTE CARLO
-
-N_REALIZACOES = 200     # Sorteios por nível de penetração
+N_REALIZACOES = 500     # Sorteios por nível de penetração
 N_HORAS = 24            # Resolução temporal
 
 # Range de Penetração FV: de 0% a 150% em passos de 10%
@@ -350,11 +348,6 @@ def exportar_realizacoes_por_nivel(realizacoes, nivel_penetracao_pct, pasta_said
 NÍVEL DE PENETRAÇÃO: {nivel_penetracao_pct}%
 {'=' * 70}
 
-DEFINIÇÃO DE UNIDADE:
-  - Uma UNIDADE PV = capacidade total de PV instalada em uma barra
-  - Uma UNIDADE BESS = armazenamento total BESS instalado em uma barra
-  - Cada barra recebe NO MÁXIMO 1 unidade de cada (PV e BESS independentes)
-
 Características gerais:
   - Número de realizações: {n_real}
   - Total de unidades PV (todas realizações): {n_pv_total}
@@ -371,10 +364,10 @@ Fatores de incerteza de carga:
   - Aplicados sobre o perfil base em IEEE34_2.dss
   - Variam hora a hora e são salvos em 03_fatores_incerteza_carga.csv
 
-Tipos de dia (pesos iguais):
-  - Céu Aberto (33.33%)
-  - Parcialmente Nublado (33.33%)
-  - Nublado (33.33%)
+Tipos de dia:
+  - Céu Aberto (49.30%)
+  - Parcialmente Nublado (37.20%)
+  - Nublado (13.50%)
 
 Perfil BESS fixo de carga/descarga:
   - Carregamento: horas 10-15 (valor: -1.0)
@@ -388,8 +381,6 @@ Arquivos gerados:
   05_unidades_bess.csv .................. Unidades BESS (uma por barra)
   06_elementos_opendss.csv .............. Elementos para integração OpenDSS
 
-NOTA: Os perfis horários base já estão definidos em IEEE34_2.dss.
-Na simulação, multiplique: kW_efetivo = kW_base * perfil_dss(hora) * fator_incerteza(hora)
 """
     
     with open(os.path.join(pasta_saida, "00_informacoes.txt"), "w", encoding="utf-8") as f:
