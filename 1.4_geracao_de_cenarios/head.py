@@ -1,4 +1,5 @@
 # Main de processamento dos resultados do Monte Carlo via OpenDSS
+# Veja parse_args para saber como rodar este script
 import argparse
 import os
 
