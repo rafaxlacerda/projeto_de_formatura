@@ -764,38 +764,6 @@ def main():
                         dss.Command(f"PVSystem.{name}.kVAr={q:.4f}")
                     last_q[name] = q
 
-
-                '''
-                # Aplica FP em todos os inversores (BESS e PV)
-                # Usa estado real do OpenDSS para BESS — bess_prof não detecta
-                # quando o OpenDSS muda para Idling por SOC=100% ou SOC=0%.
-                for name, pf_desired in pf_new.items():
-                    der_type = der_dict[name]["type"]
-                    if der_type == "BESS":
-                        _, bess_state = get_bess_soc(name)
-                        state_lower = bess_state.strip().lower()
-                        if state_lower == "charging":
-                            # P < 0 → Q inverte com mesmo pf → inverter sinal
-                            pf_cmd = -pf_desired if abs(pf_desired - 1.0) > 1e-9 else 1.0
-                            dss.Command(f"Storage.{name}.pf={pf_cmd:.6f}")
-                        elif state_lower == "idling":
-                            # P = 0 → pf ineficaz; aplica kvar diretamente
-                            if abs(pf_desired - 1.0) < 1e-9:
-                                dss.Command(f"Storage.{name}.pf=1.0")
-                            else:
-                                pf_mag = abs(pf_desired)
-                                q_mag  = der_dict[name]["pnom_kw"] * np.tan(np.arccos(pf_mag))
-                                # pf_desired > 0 (capacitivo) → kvar > 0; < 0 (indutivo) → kvar < 0
-                                kvar = q_mag if pf_desired > 0 else -q_mag
-                                dss.Command(f"Storage.{name}.kvar={kvar:.6f}")
-                        else:  # discharging
-                            # Convenção igual ao PVSystem
-                            dss.Command(f"Storage.{name}.pf={pf_desired:.6f}")
-                    else:  # PV
-                        dss.Command(f"PVSystem.{name}.pf={pf_desired:.6f}")
-                    last_q[name] = pf_desired  # registra intenção física (independente do estado)
-'''
-
                 # Re-solve no mesmo patamar horário (stepsize=0.01s → não avança 1h)
                 dss.Command("set stepsize=0.01s")
                 dss.Command("solve")
