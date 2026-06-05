@@ -28,7 +28,7 @@ BASE_DSS      = os.path.join(SCRIPT_DIR, "..", "IEEE34bus", "IEEE34_original_wit
 MC_DIR        = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
                               "resultados_monte_carlo", "realizacoes_sorteadas")
 
-PEN_PCT       = 90
+PEN_PCT       = 60
 ID_REALIZACAO = 1
 
 TOTAL_HOURS   = 24
@@ -110,7 +110,7 @@ def count_voltage_violations() -> tuple:
     for bus in dss.Circuit.AllBusNames():
         v_min, v_max = get_bus_vmin_vmax_pu(bus)
         under = v_min < 0.95
-        over  = v_max > 1.05
+        over  = v_max > 1.05001
         if under or over:
             violations[bus] = {
                 "v_min": round(v_min, 6),
@@ -352,12 +352,12 @@ hour_records = []
 
 for hour in range(TOTAL_HOURS):
     print(f"\n{'='*60}")
-    print(f"Hora {hour:02d}/{TOTAL_HOURS}")
+    print(f"Hora {hour+1:02d}/{TOTAL_HOURS}")
     print(f"{'='*60}")
 
     aplicar_fatores_carga(hour, cargas_base, fatores_carga)
 
-    enable_regulators(reg_names)
+    #enable_regulators(reg_names)
     dss.Command("solve")
 
     tap_snapshot = {}

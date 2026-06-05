@@ -218,7 +218,7 @@ def count_voltage_violations() -> tuple:
     for bus in dss.Circuit.AllBusNames():
         v_min, v_max = get_bus_vmin_vmax_pu(bus)
         under = v_min < 0.95
-        over  = v_max > 1.05
+        over  = v_max > 1.05001
         if under or over:
             violations[bus] = {
                 "v_min": round(v_min, 6),
