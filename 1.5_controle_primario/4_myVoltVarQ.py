@@ -243,6 +243,19 @@ def get_bess_soc(name: str) -> tuple:
     return soc, state
 
 
+def get_der_p_inst_kw(name: str, der_type: str) -> float:
+    """
+    Retorna |P_instantânea| (kW) de um DER após um solve.
+    Lê via CktElement.Powers() para capturar o despacho real (loadshape, irradiância).
+    """
+    el = f"Storage.{name}" if der_type == "BESS" else f"PVSystem.{name}"
+    dss.Circuit.SetActiveElement(el)
+    powers = dss.CktElement.Powers()
+    n_ph   = dss.CktElement.NumPhases()
+    p_total = sum(powers[2 * i] for i in range(n_ph))
+    return abs(p_total)
+
+
 def count_voltage_violations() -> tuple:
     """
     Retorna (n_violacoes, dict{bus: info}) para barras fora de [0.95, 1.05] p.u.
@@ -352,13 +365,17 @@ def _pf_to_display(pf: float) -> float:
     else:       # indutivo: pf ∈ (-1, -PF_MIN) → display ∈ (-PF_MIN, 0)
         return (pf + 1.0) / (1.0 - PF_MIN) * (-PF_MIN)
 
-def volt_var_curve(v_pu: float, p_nom_kw: float) -> float:
+def volt_var_curve(v_pu: float, p_inst_kw: float) -> float:
     """
     Retorna o Q_ref (kvar) para um dado v_pu medido na barra do BESS.
 
     Convenção de sinal (OpenDSS Storage):
       Q > 0  →  capacitivo (injeção de reativo → eleva tensão)
       Q < 0  →  indutivo   (absorção de reativo → reduz tensão)
+
+    p_inst_kw: potência ativa instantânea (kW, |P|). Q escala com P_inst para
+    garantir FP ≥ 0,90 em qualquer carregamento (ABNT NBR 16149:2013, Figura 2).
+    Q_max = Q_MAX_PU × P_inst  →  FP = P/√(P²+Q²) ≥ 0,90 sempre.
 
     Curva (por regiões):
       v ≤ V_SAT_LOW          → Q = +Q_MAX (máximo capacitivo)
@@ -367,7 +384,7 @@ def volt_var_curve(v_pu: float, p_nom_kw: float) -> float:
       V_DB_HIGH < v < V_SAT_HIGH → interpolação linear 0 → -Q_MAX
       v ≥ V_SAT_HIGH         → Q = -Q_MAX (máximo indutivo)
     """
-    q_max_kvar = Q_MAX_PU * p_nom_kw  # kvar
+    q_max_kvar = Q_MAX_PU * p_inst_kw  # kvar — escala com P_inst, não P_nom
 
     if v_pu <= V_SAT_LOW:
         return +q_max_kvar
@@ -727,10 +744,13 @@ def main():
         # Lê tensões pós-tap nos barramentos de todos os DERs (BESS + PV)
         v_measured = {name: get_bus_vmag_pu(info["bus"]) for name, info in der_dict.items()}
 
-        # Calcula FP alvo pela curva VoltVar para cada DER
+        # Potência ativa instantânea de cada DER (escala Q_max para manter FP ≥ 0,90)
+        p_inst = {name: get_der_p_inst_kw(name, info["type"]) for name, info in der_dict.items()}
+
+        # Calcula Q alvo pela curva VoltVar para cada DER
         q_new = {
-            name: volt_var_curve(v_measured[name], info["pnom_kw"])
-            for name, info in der_dict.items()
+            name: volt_var_curve(v_measured[name], p_inst[name])
+            for name in der_dict
         }
         
         #pf_new = {name: volt_var_pf_curve(v_measured[name]) for name in der_dict}
@@ -782,7 +802,8 @@ def main():
                 viol_final   = viol_new
 
                 # Critério de parada: sem violações ou Q saturado em todos os DERs
-                q_new = {name: volt_var_curve(v_new[name], der_dict[name]["pnom_kw"]) for name in der_dict}
+                p_inst = {name: get_der_p_inst_kw(name, der_dict[name]["type"]) for name in der_dict}
+                q_new = {name: volt_var_curve(v_new[name], p_inst[name]) for name in der_dict}
                 #all_saturated = all(abs(q) <= Q_MIN + 0.001 for q in q_new.values())
                 if n_viol_new == 0: #or all_saturated:
                     break
@@ -816,12 +837,13 @@ def main():
             q_aplicado = last_q[name]
             der_type   = info["type"]
             pnom       = info["pnom_kw"]
+            pinst      = p_inst[name]
             if der_type == "BESS":
                 soc, bess_state = soc_info[name]
             else:
                 soc, bess_state = None, "N/A"
 
-            q_pct = round(q_aplicado / pnom * 100, 2) if pnom else None
+            q_pinst_pct = round(q_aplicado / pinst * 100, 2) if pinst > 1e-6 else None
 
             records.append({
                 "hour":            hour + 1,
@@ -833,8 +855,9 @@ def main():
                 "voltvar_active":  voltvar_active,
                 "iter_count":      iter_count,
                 "pnom_kw":         pnom,
+                "pinst_kw":        round(pinst, 4),
                 "q_voltvar_kvar":  round(q_aplicado, 4),
-                "q/pn(%)":         q_pct,
+                "q/pinst(%)":      q_pinst_pct,
                 "soc_pct":         round(soc, 2) if soc is not None else None,
                 "bess_state":      bess_state,
             })
@@ -845,12 +868,13 @@ def main():
                 "q_voltvar_kvar": round(q_aplicado, 4),
             })
             status = "ativo" if abs(q_aplicado) > 1e-6 else "zona morta"
+            q_pinst_str = f"{q_pinst_pct:+.1f}%" if q_pinst_pct is not None else "N/A"
             if der_type == "BESS":
                 print(f"  [BESS {name}] V_pre={v_measured[name]:.4f} | V_pos={v_final[name]:.4f} | "
-                      f"q={q_aplicado:+.2f} kVAr ({q_pct:+.1f}%) ({status}) | iter={iter_count} | SOC={soc:.1f}% [{bess_state}]")
+                      f"q={q_aplicado:+.2f} kVAr ({q_pinst_str}) ({status}) | iter={iter_count} | SOC={soc:.1f}% [{bess_state}]")
             else:
                 print(f"  [PV   {name}] V_pre={v_measured[name]:.4f} | V_pos={v_final[name]:.4f} | "
-                      f"q={q_aplicado:+.2f} kVAr ({q_pct:+.1f}%) ({status}) | iter={iter_count}")
+                      f"q={q_aplicado:+.2f} kVAr ({q_pinst_str}) ({status}) | iter={iter_count}")
 
         # -----------------------------------------------------------------
         # Violações de tensão (estado final da hora)
