@@ -14,6 +14,7 @@ from graficos_opendss import (
     plotar_envelope_tensao,
     plotar_envelope_tensao_por_hora,
 )
+from controle_primario import processar_nivel_controle_primario
 from simulacao_opendss import processar_nivel
 from simulacoes_config import DEFAULT_DSS_FILE
 
@@ -45,31 +46,36 @@ def parse_args():
         action="store_true",
         help="Gera apenas gráficos e tabelas a partir dos CSVs existentes, sem rodar o OpenDSS."
     )
+    parser.add_argument(
+        "--controle-primario",
+        action="store_true",
+        help="Ativa o controle primário VoltVar (NBR 16149:2013) durante a simulação."
+    )
     return parser.parse_args()
 
 
-def gerar_graficos_e_tabelas(df_master, pasta_saida, pasta_saida_descritiva, caminho_master_tensoes, base_dir):
+def gerar_graficos_e_tabelas(df_master, pasta_saida, pasta_saida_descritiva, caminho_master_tensoes, base_dir, contexto=""):
     print("\nGerando boxplot geral (sem segmentação)...")
-    plotar_boxplot_geral(df_master, pasta_saida_descritiva)
+    plotar_boxplot_geral(df_master, pasta_saida_descritiva, contexto=contexto)
 
     print("\nGerando boxplots por time bands...")
-    plotar_boxplot_por_time_bands(df_master, pasta_saida_descritiva)
+    plotar_boxplot_por_time_bands(df_master, pasta_saida_descritiva, contexto=contexto)
 
     print("\nGerando boxplots por tipo de dia...")
-    plotar_boxplot(df_master, pasta_saida_descritiva)
+    plotar_boxplot(df_master, pasta_saida_descritiva, contexto=contexto)
 
     print("\nGerando boxplots por faixa de operação BESS...")
-    plotar_boxplot_por_faixa_bess(df_master, pasta_saida_descritiva)
+    plotar_boxplot_por_faixa_bess(df_master, pasta_saida_descritiva, contexto=contexto)
 
     print("\nGerando envelopes de tensão por faixa horária...")
-    plotar_envelope_tensao(pasta_saida, pasta_saida_descritiva)
+    plotar_envelope_tensao(pasta_saida, pasta_saida_descritiva, contexto=contexto)
 
     print("\nGerando envelopes de tensão para cada hora do dia...")
-    plotar_envelope_tensao_por_hora(caminho_master_tensoes, pasta_saida_descritiva)
+    plotar_envelope_tensao_por_hora(caminho_master_tensoes, pasta_saida_descritiva, contexto=contexto)
 
     print("\nGerando tabelas de estatísticas descritivas...")
     pasta_monte_carlo = os.path.join(base_dir, "resultados_monte_carlo")
-    gerar_tabelas_estatisticas(pasta_saida_descritiva, pasta_monte_carlo, pasta_saida)
+    gerar_tabelas_estatisticas(pasta_saida_descritiva, pasta_monte_carlo, pasta_saida, contexto=contexto)
 
 
 def main():
@@ -77,12 +83,18 @@ def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     dss_path = os.path.abspath(os.path.join(base_dir, args.dss_file))
     pasta_montecarlo = os.path.join(base_dir, "resultados_monte_carlo", "realizacoes_sorteadas")
-    pasta_saida = os.path.join(base_dir, "resultados_monte_carlo", "analise_opendss")
-    pasta_saida_descritiva = os.path.join(base_dir, "resultados_monte_carlo", "graficos_tabelas_descritivas")
+    if args.controle_primario:
+        pasta_saida            = os.path.join(base_dir, "resultados_monte_carlo", "analise_controle_primario")
+        pasta_saida_descritiva = os.path.join(base_dir, "resultados_monte_carlo", "graficos_tabelas_controle_primario")
+        contexto               = "Com Controle Primário VoltVar (NBR 16149:2013)"
+    else:
+        pasta_saida            = os.path.join(base_dir, "resultados_monte_carlo", "analise_opendss")
+        pasta_saida_descritiva = os.path.join(base_dir, "resultados_monte_carlo", "graficos_tabelas_descritivas")
+        contexto               = ""
     os.makedirs(pasta_saida, exist_ok=True)
     os.makedirs(pasta_saida_descritiva, exist_ok=True)
     caminho_master_resultados = os.path.join(pasta_saida, "master_resultados_opendss.csv")
-    caminho_master_tensoes = os.path.join(pasta_saida, "master_tensoes_opendss_completas.csv")
+    caminho_master_tensoes    = os.path.join(pasta_saida, "master_tensoes_opendss_completas.csv")
 
     if args.somente_graficos:
         if not os.path.isfile(caminho_master_resultados):
@@ -96,8 +108,8 @@ def main():
             if df_master.empty:
                 raise ValueError(f"Nenhum resultado encontrado para penetração {nivel_pct}%.")
 
-        gerar_graficos_e_tabelas(df_master, pasta_saida, pasta_saida_descritiva, caminho_master_tensoes, base_dir)
-        print("\nGráficos e tabelas atualizados em graficos_tabelas_descritivas.")
+        gerar_graficos_e_tabelas(df_master, pasta_saida, pasta_saida_descritiva, caminho_master_tensoes, base_dir, contexto=contexto)
+        print(f"\nGráficos e tabelas atualizados em {os.path.basename(pasta_saida_descritiva)}.")
         return
 
     if not os.path.isfile(dss_path):
@@ -117,12 +129,14 @@ def main():
     if os.path.exists(caminho_master_tensoes):
         os.remove(caminho_master_tensoes)
 
+    processar = processar_nivel_controle_primario if args.controle_primario else processar_nivel
+
     total_realizacoes_com_erro = 0
     for nivel_dir in niveis:
         pasta_nivel = os.path.join(pasta_montecarlo, nivel_dir)
         pasta_saida_nivel = os.path.join(pasta_saida, nivel_dir)
         print(f"Processando nível: {nivel_dir}")
-        df_nivel, realizacoes_com_erro, df_tensoes_nivel = processar_nivel(
+        df_nivel, realizacoes_com_erro, df_tensoes_nivel = processar(
             pasta_nivel,
             dss_path,
             pasta_saida_nivel,
@@ -142,7 +156,7 @@ def main():
     if todos_resultados:
         df_master = pd.concat(todos_resultados, ignore_index=True)
         df_master.to_csv(caminho_master_resultados, index=False, sep=";", decimal=",")
-        gerar_graficos_e_tabelas(df_master, pasta_saida, pasta_saida_descritiva, caminho_master_tensoes, base_dir)
+        gerar_graficos_e_tabelas(df_master, pasta_saida, pasta_saida_descritiva, caminho_master_tensoes, base_dir, contexto=contexto)
 
         print("\nAnálise finalizada. Master CSV salvo")
 

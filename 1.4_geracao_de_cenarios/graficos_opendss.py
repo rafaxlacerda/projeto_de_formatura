@@ -35,7 +35,7 @@ def calcular_limites_y_envelope(global_ymin, global_ymax, margem_minima=0.03):
     return ymin - margem, ymax + margem
 
 
-def plotar_envelope_tensao(pasta_resultados, pasta_saida):
+def plotar_envelope_tensao(pasta_resultados, pasta_saida, contexto: str = ""):
     """
     Gera figuras de envelope de tensão (perfil ao longo das barras do alimentador)
     para cada faixa horária, sobrepondo os diferentes níveis de penetração.
@@ -120,7 +120,8 @@ def plotar_envelope_tensao(pasta_resultados, pasta_saida):
         ax.set_ylabel("Módulo de tensão (pu)", fontsize=11)
         ax.set_title(
             f"Tensão ao longo do alimentador IEEE34 — Faixa horária: {faixa.capitalize()}\n"
-            f"Mediana e intervalo P5–P95 para cada nível de penetração FV",
+            f"Mediana e intervalo P5–P95 para cada nível de penetração FV"
+            + (f"\n{contexto}" if contexto else ""),
             fontsize=12,
         )
         ax.set_ylim(*calcular_limites_y_envelope(global_ymin, global_ymax))
@@ -142,7 +143,7 @@ def plotar_envelope_tensao(pasta_resultados, pasta_saida):
         salvar_figura(fig, caminho_fig)
         plt.close(fig)
         
-def plotar_envelope_tensao_por_hora(caminho_tensoes_completas, pasta_saida):
+def plotar_envelope_tensao_por_hora(caminho_tensoes_completas, pasta_saida, contexto: str = ""):
     """
     Gera uma figura de envelope de tensao para cada hora do dia usando o CSV
     completo de tensoes por fase. Para cada barra/hora/realizacao usa a pior
@@ -217,7 +218,8 @@ def plotar_envelope_tensao_por_hora(caminho_tensoes_completas, pasta_saida):
         ax.set_ylabel("Modulo de tensao da pior fase (pu)", fontsize=11)
         ax.set_title(
             f"Envelope de tensao horario no alimentador IEEE34 - Hora {hora:02d}:00\n"
-            "Mediana e intervalo P5-P95 para cada nivel de penetracao FV",
+            "Mediana e intervalo P5-P95 para cada nivel de penetracao FV"
+            + (f"\n{contexto}" if contexto else ""),
             fontsize=12,
         )
         ax.set_ylim(*calcular_limites_y_envelope(global_ymin, global_ymax))
@@ -240,7 +242,7 @@ def plotar_envelope_tensao_por_hora(caminho_tensoes_completas, pasta_saida):
 
     return caminhos
 
-def plotar_boxplot_geral(df_master, pasta_saida):
+def plotar_boxplot_geral(df_master, pasta_saida, contexto: str = ""):
     """Gera boxplots gerais separados para subtensão e sobretensão"""
     niveis = sorted(df_master["pen_pct"].unique())
     faixas = ["manhã", "tarde", "noite"]  # madrugada removida por irrelevância
@@ -259,11 +261,11 @@ def plotar_boxplot_geral(df_master, pasta_saida):
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_ylim(0, 38)
 
-    fig.suptitle("Subtensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    fig.suptitle("Subtensão por faixa de horário (agregado de todos os tipos de dia)" + (f"\n{contexto}" if contexto else ""), fontsize=18)
     caminho_subtensao = os.path.join(pasta_saida, "boxplot_subtensao_geral.png")
     salvar_figura(fig, caminho_subtensao)
     plt.close(fig)
-    
+
     # Boxplot para Sobretensão
     fig, axes = plt.subplots(3, 1, figsize=(16, 18), constrained_layout=True)
     for ax, faixa in zip(axes, faixas):
@@ -278,7 +280,7 @@ def plotar_boxplot_geral(df_master, pasta_saida):
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_ylim(0, 38)
 
-    fig.suptitle("Sobretensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    fig.suptitle("Sobretensão por faixa de horário (agregado de todos os tipos de dia)" + (f"\n{contexto}" if contexto else ""), fontsize=18)
     caminho_sobretensao = os.path.join(pasta_saida, "boxplot_sobretensao_geral.png")
     salvar_figura(fig, caminho_sobretensao)
     plt.close(fig)
@@ -286,7 +288,7 @@ def plotar_boxplot_geral(df_master, pasta_saida):
     return caminho_subtensao, caminho_sobretensao
 
 
-def plotar_boxplot_por_time_bands(df_master, pasta_saida):
+def plotar_boxplot_por_time_bands(df_master, pasta_saida, contexto: str = ""):
     """Gera boxplots separados por time bands, com distinção entre subtensão e sobretensão"""
     niveis = sorted(df_master["pen_pct"].unique())
     faixas = ["manhã", "tarde", "noite"]  # madrugada removida por irrelevância
@@ -305,11 +307,11 @@ def plotar_boxplot_por_time_bands(df_master, pasta_saida):
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_ylim(0, 38)
 
-    fig.suptitle("Subtensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    fig.suptitle("Subtensão por faixa de horário (agregado de todos os tipos de dia)" + (f"\n{contexto}" if contexto else ""), fontsize=18)
     caminho_subtensao = os.path.join(pasta_saida, "boxplot_subtensao_por_time_bands.png")
     salvar_figura(fig, caminho_subtensao)
     plt.close(fig)
-    
+
     # Boxplot para Sobretensão
     fig, axes = plt.subplots(3, 1, figsize=(16, 18), constrained_layout=True)
     for ax, faixa in zip(axes, faixas):
@@ -324,7 +326,7 @@ def plotar_boxplot_por_time_bands(df_master, pasta_saida):
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_ylim(0, 38)
 
-    fig.suptitle("Sobretensão por faixa de horário (agregado de todos os tipos de dia)", fontsize=18)
+    fig.suptitle("Sobretensão por faixa de horário (agregado de todos os tipos de dia)" + (f"\n{contexto}" if contexto else ""), fontsize=18)
     caminho_sobretensao = os.path.join(pasta_saida, "boxplot_sobretensao_por_time_bands.png")
     salvar_figura(fig, caminho_sobretensao)
     plt.close(fig)
@@ -332,7 +334,7 @@ def plotar_boxplot_por_time_bands(df_master, pasta_saida):
     return caminho_subtensao, caminho_sobretensao
 
 
-def plotar_boxplot(df_master, pasta_saida):
+def plotar_boxplot(df_master, pasta_saida, contexto: str = ""):
     """Gera boxplots separados por tipo de dia e por tipo de defeito (subtensão/sobretensão)"""
     niveis = sorted(df_master["pen_pct"].unique())
     tipos_dia = sorted(df_master["tipo_dia"].unique())
@@ -358,7 +360,7 @@ def plotar_boxplot(df_master, pasta_saida):
             ax.grid(True, linestyle="--", alpha=0.4)
             ax.set_ylim(0, 38)
 
-        fig.suptitle(f"Subtensão por faixa de horário - Tipo de dia: {tipo_dia}", fontsize=18)
+        fig.suptitle(f"Subtensão por faixa de horário - Tipo de dia: {tipo_dia}" + (f"\n{contexto}" if contexto else ""), fontsize=18)
         caminho_imagem = os.path.join(pasta_saida, f"boxplot_subtensao_por_faixa_{tipo_dia}.png")
         salvar_figura(fig, caminho_imagem)
         plt.close(fig)
@@ -378,7 +380,7 @@ def plotar_boxplot(df_master, pasta_saida):
             ax.grid(True, linestyle="--", alpha=0.4)
             ax.set_ylim(0, 38)
 
-        fig.suptitle(f"Sobretensão por faixa de horário - Tipo de dia: {tipo_dia}", fontsize=18)
+        fig.suptitle(f"Sobretensão por faixa de horário - Tipo de dia: {tipo_dia}" + (f"\n{contexto}" if contexto else ""), fontsize=18)
         caminho_imagem = os.path.join(pasta_saida, f"boxplot_sobretensao_por_faixa_{tipo_dia}.png")
         salvar_figura(fig, caminho_imagem)
         plt.close(fig)
@@ -387,7 +389,7 @@ def plotar_boxplot(df_master, pasta_saida):
     return caminhos_imagens
 
 
-def plotar_boxplot_por_faixa_bess(df_master, pasta_saida):
+def plotar_boxplot_por_faixa_bess(df_master, pasta_saida, contexto: str = ""):
     """Gera boxplots separados por faixa de operação BESS, com distinção entre subtensão/sobretensão"""
     niveis = sorted(df_master["pen_pct"].unique())
     tipos_dia = sorted(df_master["tipo_dia"].unique())
@@ -427,7 +429,7 @@ def plotar_boxplot_por_faixa_bess(df_master, pasta_saida):
             ax.grid(True, linestyle="--", alpha=0.4)
             ax.set_ylim(0, 38)
 
-        fig.suptitle(f"Subtensão por faixa de operação BESS - Tipo de dia: {tipo_dia}", fontsize=18)
+        fig.suptitle(f"Subtensão por faixa de operação BESS - Tipo de dia: {tipo_dia}" + (f"\n{contexto}" if contexto else ""), fontsize=18)
         caminho_imagem = os.path.join(pasta_saida, f"boxplot_subtensao_por_faixa_bess_{tipo_dia}.png")
         salvar_figura(fig, caminho_imagem)
         plt.close(fig)
@@ -451,7 +453,7 @@ def plotar_boxplot_por_faixa_bess(df_master, pasta_saida):
             ax.grid(True, linestyle="--", alpha=0.4)
             ax.set_ylim(0, 38)
 
-        fig.suptitle(f"Sobretensão por faixa de operação BESS - Tipo de dia: {tipo_dia}", fontsize=18)
+        fig.suptitle(f"Sobretensão por faixa de operação BESS - Tipo de dia: {tipo_dia}" + (f"\n{contexto}" if contexto else ""), fontsize=18)
         caminho_imagem = os.path.join(pasta_saida, f"boxplot_sobretensao_por_faixa_bess_{tipo_dia}.png")
         salvar_figura(fig, caminho_imagem)
         plt.close(fig)
