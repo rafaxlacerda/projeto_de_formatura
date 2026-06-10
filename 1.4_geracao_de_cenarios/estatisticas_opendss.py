@@ -341,27 +341,28 @@ def criar_tabela_csv(tabelas_por_nivel):
     
     return "\n".join(linhas)
 
-def criar_tabela_html(tabelas_por_nivel):
+def criar_tabela_html(tabelas_por_nivel, contexto: str = ""):
     """
     Cria uma tabela em HTML com estatísticas dos 4 níveis especiais.
     Retorna string com código HTML.
     """
+    sufixo_html = f" — {contexto}" if contexto else ""
     html = []
-    html.append("""<html>
+    html.append(f"""<html>
 <head>
     <meta charset="utf-8">
-    <title>Análise Estatística - Cenários Monte Carlo</title>
+    <title>Análise Estatística - Cenários Monte Carlo{sufixo_html}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; margin: 20px 0; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
-        th { background-color: #4CAF50; color: white; }
-        td:first-child { text-align: left; }
-        h1, h2 { color: #333; }
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        table {{ border-collapse: collapse; margin: 20px 0; width: 100%; }}
+        th, td {{ border: 1px solid #ddd; padding: 10px; text-align: right; }}
+        th {{ background-color: #4CAF50; color: white; }}
+        td:first-child {{ text-align: left; }}
+        h1, h2 {{ color: #333; }}
     </style>
 </head>
 <body>
-    <h1>Análise Estatística Descritiva - Cenários Monte Carlo</h1>
+    <h1>Análise Estatística Descritiva - Cenários Monte Carlo{sufixo_html}</h1>
     <p>Níveis analisados: 0%, 50%, 100%, 150%</p>
     
     <h2>Tabela de Estatísticas</h2>
@@ -438,7 +439,7 @@ def criar_tabela_html(tabelas_por_nivel):
     
     return "\n".join(html)
 
-def gerar_tabelas_estatisticas(pasta_saida, pasta_monte_carlo, pasta_saida_opendss=None):
+def gerar_tabelas_estatisticas(pasta_saida, pasta_monte_carlo, pasta_saida_opendss=None, contexto: str = ""):
     """
     Gera tabelas de estatísticas descritivas para os níveis especiais.
     Salva em formatos CSV e HTML.
@@ -462,7 +463,7 @@ def gerar_tabelas_estatisticas(pasta_saida, pasta_monte_carlo, pasta_saida_opend
         f.write(csv_content)
     
     # Salva tabela HTML
-    html_content = criar_tabela_html(tabelas_por_nivel)
+    html_content = criar_tabela_html(tabelas_por_nivel, contexto=contexto)
     html_path = os.path.join(pasta_saida, "tabela_estatisticas_descritivas.html")
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html_content)
