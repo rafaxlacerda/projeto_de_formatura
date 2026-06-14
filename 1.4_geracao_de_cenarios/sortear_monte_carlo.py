@@ -25,7 +25,7 @@ N_REALIZACOES = 500     # Sorteios por nível de penetração
 N_HORAS = 24            # Resolução temporal
 
 # Range de Penetração FV: de 0% a 150% em passos de 10%
-PV_PENETRACAO_NIVEIS = np.round(np.arange(0.0, 1.6, 0.1), 2)
+PV_PENETRACAO_NIVEIS = np.round(np.arange(0.0, 1.1, 0.1), 2)
 
 # --- BESS ---
 # Potência total de BESS como fração da potência FV instalada
@@ -42,7 +42,7 @@ PERFIL_BESS_FIXO = np.zeros(N_HORAS)
 PERFIL_BESS_FIXO[10:15] = -1.0 
 PERFIL_BESS_FIXO[18:22] = 1.0  
 
-# IRRADIÂNCIA SOLAR — PESOS IGUAIS
+# IRRADIÂNCIA SOLAR
 TIPOS_DIA = {
     "ceu_aberto": {
         "label": "Céu Aberto", "probabilidade": 0.493, "desvio_rel": 0.07, "cor": "#FF8C00",

@@ -1,25 +1,3 @@
-hour,n_violations
-1,8
-2,8
-3,4
-4,2
-5,2
-6,2
-7,2
-8,2
-9,1
-10,2
-11,3
-12,2
-13,1
-14,8
-15,8
-16,2
-17,2
-18,2
-19,7
-20,4
-21,2
-22,2
-23,2
-24,2
+version https://git-lfs.github.com/spec/v1
+oid sha256:59026f0fc3d5894db60dda23269091dd4cdf42d2ea0fb94c88faf9b0868cf530
+size 154
