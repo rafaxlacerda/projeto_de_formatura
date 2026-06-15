@@ -79,7 +79,14 @@ import pandas as pd
 from dss._cffi_api_util import DSSException
 from opendssdirect import dss
 
-from simulacoes_config import BESS_BANDS, BESS_PERFIL, TIME_BANDS, V_PU_MAX, V_PU_MIN
+from simulacoes_config import (
+    BARRAS_EXCLUIDAS_ANALISE,
+    BESS_BANDS,
+    BESS_PERFIL,
+    TIME_BANDS,
+    V_PU_MAX,
+    V_PU_MIN,
+)
 from simulacao_opendss import (
     ler_fatores_incerteza_carga,
     ler_perfis_irradiancia,
@@ -324,7 +331,11 @@ def _barra_tem_violacao(tensoes: dict, barra_str: str) -> bool:
 
 def _sistema_tem_violacao(tensoes: dict) -> bool:
     """Retorna True se há pelo menos uma barra com violação de tensão."""
-    return any(_barra_tem_violacao(tensoes, b) for b in tensoes)
+    return any(
+        _barra_tem_violacao(tensoes, b)
+        for b in tensoes
+        if b.lower() not in BARRAS_EXCLUIDAS_ANALISE
+    )
 
 
 # ---------------------------------------------------------------------------

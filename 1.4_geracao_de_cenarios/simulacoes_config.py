@@ -6,6 +6,19 @@ import numpy as np
 V_PU_MIN = 0.95
 V_PU_MAX = 1.05
 
+# Barras removidas das analises de tensao por nao representarem barras de carga.
+BARRAS_EXCLUIDAS_ANALISE = {
+    "sourcebus",
+    "800",
+    "812",
+    "814",
+    "814r",
+    "850",
+    "852",
+    "852r",
+    "888",
+}
+
 # Caminho padrão do modelo IEEE34 - Usa arquivo original com loadshapes.
 DEFAULT_DSS_FILE = os.path.join("..", "IEEE34bus", "IEEE34_original_with_loadshapes.dss")
 

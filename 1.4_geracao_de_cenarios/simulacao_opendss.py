@@ -5,7 +5,14 @@ import pandas as pd
 from dss._cffi_api_util import DSSException
 from opendssdirect import dss
 
-from simulacoes_config import BESS_BANDS, BESS_PERFIL, TIME_BANDS, V_PU_MAX, V_PU_MIN
+from simulacoes_config import (
+    BARRAS_EXCLUIDAS_ANALISE,
+    BESS_BANDS,
+    BESS_PERFIL,
+    TIME_BANDS,
+    V_PU_MAX,
+    V_PU_MIN,
+)
 
 
 def ler_fatores_incerteza_carga(pasta_nivel):
@@ -103,12 +110,15 @@ def editar_load(nome, kw, kvar=0.0):
 def extrair_tensoes_por_barra():
     dados = {}
     for bus in dss.Circuit.AllBusNames():
+        bus_lower = bus.lower()
+        if bus_lower in BARRAS_EXCLUIDAS_ANALISE:
+            continue
         dss.Circuit.SetActiveBus(bus)
         pu_vals = dss.Bus.puVmagAngle()
         mags = pu_vals[0::2]
         if not mags:
             continue
-        dados[bus.lower()] = list(mags)  # Retorna lista das tensões das fases
+        dados[bus_lower] = list(mags)  # Retorna lista das tensões das fases
     return dados
 
 
@@ -140,6 +150,8 @@ def calcular_defeitos_por_faixa(tensoes_por_hora):
         barras_com_sobretensao = set()
         
         for barra in next(iter(tensoes_por_hora.values())).keys():
+            if barra.lower() in BARRAS_EXCLUIDAS_ANALISE:
+                continue
             tensoes_fases = []
             for h in horas_disponiveis:
                 tensoes_fases.extend(tensoes_por_hora[h][barra])
@@ -179,6 +191,8 @@ def calcular_defeitos_por_faixa_bess(tensoes_por_hora):
         barras_com_sobretensao = set()
         
         for barra in next(iter(tensoes_por_hora.values())).keys():
+            if barra.lower() in BARRAS_EXCLUIDAS_ANALISE:
+                continue
             tensoes_fases = []
             for h in horas_disponiveis:
                 tensoes_fases.extend(tensoes_por_hora[h][barra])
@@ -336,7 +350,11 @@ def _acumular_tensoes_envelope(tensoes_envelope, tensoes_por_hora):
         # Conjunto de barras disponíveis nesta realização
         barras = set()
         for h in horas_disponiveis:
-            barras.update(tensoes_por_hora[h].keys())
+            barras.update(
+                barra
+                for barra in tensoes_por_hora[h].keys()
+                if barra.lower() not in BARRAS_EXCLUIDAS_ANALISE
+            )
 
         for barra in barras:
             # Coleta todas as magnitudes de fase dessa barra nas horas da faixa
