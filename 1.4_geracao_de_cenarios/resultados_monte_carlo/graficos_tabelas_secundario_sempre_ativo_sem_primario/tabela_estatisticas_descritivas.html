@@ -1,0 +1,229 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Análise Estatística - Cenários Monte Carlo — Controle Secundário por Consenso (Sempre Ativo) — Sem Controle Primário</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; margin: 20px 0; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
+        th { background-color: #4CAF50; color: white; }
+        td:first-child { text-align: left; }
+        h1, h2 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Análise Estatística Descritiva - Cenários Monte Carlo — Controle Secundário por Consenso (Sempre Ativo) — Sem Controle Primário</h1>
+    <p>Níveis analisados: 0%, 50%, 100%, 150%</p>
+    
+    <h2>Tabela de Estatísticas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Variável</th>
+                <th colspan="4">0% PV</th>
+                <th colspan="4">50% PV</th>
+                <th colspan="4">100% PV</th>
+                <th colspan="4">150% PV</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th>Mín</th><th>Máx</th><th>Média</th><th>DP</th>
+                <th>Mín</th><th>Máx</th><th>Média</th><th>DP</th>
+                <th>Mín</th><th>Máx</th><th>Média</th><th>DP</th>
+                <th>Mín</th><th>Máx</th><th>Média</th><th>DP</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Capacidade BESS Total (kWh)</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+<td>715.2200</td>
+<td>1140.3400</td>
+<td>928.9158</td>
+<td>78.0189</td>
+<td>1448.4700</td>
+<td>2257.6900</td>
+<td>1853.4569</td>
+<td>150.9553</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Fator de Pico Horário (Irradiância)</td>
+<td>0.5485</td>
+<td>1.0000</td>
+<td>0.9410</td>
+<td>0.0846</td>
+<td>0.5984</td>
+<td>1.0000</td>
+<td>0.9441</td>
+<td>0.0834</td>
+<td>0.6007</td>
+<td>1.0000</td>
+<td>0.9310</td>
+<td>0.0951</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Fatores de Incerteza de Carga (agregado)</td>
+<td>0.8000</td>
+<td>1.2000</td>
+<td>1.0001</td>
+<td>0.0960</td>
+<td>0.8000</td>
+<td>1.2000</td>
+<td>1.0002</td>
+<td>0.0960</td>
+<td>0.8000</td>
+<td>1.2000</td>
+<td>1.0001</td>
+<td>0.0960</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Frequência: ceu_aberto</td>
+<td>-</td>
+<td>-</td>
+<td>49.0%</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>50.0%</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>46.6%</td>
+<td>-</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Frequência: nublado</td>
+<td>-</td>
+<td>-</td>
+<td>12.6%</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>10.2%</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>16.2%</td>
+<td>-</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Frequência: parcialmente_nublado</td>
+<td>-</td>
+<td>-</td>
+<td>38.4%</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>39.8%</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>37.2%</td>
+<td>-</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Número de Barras com Sobretensão</td>
+<td>0.0000</td>
+<td>107.0000</td>
+<td>21.0960</td>
+<td>22.2196</td>
+<td>0.0000</td>
+<td>107.0000</td>
+<td>21.0960</td>
+<td>22.2196</td>
+<td>0.0000</td>
+<td>107.0000</td>
+<td>21.0960</td>
+<td>22.2196</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Número de Barras com Subtensão</td>
+<td>8.0000</td>
+<td>8.0000</td>
+<td>8.0000</td>
+<td>0.0000</td>
+<td>8.0000</td>
+<td>8.0000</td>
+<td>8.0000</td>
+<td>0.0000</td>
+<td>8.0000</td>
+<td>8.0000</td>
+<td>8.0000</td>
+<td>0.0000</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Potência BESS Total (kW)</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+<td>309.5600</td>
+<td>309.5900</td>
+<td>309.5749</td>
+<td>0.0067</td>
+<td>619.1400</td>
+<td>619.1700</td>
+<td>619.1501</td>
+<td>0.0063</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Potência FV na Barra 840 (kW)</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+<td>129.7800</td>
+<td>226.3400</td>
+<td>176.9463</td>
+<td>16.0332</td>
+<td>275.4400</td>
+<td>433.9600</td>
+<td>353.9075</td>
+<td>30.7637</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Potência FV na Barra 844 (kW)</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+<td>138.7100</td>
+<td>231.8500</td>
+<td>177.6332</td>
+<td>16.3668</td>
+<td>262.4200</td>
+<td>451.3000</td>
+<td>352.1659</td>
+<td>31.6126</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Potência FV na Barra 848 (kW)</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+<td>133.2800</td>
+<td>222.1800</td>
+<td>176.8896</td>
+<td>16.2858</td>
+<td>272.8100</td>
+<td>454.2300</td>
+<td>355.1424</td>
+<td>30.4948</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Potência FV na Barra 860 (kW)</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+<td>135.4400</td>
+<td>229.9600</td>
+<td>175.6514</td>
+<td>14.9234</td>
+<td>256.2500</td>
+<td>444.4500</td>
+<td>354.4168</td>
+<td>31.1258</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+            <tr><td>Potência FV na Barra 890 (kW)</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+<td>125.2200</td>
+<td>227.5600</td>
+<td>177.3795</td>
+<td>15.9128</td>
+<td>264.8700</td>
+<td>464.9400</td>
+<td>353.3674</td>
+<td>31.0215</td>
+<td>-</td><td>-</td><td>-</td><td>-</td>
+</tr>
+        </tbody>
+    </table>
+</body>
+</html>

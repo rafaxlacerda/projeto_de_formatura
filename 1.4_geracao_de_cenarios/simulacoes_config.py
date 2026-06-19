@@ -39,12 +39,6 @@ BARRAS_TOPOLOGICAS_IEEE34 = [
     842, 844, 846, 848, 852, 856, 888, 890,
 ]
 
-# Horas do período solar (7h-17h): captura a rampa de subida/descida da irradiância
-HORAS_PERIODO_SOLAR = list(range(7, 18))
-
-# Horas fora do período solar (00h-06h e 18h-23h)
-HORAS_FORA_PERIODO_SOLAR = list(range(0, 7)) + list(range(18, 24))
-
 # Faixas de operação da bateria (BESS)
 BESS_BANDS = {
     "carga": list(range(10, 15)),                           # 10h-14h (absorção/recarga)
