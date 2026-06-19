@@ -29,6 +29,7 @@ from estatisticas_opendss import gerar_estatisticas_comparativas, gerar_tabelas_
 from graficos_opendss import (
     plotar_boxplot_horario,
     plotar_boxplot_horario_comparativo,
+    plotar_boxplot_por_faixa,
     plotar_curva_mestre_comparativa,
     plotar_envelope_tensao,
     plotar_envelope_tensao_por_hora,
@@ -223,14 +224,26 @@ def gerar_graficos_e_tabelas(
     caminho_master_tensoes, base_dir, contexto=""
 ):
     """Gera todos os gráficos e tabelas de um único cenário de controle."""
+    tipos_dia = sorted(df_master["tipo_dia"].unique()) if "tipo_dia" in df_master.columns else []
+
     for indicador in ("sobretensao", "subtensao"):
+        print(f"\nGerando boxplots por faixa horária (geral) — {indicador}...")
+        plotar_boxplot_por_faixa(
+            df_master, pasta_saida_descritiva,
+            tipo_dia=None, indicador=indicador, contexto=contexto,
+        )
+        for td in tipos_dia:
+            print(f"\nGerando boxplots por faixa horária ({td}) — {indicador}...")
+            plotar_boxplot_por_faixa(
+                df_master, pasta_saida_descritiva,
+                tipo_dia=td, indicador=indicador, contexto=contexto,
+            )
+
         print(f"\nGerando boxplots horários (geral) — {indicador}...")
         plotar_boxplot_horario(
             caminho_master_tensoes, pasta_saida_descritiva,
             tipo_dia=None, indicador=indicador, contexto=contexto,
         )
-
-        tipos_dia = sorted(df_master["tipo_dia"].unique()) if "tipo_dia" in df_master.columns else []
         for td in tipos_dia:
             print(f"\nGerando boxplots horários ({td}) — {indicador}...")
             plotar_boxplot_horario(
@@ -272,7 +285,7 @@ def gerar_graficos_e_tabelas(
 
 def gerar_graficos_comparativos(base_dir):
     """
-    Gera as figuras comparativas multi-cenário (blocos 1–4 do relatório).
+    Gera as figuras comparativas multi-cenário (blocos 1–5 do relatório).
     Assume que os CSVs de todos os cenários relevantes já existem em disco.
 
     Estrutura de saída:
@@ -281,6 +294,7 @@ def gerar_graficos_comparativos(base_dir):
         bloco2_sem_controle_vs_primario/
         bloco3_sem_controle_vs_duplo/
         bloco4_sintese_tres_cenarios/
+        bloco5_sem_controle_vs_primario_vs_secundario/
     """
     pasta_base = os.path.join(base_dir, "resultados_monte_carlo")
 
@@ -289,11 +303,13 @@ def gerar_graficos_comparativos(base_dir):
         "sem_controle":   os.path.join(pasta_base, "analise_opendss",             "master_resultados_opendss.csv"),
         "primario":       os.path.join(pasta_base, "analise_controle_primario",    "master_resultados_opendss.csv"),
         "duplo_cond":     os.path.join(pasta_base, "analise_secundario_condicional_com_primario", "master_resultados_opendss.csv"),
+        "secundario_so":  os.path.join(pasta_base, "analise_secundario_sempre_ativo_sem_primario", "master_resultados_opendss.csv"),
     }
     _csv_tensoes = {
         "sem_controle":   os.path.join(pasta_base, "analise_opendss",             "master_tensoes_opendss_completas.csv"),
         "primario":       os.path.join(pasta_base, "analise_controle_primario",    "master_tensoes_opendss_completas.csv"),
         "duplo_cond":     os.path.join(pasta_base, "analise_secundario_condicional_com_primario", "master_tensoes_opendss_completas.csv"),
+        "secundario_so":  os.path.join(pasta_base, "analise_secundario_sempre_ativo_sem_primario", "master_tensoes_opendss_completas.csv"),
     }
 
     # Detecta quais cenários estão disponíveis
@@ -307,9 +323,10 @@ def gerar_graficos_comparativos(base_dir):
         os.makedirs(p, exist_ok=True)
         return p
 
-    CEN_SC = {"rotulo": "Sem controle",        "caminho_master_csv": _csv_master["sem_controle"],  "cor": "#1f77b4"}
-    CEN_PR = {"rotulo": "Controle primário",    "caminho_master_csv": _csv_master["primario"],       "cor": "#d62728"}
-    CEN_DC = {"rotulo": "Controle duplo (cond.)", "caminho_master_csv": _csv_master["duplo_cond"],  "cor": "#2ca02c"}
+    CEN_SC = {"rotulo": "Sem controle",           "caminho_master_csv": _csv_master["sem_controle"],  "cor": "#1f77b4"}
+    CEN_PR = {"rotulo": "Controle primário",      "caminho_master_csv": _csv_master["primario"],       "cor": "#d62728"}
+    CEN_DC = {"rotulo": "Controle duplo (cond.)", "caminho_master_csv": _csv_master["duplo_cond"],    "cor": "#2ca02c"}
+    CEN_SO = {"rotulo": "Controle secundário",    "caminho_master_csv": _csv_master["secundario_so"], "cor": "#ff7f0e"}
 
     for indicador in ("sobretensao", "subtensao"):
 
@@ -386,6 +403,46 @@ def gerar_graficos_comparativos(base_dir):
             gerar_estatisticas_comparativas(
                 cens_disponiveis, _pasta_bloco("bloco4_sintese_tres_cenarios"), indicador=indicador,
             )
+
+        # Bloco 5 — sem controle vs. primário vs. apenas secundário sempre ativo
+        if disp["sem_controle"] and disp["primario"] and disp["secundario_so"]:
+            print(f"\n[Bloco 5] Comparação sem controle vs. primário vs. secundário — {indicador}")
+            _b5 = _pasta_bloco("bloco5_sem_controle_vs_primario_vs_secundario")
+            plotar_curva_mestre_comparativa(
+                [CEN_SC, CEN_PR, CEN_SO], _b5, indicador=indicador,
+            )
+            gerar_estatisticas_comparativas(
+                [CEN_SC, CEN_PR, CEN_SO], _b5, indicador=indicador,
+            )
+            for pen in [50, 100]:
+                plotar_boxplot_horario_comparativo(
+                    [CEN_SC, CEN_PR, CEN_SO],
+                    [_csv_tensoes["sem_controle"], _csv_tensoes["primario"], _csv_tensoes["secundario_so"]],
+                    _b5,
+                    nivel_pen=pen, indicador=indicador,
+                )
+                if (
+                    os.path.isfile(_csv_tensoes["sem_controle"])
+                    and os.path.isfile(_csv_tensoes["secundario_so"])
+                ):
+                    plotar_heatmap_diferenca(
+                        _csv_tensoes["sem_controle"], _csv_tensoes["secundario_so"],
+                        _b5,
+                        pen_pct_alvo=pen,
+                        rotulo_a="Sem controle", rotulo_b="Secundário",
+                        indicador=indicador,
+                    )
+                if (
+                    os.path.isfile(_csv_tensoes["primario"])
+                    and os.path.isfile(_csv_tensoes["secundario_so"])
+                ):
+                    plotar_heatmap_diferenca(
+                        _csv_tensoes["primario"], _csv_tensoes["secundario_so"],
+                        _b5,
+                        pen_pct_alvo=pen,
+                        rotulo_a="Primário", rotulo_b="Secundário",
+                        indicador=indicador,
+                    )
 
     print("\nFiguras comparativas geradas em:", pasta_comp)
 

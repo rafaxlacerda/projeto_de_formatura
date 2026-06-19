@@ -25,6 +25,13 @@ FONTSIZE_LEG_TITULO = 12
 _PALETA_CENARIOS = ["#1f77b4", "#d62728", "#2ca02c"]  # azul, vermelho, verde
 _LINESTYLES = ["-", "--", ":"]
 
+# Rótulos legíveis para os tipos de dia (condição de céu)
+_ROTULO_TIPO_DIA = {
+    "ceu_aberto":          "Céu aberto",
+    "parcialmente_nublado": "Parcialmente nublado",
+    "nublado":             "Nublado",
+}
+
 
 # ---------------------------------------------------------------------------
 # Utilitários internos
@@ -348,7 +355,110 @@ def plotar_envelope_tensao_por_hora(
 
 
 # ---------------------------------------------------------------------------
-# Boxplots horários (substitui as antigas funções segmentadas por faixa)
+# Boxplots agregados por faixa horária (manhã / tarde / noite / madrugada)
+# ---------------------------------------------------------------------------
+
+def plotar_boxplot_por_faixa(
+    df_master,
+    pasta_saida,
+    tipo_dia=None,
+    indicador="sobretensao",
+    contexto: str = "",
+):
+    """
+    Gera boxplots agregados por faixa horária (TIME_BANDS) do número de barras
+    de carga com violação. Usa as colunas pré-calculadas do master_resultados.
+
+    Layout: 2 × 2 subplots (um por faixa: manhã / tarde / noite / madrugada).
+    Eixo X: nível de penetração FV (%). Eixo Y: barras com violação.
+
+    Parâmetros
+    ----------
+    df_master : DataFrame
+        master_resultados_opendss.csv já carregado.
+    pasta_saida : str
+        Pasta de saída das figuras.
+    tipo_dia : str ou None
+        Filtra por tipo de dia. None = todos.
+    indicador : str
+        "sobretensao" ou "subtensao".
+    contexto : str
+        Texto adicional no título.
+    """
+    from simulacoes_config import TIME_BANDS
+
+    df = df_master if tipo_dia is None else df_master[df_master["tipo_dia"] == tipo_dia]
+    if df.empty:
+        return
+
+    niveis = sorted(df["pen_pct"].unique())
+    faixas = [f for f in TIME_BANDS.keys() if f"{indicador}_{f}" in df.columns]
+    if not faixas:
+        print(f"  ⚠ Nenhuma coluna '{indicador}_<faixa>' encontrada no df_master.")
+        return
+
+    # Ylim global baseado no P99 de todas as faixas
+    ylim_top = 2
+    for faixa in faixas:
+        vals = df[f"{indicador}_{faixa}"].values
+        if len(vals):
+            ylim_top = max(ylim_top, float(np.nanpercentile(vals, 99)))
+    ylim_top = int(ylim_top) + 2
+    yticks = np.arange(0, ylim_top + 1, 2)
+
+    ncols = 2
+    nrows = int(np.ceil(len(faixas) / ncols))
+    fig, axes = plt.subplots(
+        nrows, ncols,
+        figsize=(9 * ncols, 5 * nrows),
+        constrained_layout=True,
+    )
+    axes_flat = np.array(axes).flatten()
+
+    for i, faixa in enumerate(faixas):
+        ax = axes_flat[i]
+        col = f"{indicador}_{faixa}"
+        data = [df.loc[df["pen_pct"] == n, col].values for n in niveis]
+        ax.boxplot(
+            data,
+            showfliers=False,
+            patch_artist=True,
+            boxprops=dict(facecolor="#a8c8e8", linewidth=1.0),
+            medianprops=dict(color="#1f4e79", linewidth=1.5),
+            whiskerprops=dict(linewidth=1.0),
+            capprops=dict(linewidth=1.0),
+        )
+        ax.set_xticks(range(1, len(niveis) + 1))
+        ax.set_xticklabels([str(int(n)) for n in niveis], fontsize=FONTSIZE_TICK - 1)
+        ax.set_xlim(0.2, len(niveis) + 0.8)
+        ax.set_title(faixa.capitalize(), fontsize=FONTSIZE_EIXO)
+        ax.set_xlabel("Penetração FV (%)", fontsize=FONTSIZE_TICK)
+        ax.set_ylabel("Barras c/ violação", fontsize=FONTSIZE_TICK)
+        ax.set_ylim(0, ylim_top)
+        ax.set_yticks(yticks)
+        ax.tick_params(axis="y", labelsize=FONTSIZE_TICK - 1)
+        _aplicar_estilo_limpo(ax)
+
+    for j in range(len(faixas), len(axes_flat)):
+        axes_flat[j].set_visible(False)
+
+    label_ind  = "Sobretensão (V > 1,05 pu)" if indicador == "sobretensao" else "Subtensão (V < 0,95 pu)"
+    td_rotulo  = _ROTULO_TIPO_DIA.get(tipo_dia, tipo_dia) if tipo_dia else "Todos os dias"
+    td_label   = f" — {td_rotulo}"
+    sufixo_ctx = f"\n{contexto}" if contexto else ""
+    fig.suptitle(
+        f"{label_ind} por faixa horária{td_label}{sufixo_ctx}",
+        fontsize=FONTSIZE_TITULO,
+    )
+
+    sufixo_td = f"_{tipo_dia}" if tipo_dia else "_geral"
+    nome = f"boxplot_faixa_{indicador}{sufixo_td}.png"
+    salvar_figura(fig, os.path.join(pasta_saida, nome))
+    plt.close(fig)
+
+
+# ---------------------------------------------------------------------------
+# Boxplots horários (substituem as antigas funções segmentadas por faixa)
 # ---------------------------------------------------------------------------
 
 def plotar_boxplot_horario(
@@ -396,6 +506,7 @@ def plotar_boxplot_horario(
     horas    = list(range(24))
 
     label_ind  = "Sobretensão (V > 1,05 pu)" if indicador == "sobretensao" else "Subtensão (V < 0,95 pu)"
+    td_rotulo  = _ROTULO_TIPO_DIA.get(tipo_dia, tipo_dia) if tipo_dia else "Todos os dias"
     sufixo_td  = f"_{tipo_dia}" if tipo_dia else "_geral"
     sufixo_ctx = f" — {contexto}" if contexto else ""
 
@@ -452,7 +563,7 @@ def plotar_boxplot_horario(
         axes_flat[j].set_visible(False)
 
     fig.suptitle(
-        f"{label_ind} por hora do dia{sufixo_ctx}",
+        f"{label_ind} por hora do dia — {td_rotulo}{sufixo_ctx}",
         fontsize=FONTSIZE_TITULO,
     )
 
@@ -620,20 +731,41 @@ def plotar_boxplot_horario_comparativo(
     horas = list(range(24))
     cores = [cen.get("cor", _PALETA_CENARIOS[i % len(_PALETA_CENARIOS)]) for i, cen in enumerate(cenarios)]
 
-    # Carrega dados de contagem por hora para cada cenário
+    # Carrega dados de contagem por hora para cada cenário.
+    # Usa comparação por proximidade (<0.5) para tolerar pen_pct float/int misto no CSV.
     dados_por_cenario = []
-    for caminho in caminho_tensoes_por_cenario:
+    for caminho, cen in zip(caminho_tensoes_por_cenario, cenarios):
         if not os.path.isfile(caminho):
             print(f"  ⚠ CSV não encontrado: {caminho}")
             dados_por_cenario.append(None)
             continue
         df_cont = _carregar_contagens_horarias(caminho, indicador)
-        df_niv  = df_cont[df_cont["pen_pct"] == nivel_pen]
+        if df_cont.empty:
+            print(f"  ⚠ Sem dados em: {caminho}")
+            dados_por_cenario.append(None)
+            continue
+        mask = (df_cont["pen_pct"] - float(nivel_pen)).abs() < 0.5
+        df_niv = df_cont[mask]
+        if df_niv.empty:
+            vals_uniq = sorted(df_cont["pen_pct"].dropna().unique())
+            print(f"  ⚠ Nenhuma linha com pen_pct≈{nivel_pen} em '{cen['rotulo']}'. "
+                  f"Valores encontrados: {vals_uniq[:10]}")
         dados_por_cenario.append(df_niv)
 
     largura_box = 0.7 / n_cen
     offsets = np.linspace(-(n_cen - 1) * largura_box / 2,
                            (n_cen - 1) * largura_box / 2, n_cen)
+
+    # Computa o topo do eixo Y a partir do P99 de todos os dados carregados
+    todos_valores = []
+    for df_niv in dados_por_cenario:
+        if df_niv is not None and not df_niv.empty:
+            todos_valores.extend(df_niv["contagem"].dropna().tolist())
+    if todos_valores:
+        p99 = float(np.percentile(todos_valores, 99))
+        ylim_top = max(int(np.ceil(p99)) + 2, 4)
+    else:
+        ylim_top = 10
 
     fig, ax = plt.subplots(figsize=(22, 6))
 
@@ -644,7 +776,7 @@ def plotar_boxplot_horario_comparativo(
             if df_niv is None or df_niv.empty:
                 valores = []
             else:
-                valores = df_niv.loc[df_niv["hora"] == h, "contagem"].values
+                valores = df_niv.loc[df_niv["hora"] == h, "contagem"].dropna().values
             ax.boxplot(
                 [valores] if len(valores) > 0 else [[]],
                 positions=[pos],
@@ -663,8 +795,9 @@ def plotar_boxplot_horario_comparativo(
     ax.set_xlim(-0.7, 23.7)
     ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
     ax.set_ylabel("Barras de carga c/ violação", fontsize=FONTSIZE_EIXO)
-    ax.yaxis.set_major_locator(mticker.MultipleLocator(2))
-    ax.set_ylim(bottom=0)
+    tick_step = max(1, ylim_top // 10)
+    ax.yaxis.set_major_locator(mticker.MultipleLocator(tick_step))
+    ax.set_ylim(0, ylim_top)
     _aplicar_estilo_limpo(ax)
 
     label_ind = "Sobretensão (V > 1,05 pu)" if indicador == "sobretensao" else "Subtensão (V < 0,95 pu)"
