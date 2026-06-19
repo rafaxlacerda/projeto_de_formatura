@@ -28,17 +28,44 @@ import pandas as pd
 from estatisticas_opendss import gerar_estatisticas_comparativas, gerar_tabelas_estatisticas
 from graficos_opendss import (
     plotar_boxplot_horario,
-    plotar_boxplot_periodo_comparativo,
+    plotar_boxplot_horario_comparativo,
     plotar_curva_mestre_comparativa,
     plotar_envelope_tensao,
     plotar_envelope_tensao_por_hora,
     plotar_heatmap_diferenca,
     plotar_heatmap_topologico_horario,
+    plotar_3d_probabilidade,
 )
 from controle_primario import processar_nivel_controle_primario
 from controle_secundario import processar_nivel_controle_secundario
 from simulacao_opendss import processar_nivel
 from simulacoes_config import DEFAULT_DSS_FILE
+
+# Cenários com resultado fixo conhecido, em ordem de relevância para o relatório.
+# Usado por --somente-graficos para regenerar todos os cenários disponíveis.
+_CENARIOS_CONHECIDOS = [
+    {
+        "subdir":      "analise_opendss",
+        "subdir_graf": "graficos_tabelas_descritivas",
+        "contexto":    "",
+        "descricao":   "Sem controle",
+    },
+    {
+        "subdir":      "analise_controle_primario",
+        "subdir_graf": "graficos_tabelas_controle_primario",
+        "contexto":    "Com Controle Primário VoltVar (NBR 16149:2013)",
+        "descricao":   "Controle primário",
+    },
+    {
+        "subdir":      "analise_secundario_condicional_com_primario",
+        "subdir_graf": "graficos_tabelas_secundario_condicional_com_primario",
+        "contexto":    (
+            "Controle Secundário por Consenso (Condicional) "
+            "com Controle Primário VoltVar (NBR 16149:2013)"
+        ),
+        "descricao":   "Controle duplo condicional",
+    },
+]
 
 
 def parse_args():
@@ -214,9 +241,26 @@ def gerar_graficos_e_tabelas(
     print("\nGerando envelopes de tensão por faixa horária...")
     plotar_envelope_tensao(pasta_saida, pasta_saida_descritiva, contexto=contexto)
 
-    print("\nGerando envelopes de tensão para cada hora do dia...")
+    print("\nGerando envelopes de tensão por hora (fase máxima — sobretensão)...")
     plotar_envelope_tensao_por_hora(
-        caminho_master_tensoes, pasta_saida_descritiva, contexto=contexto
+        caminho_master_tensoes, pasta_saida_descritiva,
+        indicador="sobretensao", contexto=contexto,
+    )
+    print("\nGerando envelopes de tensão por hora (fase mínima — subtensão)...")
+    plotar_envelope_tensao_por_hora(
+        caminho_master_tensoes, pasta_saida_descritiva,
+        indicador="subtensao", contexto=contexto,
+    )
+
+    print("\nGerando gráficos 3D de probabilidade de sobretensão por barra e penetração...")
+    plotar_3d_probabilidade(
+        caminho_master_tensoes, pasta_saida_descritiva,
+        indicador="sobretensao", contexto=contexto,
+    )
+    print("\nGerando gráficos 3D de probabilidade de subtensão por barra e penetração...")
+    plotar_3d_probabilidade(
+        caminho_master_tensoes, pasta_saida_descritiva,
+        indicador="subtensao", contexto=contexto,
     )
 
     print("\nGerando tabelas de estatísticas descritivas...")
@@ -292,7 +336,7 @@ def gerar_graficos_comparativos(base_dir):
                 [CEN_SC, CEN_PR], _pasta_bloco("bloco2_sem_controle_vs_primario"), indicador=indicador,
             )
             for pen in [50, 100]:
-                plotar_boxplot_periodo_comparativo(
+                plotar_boxplot_horario_comparativo(
                     [CEN_SC, CEN_PR],
                     [_csv_tensoes["sem_controle"], _csv_tensoes["primario"]],
                     _pasta_bloco("bloco2_sem_controle_vs_primario"),
@@ -317,7 +361,7 @@ def gerar_graficos_comparativos(base_dir):
                 [CEN_SC, CEN_DC], _pasta_bloco("bloco3_sem_controle_vs_duplo"), indicador=indicador,
             )
             for pen in [50, 100]:
-                plotar_boxplot_periodo_comparativo(
+                plotar_boxplot_horario_comparativo(
                     [CEN_SC, CEN_DC],
                     [_csv_tensoes["sem_controle"], _csv_tensoes["duplo_cond"]],
                     _pasta_bloco("bloco3_sem_controle_vs_duplo"),
@@ -380,27 +424,51 @@ def main():
     # Modo somente gráficos
     # ------------------------------------------------------------------
     if args.somente_graficos:
-        if not os.path.isfile(caminho_master_resultados):
-            raise FileNotFoundError(
-                f"CSV de resultados não encontrado: {caminho_master_resultados}"
-            )
-        print("Modo somente gráficos: usando CSVs existentes, sem rodar simulações.")
-        df_master = pd.read_csv(caminho_master_resultados, sep=";", decimal=",")
-        if args.nivel:
-            nivel_pct = int(args.nivel)
-            df_master = df_master[df_master["pen_pct"] == nivel_pct]
-            if df_master.empty:
-                raise ValueError(
-                    f"Nenhum resultado encontrado para penetração {nivel_pct}%%."
+        pasta_base_mc = os.path.join(base_dir, "resultados_monte_carlo")
+        sem_flags_controle = not args.controle_primario and not args.controle_secundario
+
+        if sem_flags_controle:
+            # Sem flags de controle → regenera TODOS os cenários disponíveis
+            print("Modo somente gráficos: regenerando todos os cenários disponíveis.")
+            for cen in _CENARIOS_CONHECIDOS:
+                pasta_saida_cen  = os.path.join(pasta_base_mc, cen["subdir"])
+                pasta_graf_cen   = os.path.join(pasta_base_mc, cen["subdir_graf"])
+                csv_master_cen   = os.path.join(pasta_saida_cen, "master_resultados_opendss.csv")
+                csv_tensoes_cen  = os.path.join(pasta_saida_cen, "master_tensoes_opendss_completas.csv")
+                if not os.path.isfile(csv_master_cen):
+                    print(f"  ⚠ CSV não encontrado para '{cen['descricao']}', pulando.")
+                    continue
+                print(f"\n=== {cen['descricao']} ===")
+                df_cen = pd.read_csv(csv_master_cen, sep=";", decimal=",")
+                os.makedirs(pasta_graf_cen, exist_ok=True)
+                gerar_graficos_e_tabelas(
+                    df_cen, pasta_saida_cen, pasta_graf_cen,
+                    csv_tensoes_cen, base_dir, contexto=cen["contexto"],
                 )
-        gerar_graficos_e_tabelas(
-            df_master, pasta_saida, pasta_saida_descritiva,
-            caminho_master_tensoes, base_dir, contexto=contexto,
-        )
-        print(
-            f"\nGráficos e tabelas atualizados em "
-            f"{os.path.basename(pasta_saida_descritiva)}."
-        )
+        else:
+            # Com flags de controle → regenera apenas o cenário selecionado
+            if not os.path.isfile(caminho_master_resultados):
+                raise FileNotFoundError(
+                    f"CSV de resultados não encontrado: {caminho_master_resultados}"
+                )
+            print(f"Modo somente gráficos: regenerando cenário '{contexto or 'sem controle'}'.")
+            df_master = pd.read_csv(caminho_master_resultados, sep=";", decimal=",")
+            if args.nivel:
+                nivel_pct = int(args.nivel)
+                df_master = df_master[df_master["pen_pct"] == nivel_pct]
+                if df_master.empty:
+                    raise ValueError(
+                        f"Nenhum resultado encontrado para penetração {nivel_pct}%%."
+                    )
+            gerar_graficos_e_tabelas(
+                df_master, pasta_saida, pasta_saida_descritiva,
+                caminho_master_tensoes, base_dir, contexto=contexto,
+            )
+
+        # Em ambos os casos, regenera também os comparativos
+        print("\n=== Gráficos comparativos multi-cenário ===")
+        gerar_graficos_comparativos(base_dir)
+        print("\nTodos os gráficos atualizados.")
         return
 
     # ------------------------------------------------------------------
