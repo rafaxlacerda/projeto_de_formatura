@@ -57,11 +57,13 @@ from simulacoes_config import BESS_PERFIL  # noqa: E402
 FIG_DIR  = os.path.join(SCRIPT_DIR, "figuras_primario_integrado")
 CSV_DIR  = os.path.join(SCRIPT_DIR, "resultados")
 BASE_DSS = os.path.join(SCRIPT_DIR, "..", "IEEE34bus", "IEEE34_original_with_loadshapes.dss")
-MC_DIR   = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
-                         "resultados_monte_carlo", "realizacoes_sorteadas")
+MC_DIR      = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
+                           "resultados_monte_carlo", "realizacoes_sorteadas")
+ANALISE_DIR = os.path.join(SCRIPT_DIR, "..", "1.4_geracao_de_cenarios",
+                           "resultados_monte_carlo", "analise_opendss")
 
 PEN_PCT       = 90
-ID_REALIZACAO = 6
+ID_REALIZACAO = 1
 TOTAL_HOURS   = 24
 
 
@@ -116,6 +118,30 @@ def capture_taps(reg_names: list) -> dict:
         tap_snapshot[reg] = {"transformer": xfmr, "winding": wdg,
                               "tap": dss.Transformers.Tap()}
     return tap_snapshot
+
+
+def carregar_violacoes_mc(pen_pct: int, id_realizacao: int) -> list:
+    """
+    Lê tensoes_opendss_completas.csv do Monte Carlo (sem controle primário) e conta,
+    por hora, quantas barras têm ao menos uma fase fora de [0.95, 1.05] p.u.
+    Retorna lista de 24 inteiros (uma entrada por hora).
+    """
+    csv_path = os.path.join(ANALISE_DIR, f"pen_{pen_pct:03d}pct", "tensoes_opendss_completas.csv")
+    df = pd.read_csv(csv_path, sep=";", decimal=",")
+    df = df[df["id_realizacao"] == id_realizacao].copy()
+
+    fase_cols = ["tensao_fase_1_pu", "tensao_fase_2_pu", "tensao_fase_3_pu"]
+    violacoes = []
+    for hora in range(TOTAL_HOURS):
+        df_h = df[df["hora"] == hora]
+        n = 0
+        for _, row in df_h.iterrows():
+            n_fases = int(row["n_fases"])
+            fases = [row[c] for c in fase_cols[:n_fases]]
+            if any(v < 0.95 or v > 1.05001 for v in fases):
+                n += 1
+        violacoes.append(n)
+    return violacoes
 
 
 def count_voltage_violations(tensoes: dict) -> tuple:
@@ -259,34 +285,69 @@ def plot_q_activation(df_der: pd.DataFrame):
     print(f"[Plot] Heatmap kVAr salvo em: {path}")
 
 
-def plot_violations(df_hora: pd.DataFrame):
-    """Barras duplas: violações de tensão pré e pós VoltVar por hora."""
+def plot_violations(df_hora: pd.DataFrame, n_viols_mc: list = None):
+    """Barras duplas: violações de tensão sem e com VoltVar por hora.
+
+    n_viols_mc: contagens do Monte Carlo sem controle primário (barra azul).
+                Se None, usa n_viols_pre da simulação atual como fallback.
+    """
     horas = df_hora["hora"].tolist()
-    n_pre = df_hora["n_viols_pre"].tolist()
+    n_pre = n_viols_mc if n_viols_mc is not None else df_hora["n_viols_pre"].tolist()
     n_pos = df_hora["n_viols_pos"].tolist()
     x     = np.arange(len(horas))
     width = 0.35
 
     fig, ax = plt.subplots(figsize=(14, 6))
-    ax.bar(x - width / 2, n_pre, width, label="Pré-VoltVar",  color="steelblue",  edgecolor="white")
-    ax.bar(x + width / 2, n_pos, width, label="Pós-VoltVar",  color="darkorange", edgecolor="white")
+    label_pre = "Monte Carlo (sem controle primário)" if n_viols_mc is not None else "Sem VoltVar"
+    bars_pre = ax.bar(x - width / 2, n_pre, width, label=label_pre,    color="steelblue",  edgecolor="white")
+    bars_pos = ax.bar(x + width / 2, n_pos, width, label="Com VoltVar", color="darkorange", edgecolor="white")
+
+    for bar in bars_pre:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, h + 0.05, str(int(h)),
+                    ha="center", va="bottom", fontsize=8, color="steelblue", fontweight="bold")
+    for bar in bars_pos:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, h + 0.05, str(int(h)),
+                    ha="center", va="bottom", fontsize=8, color="darkorange", fontweight="bold")
+
+    # Setas indicando variação: verde na barra laranja (pré→pós, ↓), vermelha na barra azul (pré→pós, ↑)
+    arrow_props = dict(arrowstyle="-|>", lw=2.5, mutation_scale=14)
+    for xi, pre, pos in zip(x, n_pre, n_pos):
+        if pos == pre:
+            continue
+        if pos < pre:
+            # Seta verde em cima da barra laranja: começa na altura do azul, aponta para baixo até o laranja
+            ax.annotate(
+                "", xy=(xi + width / 2, pos), xytext=(xi + width / 2, pre),
+                arrowprops={**arrow_props, "color": "green"},
+            )
+        else:
+            # Seta vermelha em cima da barra azul: começa na altura do azul, aponta para cima até o laranja
+            ax.annotate(
+                "", xy=(xi - width / 2, pos), xytext=(xi - width / 2, pre),
+                arrowprops={**arrow_props, "color": "red"},
+            )
+
     ax.set_xticks(x)
     ax.set_xticklabels(horas)
     ax.set_xlabel("Hora do dia")
     ax.set_ylabel("Barras com violação de tensão")
     ax.set_title(
-        f"Violações de tensão pré e pós controle VoltVar\n"
-        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  Limites: V < 0.95 p.u. ou V > 1.05 p.u."
+        f"Violações de tensão sem e com controle VoltVar\n"
+        f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  Limites: V < 0.95 p.u. ou V > 1.05 p.u."
     )
     ax.legend()
     ax.grid(True, linestyle="--", alpha=0.4, axis="y")
-    y_top = max(max(n_pre, default=0), max(n_pos, default=0)) + 1
-    ax.set_ylim(0, max(y_top, 1))
+    y_top = max(max(n_pre, default=0), max(n_pos, default=0)) + 2
+    ax.set_ylim(0, max(y_top, 2))
 
     path = os.path.join(FIG_DIR, "fig_violations.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"[Plot] Violações pré/pós VoltVar salvo em: {path}")
+    print(f"[Plot] Violações sem/com VoltVar salvo em: {path}")
 
 
 def plot_voltvar_efeito(df_der: pd.DataFrame):
@@ -600,7 +661,8 @@ def main():
         plot_q_activation(df_der)
         plot_voltvar_efeito(df_der)
     if not df_hora.empty:
-        plot_violations(df_hora)
+        n_viols_mc = carregar_violacoes_mc(PEN_PCT, ID_REALIZACAO)
+        plot_violations(df_hora, n_viols_mc)
     if records_bus:
         plot_all_bus_vmin(records_bus)
         plot_all_bus_vmax(records_bus)
