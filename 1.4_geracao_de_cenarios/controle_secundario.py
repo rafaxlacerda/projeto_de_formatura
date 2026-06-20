@@ -109,6 +109,10 @@ from controle_primario import (
     volt_var_curve,
     MAX_VOLTVAR_ITER,
     Q_MAX_PU,
+    V_DEADBAND_HIGH,
+    V_DEADBAND_LOW,
+    V_SAT_HIGH,
+    V_SAT_LOW,
 )
 
 # ---------------------------------------------------------------------------
@@ -141,6 +145,10 @@ CONSENSO_GAMMA = 2.0
 
 # Tensão de referência para o algoritmo de consenso (valor nominal em pu).
 V_REF_CONSENSO = 1.0
+
+# Ganho do droop de potência ativa: ΔP_droop = DROOP_P_GAIN * P_nom * (V - V_deadband)
+# Mesma faixa morta do VoltVar [1.03, 1.10]. Em V=1.10 (saturação), droop = ±P_nom.
+CONSENSO_DROOP_P_GAIN = 1.0 / (1.10 - 1.03)  # ≈ 14.3
 
 # Barras trifásicas do IEEE 34 bus onde os BESS podem ser alocados.
 # Correspondem às barras com cargas trifásicas no modelo original.
@@ -299,7 +307,27 @@ def calcular_delta_p_consenso(
             continue
         i = barras_ordenadas.index(barra)
         p_nom = potencias_nominais.get(barra, 1.0)
-        delta_p[nome] = -CONSENSO_ALPHA * p_nom * Lx[i]
+
+        # Droop de P: cria resposta líquida à violação de tensão, quebrando o
+        # zero-sum do Laplaciano. Mesma faixa morta do VoltVar [1.03, 1.10].
+        barra_str = str(barra)
+        v_avg = 1.0
+        if barra_str in tensoes_atuais and tensoes_atuais[barra_str]:
+            fases = tensoes_atuais[barra_str]
+            v_avg = sum(fases) / len(fases)
+
+        if v_avg > V_SAT_HIGH:
+            dp_droop = p_nom
+        elif v_avg > V_DEADBAND_HIGH:
+            dp_droop = CONSENSO_DROOP_P_GAIN * p_nom * (v_avg - V_DEADBAND_HIGH)
+        elif v_avg < V_SAT_LOW:
+            dp_droop = -p_nom
+        elif v_avg < V_DEADBAND_LOW:
+            dp_droop = CONSENSO_DROOP_P_GAIN * p_nom * (v_avg - V_DEADBAND_LOW)
+        else:
+            dp_droop = 0.0
+
+        delta_p[nome] = -CONSENSO_ALPHA * p_nom * Lx[i] + dp_droop
 
     return delta_p
 
@@ -556,10 +584,11 @@ def simular_realizacao_controle_secundario(
         else:  # sempre_ativo
             ativar_consenso = True
 
-        # O consenso só tem efeito quando há pelo menos 2 BESS e o
-        # BESS_PERFIL != 0 (ou seja, o BESS está efetivamente operando)
-        bess_operando = abs(BESS_PERFIL[hora]) > 1e-6
-        ativar_consenso = ativar_consenso and len(barras_ordenadas) >= 2 and bess_operando
+        # Ativa consenso quando: >= 2 BESS e (BESS no perfil OR há violação de tensão).
+        # Permite atuação em horas ociosas do perfil quando PV causa sobretensão.
+        bess_no_perfil = abs(BESS_PERFIL[hora]) > 1e-6
+        ha_violacao    = _sistema_tem_violacao(tensoes_atuais)
+        ativar_consenso = ativar_consenso and len(barras_ordenadas) >= 2 and (bess_no_perfil or ha_violacao)
 
         if ativar_consenso:
             horas_com_consenso += 1
@@ -579,9 +608,11 @@ def simular_realizacao_controle_secundario(
 
                 # Aplica correção: P_novo = P_base + ΔP; Q_novo = Q_primário + ΔQ
                 for nome, (kw, barra) in kw_bess.items():
-                    kw_novo  = kw + delta_p[nome]
-                    q_base   = -q_refs_bess.get(nome, 0.0)  # já negado (conv. carga)
-                    q_novo   = q_base + delta_q[nome]
+                    kw_novo     = kw + delta_p[nome]
+                    p_nom_barra = potencias_nominais.get(barra, float("inf"))
+                    kw_novo     = max(-p_nom_barra, min(p_nom_barra, kw_novo))
+                    q_base      = -q_refs_bess.get(nome, 0.0)  # já negado (conv. carga)
+                    q_novo      = q_base + delta_q[nome]
                     kw_bess[nome] = (kw_novo, barra)
                     editar_load(nome, kw_novo, q_novo)
 
