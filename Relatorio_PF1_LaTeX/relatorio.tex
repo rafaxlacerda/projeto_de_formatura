@@ -1,0 +1,143 @@
+\documentclass[pnumromarab,normalnum,abnttoc,times]{politex}
+% ============================================================
+%  Relatório Final — Projeto de Formatura I (PF1)
+%  Classe: politex (POLI-USP).  Opções:
+%   pnumromarab - romanos no pré-textual, arábicos no textual
+%   normalnum   - numeração contínua de figuras/tabelas
+%   abnttoc     - "p." nas páginas do sumário (ABNT)
+%   times       - fonte Times New Roman
+% ============================================================
+
+% ========== Codificação e idioma ==========
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+% ========== Matemática ==========
+\usepackage{amsmath,amssymb,amsthm}
+
+% ========== Figuras e tabelas ==========
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\graphicspath{{figuras/}}
+
+% ========== Cor e marcadores ==========
+\usepackage{xcolor}
+
+% ========== Referências bibliográficas (ABNT numérico) ==========
+\usepackage[num]{abntex2cite}
+\citebrackets{[}{]}
+
+% ========== Hyperlinks ==========
+%\usepackage[hidelinks]{hyperref}
+
+% ========== Comandos auxiliares ==========
+% Fonte da figura (linha inferior, conforme ABNT)
+\newcommand{\fonte}[1]{{\footnotesize Fonte: #1}}
+% Marcador de pendência (material a ser inserido pelas autoras)
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[A FAZER: #1]}}}
+
+% ========== Opções do documento ==========
+\titulo{Estratégias de controle distribuído para sistemas de armazenamento em baterias para regulação de tensão em redes de distribuição com alta penetração de geração fotovoltaica}
+
+\autor{Ana Júlia de Morais Faria\\%
+       Rafaela Sousa de Alencar Lacerda}
+
+\orientador{Prof.\ Dr.\ Juan Carlos Cebrian}
+
+\comentario{Relatório do Projeto de Formatura~I apresentado à Escola Politécnica da Universidade de São Paulo para conclusão do curso de Engenharia Elétrica.}
+
+\local{São Paulo}
+\data{2026}
+
+\begin{document}
+
+% ========== Capa e folhas de rosto ==========
+\capa
+\falsafolhaderosto
+\folhaderosto
+
+% ========== Resumo ==========
+\begin{resumo}
+A crescente penetração de geração fotovoltaica (FV) nas redes de distribuição de média tensão impõe desafios de regulação de tensão, sobretudo pela ocorrência de sobretensões nos períodos de maior irradiância. Este trabalho investiga uma estratégia de controle distribuído em duas camadas para Sistemas de Armazenamento de Energia em Baterias (BESS), com o objetivo de regular a tensão de forma autônoma e coordenada. Foi desenvolvido um ambiente de cossimulação acoplando Python e o software OpenDSS, sobre o qual se implementou um gerador de cenários pelo método de Monte Carlo aplicado à rede de teste IEEE~34 barras, contemplando onze níveis de penetração FV. A camada de controle primário baseia-se na curva volt-var normatizada pela ABNT~NBR~16149:2013, atuando localmente sobre a potência reativa dos inversores; a camada secundária emprega um algoritmo de consenso sobre a potência ativa dos BESS, combinado a uma parcela de droop. As estratégias foram avaliadas de forma pareada sobre os mesmos cenários. Os resultados mostram que o controle primário reduz de forma expressiva e previsível o número de barras em sobretensão, enquanto o controle secundário por consenso, na rede e configuração estudadas, não reduziu as violações remanescentes, em razão da concentração espacial dos BESS no alimentador. As conclusões delimitam as condições de eficácia de cada camada e orientam os próximos passos do projeto.
+%
+\\[3\baselineskip]
+%
+\textbf{Palavras-Chave} -- Controle distribuído, Sistemas de armazenamento em baterias, Regulação de tensão, Geração fotovoltaica, Algoritmo de consenso.
+\end{resumo}
+
+% ========== Abstract ==========
+\begin{abstract}
+The increasing penetration of photovoltaic (PV) generation in medium-voltage distribution networks raises voltage regulation challenges, particularly overvoltage during peak irradiance hours. This work investigates a two-layer distributed control strategy for Battery Energy Storage Systems (BESS) aimed at regulating voltage autonomously and in a coordinated manner. A co-simulation environment coupling Python and the OpenDSS software was developed, on top of which a Monte Carlo scenario generator was implemented for the IEEE~34-bus test feeder, spanning eleven PV penetration levels. The primary control layer relies on the volt-var curve standardized by ABNT~NBR~16149:2013, acting locally on the reactive power of the inverters; the secondary layer employs a consensus algorithm on the active power of the BESS, combined with a droop term. The strategies were evaluated in a paired manner over the same scenarios. Results show that primary control significantly and predictably reduces the number of buses in overvoltage, whereas the consensus-based secondary control, for the studied network and configuration, did not reduce the remaining violations, owing to the spatial concentration of the BESS along the feeder. The conclusions delimit the effectiveness conditions of each layer and guide the next steps of the project.
+%
+\\[3\baselineskip]
+%
+\textbf{Keywords} -- Distributed control, Battery energy storage systems, Voltage regulation, Photovoltaic generation, Consensus algorithm.
+\end{abstract}
+
+% ========== Listas ==========
+\listadefiguras
+\listadetabelas
+
+% ========== Lista de símbolos ==========
+\begin{pretextualsection}{Lista de símbolos}
+\begin{description}
+  \item[$V_i$] Tensão na barra de instalação do recurso $i$ (p.u.)
+  \item[$V_\text{ref}$] Tensão de referência do sistema ($1{,}0$~p.u.)
+  \item[$P_\text{inst}$] Potência ativa instalada do recurso distribuído
+  \item[$Q_\text{max}$] Potência reativa máxima do inversor ($0{,}4358\,P_\text{inst}$)
+  \item[$x_i$] Variável de consenso aumentada do BESS $i$
+  \item[$\Delta P_i,\ \Delta Q_i$] Correções de potência ativa e reativa do controle secundário
+  \item[$L$] Matriz Laplaciana do grafo de comunicação ($L = D - A$)
+  \item[$A,\ D$] Matrizes de adjacência e de grau do grafo
+  \item[$\lambda_2$] Segundo menor autovalor de $L$ (conectividade algébrica)
+  \item[$\gamma$] Peso do desvio de tensão na variável de consenso ($\gamma = 2{,}0$)
+  \item[$\alpha$] Ganho do algoritmo de consenso ($\alpha = 0{,}15$)
+  \item[$k_\text{droop}$] Ganho do droop de potência ativa ($\approx 14{,}3$~p.u.$^{-1}$)
+  \item[$k_t$] Índice de claridade
+  \item[$\eta$] Nível de penetração fotovoltaica
+\end{description}
+
+\vspace{0.5cm}
+\noindent\textbf{Siglas} \\
+ANEEL — Agência Nacional de Energia Elétrica; \
+BESS — \emph{Battery Energy Storage System}; \
+BT — Baixa tensão; \
+FV — Fotovoltaico; \
+GD — Geração distribuída; \
+MT — Média tensão; \
+RED — Recurso energético distribuído; \
+SoC — \emph{State of Charge} (estado de carga); \
+SONDA — Sistema de Organização Nacional de Dados Ambientais.
+\end{pretextualsection}
+
+% ========== Sumário ==========
+\sumario
+
+% ============================================================
+%  PARTE TEXTUAL
+% ============================================================
+\include{capitulos/01-introducao}
+\include{capitulos/02-fundamentacao}
+\include{capitulos/03-ambiente}
+\include{capitulos/04-cenarios}
+\include{capitulos/05-controle}
+\include{capitulos/06-resultados}
+\include{capitulos/07-conclusao}
+
+% ========== Referências ==========
+\bibliographystyle{abntex2-num}
+\bibliography{referencias}
+
+% ========== Apêndices ==========
+\apendice
+\include{apendices}
+
+% ========== Anexos ==========
+\anexo
+\include{anexos}
+
+\end{document}

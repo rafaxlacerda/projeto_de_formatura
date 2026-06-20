@@ -1,0 +1,99 @@
+\chapter{Estratégia de controle distribuído em duas camadas}
+\label{cap:controle}
+
+Este capítulo formaliza a estratégia de controle adotada, composta por duas camadas que atuam sobre variáveis distintas do inversor. A camada primária realiza a regulação local de tensão por meio da potência reativa, enquanto a camada secundária coordena os BESS por meio da potência ativa, empregando um algoritmo de consenso.
+
+\section{Arquitetura e separação de variáveis}
+\label{sec:arquitetura_controle}
+
+O controle primário atua localmente em cada recurso energético distribuído (RED) ajustando a potência reativa $Q$ em função da tensão na barra, conforme a curva volt-var. O controle secundário atua exclusivamente sobre a potência ativa $P$ dos BESS, adicionando um sinal de correção $\Delta P$ calculado pelo algoritmo de consenso. Como as camadas operam em variáveis ortogonais do inversor --- $Q$ e $P$, respectivamente ---, não há conflito direto de atuação, o que permite a operação simultânea de ambas. Para preservar o fator de potência estabelecido pelo primário, a correção $\Delta P$ é acompanhada de uma correção proporcional de potência reativa $\Delta Q$, de modo a manter o ângulo de potência aparente vigente em cada BESS.
+
+\section{Controle primário por curva volt-var}
+\label{sec:primario}
+
+A camada primária baseia-se na curva volt-var definida pela norma ABNT~NBR~16149:2013~\cite{nbr16149}, que estabelece a potência reativa a ser injetada ou absorvida pelo inversor em função da tensão medida na barra de monitoramento. Registra-se aqui um ajuste em relação ao plano de trabalho, que previa o uso de lógica \emph{fuzzy}: optou-se pela curva volt-var normatizada por três razões --- simplicidade de implementação, uso de uma função já nativa dos inversores comerciais e conformidade com norma técnica brasileira vigente. Adicionalmente, a função foi aplicada aos inversores de \emph{todos} os REDs (FV e BESS), e não apenas aos BESS, ampliando a capacidade total de suporte de reativos sem custo adicional de comunicação.
+
+A curva adotada, apresentada na Figura~\ref{fig:voltvar}, é definida por quatro pontos e três regiões. O limite de reativos foi fixado em $Q_\text{max} = 0{,}4358\,P_\text{inst}$, em conformidade com o limite de $\pm 43{,}58\%$ de $Q/P_N$ estabelecido pela norma; numericamente, $0{,}4358 = \operatorname{sen}(\arccos 0{,}90)$, valor correspondente à máxima injeção ou absorção de reativos sob fator de potência de 0,90. As três regiões são:
+\begin{itemize}
+  \item \textbf{zona morta} ($0{,}97 \le V \le 1{,}03$~p.u.): nenhuma potência reativa é injetada ou absorvida;
+  \item \textbf{região capacitiva} ($V < 0{,}97$~p.u.): a injeção de reativos cresce linearmente de zero até $+Q_\text{max}$, atingido em 0,90~p.u.; abaixo disso, mantém-se $Q = +Q_\text{max}$;
+  \item \textbf{região indutiva} ($V > 1{,}03$~p.u.): a absorção de reativos cresce linearmente de zero até $-Q_\text{max}$, atingida em 1,10~p.u.; acima disso, mantém-se $Q = -Q_\text{max}$.
+\end{itemize}
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Curva volt-var adotada para o controle primário, conforme a ABNT~NBR~16149:2013.}
+  \label{fig:voltvar}
+  \includegraphics[width=0.72\textwidth]{volt_var_curve.png}
+  \par\vspace{2pt}\fonte{adaptado de~\cite{nbr16149}}
+\end{figure}
+
+A implementação consiste em um laço de controle externo em Python, com dois \emph{solves} em modo \emph{snapshot} por hora no OpenDSS. No primeiro \emph{solve}, com os reguladores livres, registram-se as posições de tape após a convergência; em seguida, para cada RED, lê-se a tensão das fases da barra e calcula-se a referência de reativos pela curva volt-var, priorizando a violação mais crítica (maior desvio em relação à zona morta). O valor de $Q_\text{max}$ é proporcional à potência ativa instantânea do RED, de modo que inversores com geração parcial contribuem proporcionalmente, mantendo o fator de potência mínimo de 0,90. Caso ao menos um RED saia da zona morta, congelam-se as posições de tape (premissa de que a resposta de reativos do inversor é mais rápida que a comutação mecânica dos reguladores) e executa-se um segundo \emph{solve} no mesmo patamar horário, com a referência de reativos aplicada.
+
+\section{Controle secundário por consenso}
+\label{sec:secundario}
+
+\subsection{Topologia de comunicação}
+\label{sec:topologia}
+
+A rede de comunicação entre os BESS é modelada como um grafo esparso não dirigido $G = (V, E)$, em que cada nó representa um BESS e cada aresta uma vizinhança elétrica no alimentador: dois BESS são vizinhos quando não há outro BESS intermediário no caminho elétrico entre eles. Para as cinco barras trifásicas elegíveis, o grafo resulta na cadeia linear $860\text{--}840\text{--}844\text{--}848\text{--}890$. A partir da matriz de adjacência $A$, com pesos unitários, define-se a matriz Laplaciana $L = D - A$, cuja conectividade algébrica $\lambda_2$ governa a velocidade de convergência (Seção~\ref{sec:consenso}). Como o grafo é uma cadeia linear, garante-se $\lambda_2 > 0$ sempre que houver ao menos dois BESS no cenário; cenários com um único BESS, ou nenhum, não possuem grafo válido e o controle secundário é automaticamente desativado.
+
+\subsection{Variável de consenso aumentada e lei de controle}
+\label{sec:lei_controle}
+
+A variável de consenso de cada BESS $i$ é a sua potência ativa normalizada pela potência nominal, acrescida de um termo proporcional ao desvio de tensão na barra de instalação, conforme a Equação~\eqref{eq:x_consenso}:
+\begin{equation}
+  x_i = \frac{P_i}{P_{\text{nom},i}} + \gamma\,(V_\text{ref} - V_i),
+  \label{eq:x_consenso}
+\end{equation}
+em que $P_i$ é a potência ativa vigente, $V_i$ a tensão média entre as fases da barra, $V_\text{ref} = 1{,}0$~p.u. a tensão de referência e $\gamma = 2{,}0$ o peso do termo de tensão. Esse termo introduz heterogeneidade entre os BESS conforme as condições locais de tensão: sem ele, o consenso convergiria trivialmente sem produzir correção útil.
+
+A lei de controle distribuído calcula, para cada BESS $i$, um sinal de correção de potência ativa $\Delta P_i$ composto por uma parcela de consenso e uma parcela de \emph{droop}, conforme a Equação~\eqref{eq:dp}:
+\begin{equation}
+  \Delta P_i = -\alpha\, P_{\text{nom},i}\, [L x]_i + \Delta P_{\text{droop},i},
+  \label{eq:dp}
+\end{equation}
+em que $\alpha = 0{,}15$ é o ganho do consenso e $[L x]_i$ é a $i$-ésima componente do produto da matriz Laplaciana pelo vetor de variáveis de consenso. Adota-se a convenção de carga, na qual $\Delta P < 0$ corresponde a maior injeção de potência ativa na rede. A parcela puramente Laplaciana possui, por construção, soma nula entre os nós, de modo que o consenso isolado apenas redistribui a potência ativa entre os BESS, sem alterar o balanço agregado de injeção.
+
+A parcela de \emph{droop}, calculada localmente a partir da tensão da barra, segue a mesma lógica de zona morta e saturação do controle primário, conforme a Equação~\eqref{eq:droop}:
+\begin{equation}
+  \Delta P_{\text{droop},i} = k_\text{droop}\, P_{\text{nom},i}\,(V_i - V_\text{db}), \qquad \text{com saturação em } \pm P_{\text{nom},i},
+  \label{eq:droop}
+\end{equation}
+em que $V_\text{db}$ é o limiar de zona morta mais próximo (0,97~p.u. em subtensão ou 1,03~p.u. em sobretensão) e $k_\text{droop}$ é calculado de modo que a correção atinja a saturação $\pm P_{\text{nom},i}$ exatamente nos limites de saturação de tensão do controle primário (0,90 e 1,10~p.u.):
+\begin{equation}
+  k_\text{droop} = \frac{1}{1{,}10 - 1{,}03} \approx 14{,}3~\text{p.u.}^{-1}.
+  \label{eq:kdroop}
+\end{equation}
+Diferentemente da parcela Laplaciana, o \emph{droop} não possui soma nula entre os BESS: cada unidade fora da zona morta recebe uma correção líquida proporcional ao próprio desvio local, independentemente do estado de consenso dos demais nós. Essa combinação preserva a robustez do \emph{droop} como mecanismo de correção mesmo quando a topologia de comunicação está comprometida, mantendo, ao mesmo tempo, a contribuição da camada de consenso para a equalização do carregamento entre as unidades.
+
+A correção complementar de potência reativa $\Delta Q_i$ é calculada a partir do sinal de correção total $\Delta P_i$, de forma a preservar o ângulo de potência aparente $\varphi_i$ estabelecido pelo controle primário, conforme a Equação~\eqref{eq:dq}:
+\begin{equation}
+  \Delta Q_i = \tan(\varphi_i)\,\Delta P_i = \frac{Q_i}{P_i}\,\Delta P_i.
+  \label{eq:dq}
+\end{equation}
+Quando o controle primário não está ativo, $Q_i = 0$ e, consequentemente, $\Delta Q_i = 0$, de modo que o BESS permanece em fator de potência unitário também após a atuação do consenso.
+
+\subsection{Critério de convergência e parâmetros}
+\label{sec:convergencia}
+
+Como a simulação é quasi-estática, com resolução horária, cada iteração do algoritmo representa uma troca de informação entre vizinhos seguida da atualização das variáveis. O número máximo de iterações por hora simulada foi fixado em cinco, e o algoritmo é encerrado antecipadamente quando a maior correção entre os BESS fica abaixo da tolerância de 0,1~kW. A Tabela~\ref{tab:parametros_consenso} resume os parâmetros adotados, e o Apêndice~\ref{ap:fluxogramas} apresenta o fluxograma completo do algoritmo de consenso.
+
+\begin{table}[!htb]
+  \centering
+  \caption{Parâmetros do algoritmo de consenso adotados nas simulações.}
+  \label{tab:parametros_consenso}
+  \begin{tabular}{@{}cll@{}}
+    \toprule
+    \textbf{Parâmetro} & \textbf{Valor} & \textbf{Descrição} \\
+    \midrule
+    $\alpha$       & 0,15 & Ganho do algoritmo de consenso \\
+    $\gamma$       & 2,0  & Peso do desvio de tensão na variável de consenso \\
+    $V_\text{ref}$ & 1,0~p.u. & Tensão de referência do sistema \\
+    $k_\text{droop}$ & $\approx 14{,}3$~p.u.$^{-1}$ & Ganho do \emph{droop} de potência ativa \\
+    --             & 5    & Iterações máximas de consenso por hora \\
+    Tolerância     & 0,1~kW & Critério de parada antecipada \\
+    \bottomrule
+  \end{tabular}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{table}

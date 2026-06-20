@@ -1,0 +1,61 @@
+\chapter{Ambiente de simulação e redes de teste}
+\label{cap:ambiente}
+
+Este capítulo descreve a infraestrutura computacional desenvolvida para a execução das simulações e as redes de distribuição utilizadas. A rede IEEE~33 barras foi empregada para a validação inicial do ambiente, ao passo que a rede IEEE~34 barras, de maior porte e com elementos de regulação representativos, foi adotada como sistema de estudo nas etapas subsequentes.
+
+\section{O software OpenDSS}
+\label{sec:opendss}
+
+O OpenDSS (\emph{Open Distribution System Simulator}), desenvolvido pelo \emph{Electric Power Research Institute} (EPRI)~\cite{dugan2020opendss}, é um simulador de propósito geral para análise de sistemas de distribuição, amplamente utilizado para o cálculo de fluxo de potência. A matriz de admitância do sistema, que relaciona correntes injetadas e tensões nodais, é montada a partir das matrizes de admitância primitivas de cada elemento e resolvida por um \emph{solver} de matrizes esparsas. O fluxo de potência, que determina as tensões em cada barra e os fluxos de potência ativa e reativa nas linhas, é calculado iterativamente pelo método de injeção de corrente (padrão), com o método de Newton disponível para circuitos de convergência mais difícil. Determinar o fluxo de potência é fundamental para avaliar o carregamento da rede, identificar violações de tensão e apoiar as decisões de controle.
+
+\section{Integração Python--OpenDSS}
+\label{sec:api}
+
+A integração do OpenDSS com Python possibilita o desenvolvimento de ferramentas que exploram os resultados do fluxo de potência de forma programática e automatizada, viabilizando estudos de controladores de BESS em diferentes cenários. Para essa integração, avaliaram-se as interfaces de programação disponíveis. A abordagem oficial baseia-se na interface \emph{Component Object Model} (COM), de uso restrito ao Windows. Como alternativa multiplataforma, o projeto DSS-Extensions disponibiliza três bibliotecas Python --- DSS-Python, OpenDSSDirect.py e AltDSS-Python ---, todas construídas sobre o motor AltDSS, compatível com o OpenDSS oficial e com suporte a Windows, Linux e macOS.
+
+Cabe registrar um ajuste em relação ao plano de trabalho, que previa a interface COM: optou-se pela biblioteca OpenDSSDirect.py. A escolha justifica-se por ser o pacote mais maduro entre as opções do DSS-Extensions, por oferecer uma interface por chamadas de função direta e bem documentada --- adequada às iterações frequentes sobre elementos da rede exigidas pelas etapas de controle --- e por disponibilizar funções utilitárias para conversão dos elementos da rede em estruturas de dados da biblioteca \emph{pandas}, facilitando a exportação e a análise dos resultados. Além disso, o suporte multiplataforma elimina a dependência do sistema operacional Windows.
+
+\section{Validação na rede IEEE~33 barras}
+\label{sec:ieee33}
+
+A rede IEEE~33 barras é um sistema de distribuição radial de referência, proposto originalmente por Baran e Wu~\cite{baranwu1989}, com tensão nominal de 12,66~kV (média tensão), composto por 33 barras e 32 ramais. A topologia é puramente radial, com uma barra de suprimento (barra~1, tomada como referência) e 32 barras de carga; a demanda total é de 3,715~MW de potência ativa, distribuída de forma não uniforme. As \emph{tie lines} originais, com chaves normalmente abertas, foram desconsideradas nesta simulação. A Figura~\ref{fig:ieee33} apresenta o diagrama unifilar da rede.
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Diagrama unifilar do sistema de testes IEEE~33 barras.}
+  \label{fig:ieee33}
+  \includegraphics[width=0.92\textwidth]{diagrama_unifilar_33_barras.jpg}
+  \par\vspace{2pt}\fonte{adaptado de~\cite{baranwu1989}}
+\end{figure}
+
+Para validar o ambiente, executou-se o fluxo de potência da rede em modo estático (\emph{snapshot}), com a rede operando a 100\% de sua carga nominal. Os resultados revelaram um perfil de tensão decrescente ao longo dos alimentadores, comportamento esperado em redes radiais com carga distribuída: a barra de suprimento apresenta tensão próxima da nominal, enquanto as barras mais distantes da subestação atingem valores inferiores ao limite de 0,95~p.u., com mínimo de 0,9059~p.u. na barra~18. As tabelas completas de tensões nodais e de fluxos de potência por linha encontram-se no Apêndice~\ref{ap:fluxo33}. A correta obtenção desses resultados validou o ambiente de cossimulação e estabeleceu a infraestrutura necessária para as etapas de controle. Cabe registrar que a rede IEEE~33 barras foi empregada apenas nessa validação inicial; melhorias propostas na literatura, como a inclusão de geração distribuída, compensadores de reativos e curvas de carga~\cite{ghorbanian2019}, motivaram a adoção da rede IEEE~34 barras como sistema de estudo nas etapas seguintes.
+
+\section{Rede de estudo: IEEE~34 barras}
+\label{sec:ieee34}
+
+A partir da validação do ambiente, adotou-se a rede \emph{IEEE 34 Bus Test Feeder} como sistema de estudo, por ser um alimentador de média tensão amplamente utilizado na avaliação de algoritmos de controle, fluxo de potência e integração de recursos distribuídos, e por incorporar dispositivos de regulação representativos de redes reais. A Figura~\ref{fig:ieee34} apresenta o diagrama da rede.
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Diagrama da rede IEEE~34 barras, com indicação das categorias de carga.}
+  \label{fig:ieee34}
+  \includegraphics[width=\textwidth]{diagrama_unifilar_34_barras.png}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{figure}
+
+A alimentação é feita a partir de uma subestação conectada à barra principal por um transformador abaixador trifásico de 25~MVA e relação 69/24,9~kV, com impedância de curto-circuito reduzida, de modo a tornar a fonte suficientemente rígida para os estudos de penetração de GD. A rede opera predominantemente em 24,9~kV, com exceção de um ramal (barras 888 e 890) alimentado por um segundo transformador de 500~kVA e relação 24,9/4,16~kV. A topologia é radial, com trechos trifásicos e monofásicos; as 32 linhas são definidas a partir dos códigos de impedância de fase padronizados pelo IEEE.
+
+Para o controle de tensão ao longo do alimentador, a rede possui dois bancos reguladores com controle independente por fase: o primeiro, entre as barras 814 e 814R, opera com tensão de referência de 122~V e banda de 2~V; o segundo, entre as barras 852 e 852R, é ajustado para 124~V. Ambos foram modelados como transformadores monofásicos de enrolamento duplo com controle automático de tape via o elemento \emph{RegControl} do OpenDSS. Há ainda dois bancos de capacitores \emph{shunt} nas barras 844 e 848, que contribuem para o suporte de tensão nas regiões mais afastadas da subestação. As cargas dividem-se em concentradas (\emph{spot loads}), nas barras 860, 840, 844, 848, 830 e 890, e distribuídas, alocadas nas barras de origem e destino de cada segmento; a carga de pico total é de 1,769~MW e a demanda reativa total, de 1,044~MVAr.
+
+\subsection{Perfis de carga}
+\label{sec:perfis_carga}
+
+À rede original foram acrescentados três perfis de carga horária --- residencial, comercial e industrial --- com resolução de uma hora e horizonte de 24~horas, representando o comportamento típico de cada categoria de consumidor. Cada carga foi então associada a um desses perfis, de modo que a demanda a cada hora é obtida multiplicando o fator de carga horário pela demanda máxima da carga. A Figura~\ref{fig:perfis_carga} ilustra os três perfis. O perfil residencial caracteriza-se por consumo reduzido na madrugada e pico por volta das 20~h; o comercial apresenta consumo elevado entre 9~h e 12~h, cedendo à noite; e o industrial distingue-se por fatores próximos da unidade no período de operação plena. Foram classificadas como residenciais as cargas das barras 848 e 860; como comerciais, as das barras 820, 822, 824, 826, 832, 836, 840 e 858; e como industriais, as das barras 830, 834, 844 e 890. As demais cargas distribuídas, de menor expressão, foram tratadas como residenciais.
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Curvas de carga típicas (residencial, comercial e industrial).}
+  \label{fig:perfis_carga}
+  \includegraphics[width=0.75\textwidth]{curvas_carga.png}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{figure}

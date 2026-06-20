@@ -1,0 +1,58 @@
+\chapter{Resultados do fluxo de potência na rede IEEE~33 barras}
+\label{ap:fluxo33}
+
+Este apêndice apresenta os resultados detalhados da simulação de validação do ambiente, descrita na Seção~\ref{sec:ieee33}, para a rede IEEE~33 barras operando em modo \emph{snapshot} a 100\% da carga nominal. A Tabela~\ref{tab:tensoes33} apresenta as tensões nodais em valores por unidade. Observa-se o perfil decrescente ao longo do alimentador, com a barra~18 atingindo a menor tensão (0,9059~p.u.); ao todo, 20~barras operam abaixo do limite de 0,95~p.u.
+
+\begin{table}[!htb]
+  \centering
+  \caption{Tensões nodais na rede IEEE~33 barras (tensão de base de 7,309~kV em todas as barras).}
+  \label{tab:tensoes33}
+  \footnotesize
+  \begin{tabular}{@{}cc@{\hspace{1.5cm}}cc@{}}
+    \toprule
+    \textbf{Barra} & \textbf{$V$ (p.u.)} & \textbf{Barra} & \textbf{$V$ (p.u.)} \\
+    \midrule
+    B1  & 0,9984 & B18 & 0,9059 \\
+    B2  & 0,9954 & B19 & 0,9949 \\
+    B3  & 0,9816 & B20 & 0,9913 \\
+    B4  & 0,9743 & B21 & 0,9906 \\
+    B5  & 0,9671 & B22 & 0,9900 \\
+    B6  & 0,9492 & B23 & 0,9780 \\
+    B7  & 0,9458 & B24 & 0,9713 \\
+    B8  & 0,9327 & B25 & 0,9680 \\
+    B9  & 0,9267 & B26 & 0,9473 \\
+    B10 & 0,9212 & B27 & 0,9449 \\
+    B11 & 0,9204 & B28 & 0,9338 \\
+    B12 & 0,9190 & B29 & 0,9259 \\
+    B13 & 0,9132 & B30 & 0,9224 \\
+    B14 & 0,9110 & B31 & 0,9184 \\
+    B15 & 0,9097 & B32 & 0,9176 \\
+    B16 & 0,9084 & B33 & 0,9173 \\
+    B17 & 0,9065 &     &        \\
+    \bottomrule
+  \end{tabular}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{table}
+
+A corrente mais elevada ocorre na linha 1--2, que drena toda a demanda da rede (206,99~A; 1284,39~kW de potência ativa). As correntes diminuem progressivamente ao longo do alimentador à medida que as cargas são atendidas. A tabela completa de correntes e fluxos de potência por linha está disponível no repositório do projeto~\cite{repositorio}.
+
+\chapter{Fluxogramas dos algoritmos e da arquitetura computacional}
+\label{ap:fluxogramas}
+
+Este apêndice reúne os fluxogramas das implementações computacionais descritas nos Capítulos~\ref{cap:controle} e~\ref{cap:resultados}. A Figura~\ref{fig:flux_secundario} apresenta o laço de controle secundário por consenso, contemplando a construção do grafo de comunicação, a verificação do número mínimo de BESS e o laço iterativo de cálculo da variável de consenso, do produto Laplaciano, da parcela de \emph{droop} e dos sinais $\Delta P$ e $\Delta Q$. A Figura~\ref{fig:flux_arquitetura} apresenta a arquitetura computacional modular, evidenciando o fluxo de dados entre a geração de cenários, os motores de simulação de cada estratégia de controle e o pós-processamento estatístico e gráfico. O laço do controle primário, por sua vez, está descrito em detalhe na Seção~\ref{sec:primario}.
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Fluxograma do controle secundário por consenso.}
+  \label{fig:flux_secundario}
+  \includegraphics[height=0.82\textheight]{fluxograma-consenso.png}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Arquitetura computacional: blocos principais e fluxo de dados entre a geração de cenários, a simulação sob cada estratégia de controle e o pós-processamento.}
+  \label{fig:flux_arquitetura}
+  \includegraphics[height=0.82\textheight]{fluxograma-monte_carlo-primario-consenso.png}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{figure}

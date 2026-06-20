@@ -1,0 +1,74 @@
+\chapter{Fundamentação teórica e revisão bibliográfica}
+\label{cap:fundamentacao}
+
+Este capítulo reúne os fundamentos e o estado da arte que embasam o trabalho. Primeiro, descrevem-se as arquiteturas de controle de BESS e as principais formulações de controle distribuído encontradas na literatura. Em seguida, aprofunda-se o estudo dos algoritmos de consenso, que constituem a base da camada de controle secundário adotada. Por fim, posicionam-se as lacunas que o projeto busca preencher.
+
+\section{Arquiteturas de controle de BESS}
+\label{sec:arquiteturas}
+
+De forma geral, quatro arquiteturas são utilizadas para o gerenciamento e o controle de BESS: local, descentralizada, centralizada e distribuída~\cite{stecca2020}. No controle local, cada banco de baterias conta com um Sistema de Gerenciamento de Energia (\emph{Energy Management System} --- EMS) autônomo, que atua com base apenas em medições locais. No controle descentralizado, um supervisor gerencia partes ou zonas específicas da rede. No controle centralizado, um único ponto de controle monitora e despacha ações para toda a rede. Já no controle distribuído não há controlador central: cada BESS se comunica com seus vizinhos para trocar informações e tomar decisões de forma coordenada. A Figura~\ref{fig:arquiteturas} ilustra as quatro arquiteturas.
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Diagrama de rede de distribuição com controle (a)~local, (b)~descentralizado, (c)~centralizado e (d)~distribuído.}
+  \label{fig:arquiteturas}
+  \includegraphics[width=0.85\textwidth]{arquiteturas_de_controle_distribuidos.png}
+  \par\vspace{2pt}\fonte{adaptado de~\cite{stecca2020}}
+\end{figure}
+
+A aplicação do controle distribuído traz benefícios em relação às demais estratégias. Ele apresenta resiliência e robustez, uma vez que a falha de um nó não compromete todo o sistema~\cite{qiu2025}; escalabilidade, já que novos BESS podem ser adicionados com baixa latência de adaptação~\cite{freqreg2020,tdinterc2022}; e infraestrutura de comunicação entre vizinhos mais simples que a exigida pelas estratégias centralizadas. Em contrapartida, sua principal desvantagem é que a coordenação global ótima pode não ser atingida, pois nenhum agente dispõe da visão completa da rede.
+
+\section{Estratégias de controle distribuído}
+\label{sec:estrategias}
+
+No contexto do controle distribuído, a literatura apresenta diversas formulações matemáticas, entre as quais se destacam o consenso~\cite{xing2022}, o método dos multiplicadores de direção alternada (\emph{Alternating Direction Method of Multipliers} --- ADMM)~\cite{far2023}, o controle preditivo distribuído (\emph{Distributed Model Predictive Control} --- DMPC)~\cite{ma2024}, o aprendizado por reforço multiagente (\emph{Multi-Agent Reinforcement Learning} --- MARL)~\cite{cao2021}, o controle estocástico de dupla camada~\cite{emarati2021}, a lógica \emph{fuzzy} distribuída~\cite{fuzzy2022} e a busca em árvore de Monte Carlo com aprendizado por reforço (\emph{Monte Carlo Tree Search} --- MCTS-RL)~\cite{alsaffar2020}. A seguir, sintetizam-se as contribuições de cada abordagem.
+
+O controle distribuído por consenso~\cite{xing2022} mitiga sobretensões causadas por alta penetração FV em redes de baixa tensão considerando atrasos de comunicação. A estratégia combina uma ação local (\emph{droop}) com um algoritmo de consenso que estima médias globais da potência requerida e da capacidade máxima dos BESS, despachando a potência de forma proporcional ao estado de carga de cada unidade e, assim, distribuindo equitativamente o esforço de regulação. A otimização distribuída via ADMM~\cite{far2023} decompõe um problema centralizado em subproblemas locais resolvidos em paralelo por cada inversor inteligente, coordenando, em duas fases, o corte mínimo de potência ativa e o redirecionamento desse excedente para o carregamento dos BESS. O controle preditivo DMPC~\cite{ma2024} trata a incerteza da geração FV gerando cenários por Monte Carlo e resolvendo, de forma distribuída via ADMM, problemas de otimização que minimizam o custo das ações de controle em áreas de controle local. O aprendizado por reforço multiagente~\cite{cao2021} propõe regulação livre de modelo, com treinamento centralizado e execução descentralizada, particionando a rede em sub-regiões tratadas como agentes inteligentes.
+
+O controle estocástico de dupla camada~\cite{emarati2021} coordena comutadores de tape sob carga, BESS e a compensação de reativos dos inversores FV em dois níveis temporais (agendamento diário e tempo real), modelando a incerteza solar por simulação de Monte Carlo. A lógica \emph{fuzzy} distribuída~\cite{fuzzy2022} embarca um controlador baseado em regras que recebe o desvio de tensão, o desvio de frequência e o estado de carga, considerando explicitamente a degradação das baterias e dividindo as unidades em grupos por estado de carga para evitar microciclos. Por fim, o controle heurístico MCTS-RL~\cite{alsaffar2020} combina um controlador preditivo descentralizado com um planejador centralizado por aprendizado por reforço que identifica ``regiões assistentes'' para receber a potência excedente, aumentando virtualmente a capacidade de armazenamento das regiões críticas.
+
+A Tabela~\ref{tab:comparacao} sintetiza os métodos analisados, considerando o nível de tensão da rede estudada, a rede de teste e o papel desempenhado pelo BESS. Observa-se que a maioria dos trabalhos contempla redes de média tensão e que, em todas as estratégias, o BESS atua como atuador que injeta ou absorve a potência comandada pelo controle.
+
+\begin{table}[!htb]
+  \centering
+  \caption{Síntese comparativa das estratégias de controle distribuído analisadas.}
+  \label{tab:comparacao}
+  \footnotesize
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Ref.} & \textbf{Método} & \textbf{Rede de teste} & \textbf{Papel do BESS} \\
+    \midrule
+    \cite{xing2022}    & Consenso                  & Baixa tensão            & Absorve $P$ proporcional ao SoC \\
+    \cite{far2023}     & PJ-ADMM                   & IEEE 13, 33 e 141 barras & Absorve excedente FV e injeta na ponta \\
+    \cite{ma2024}      & DSMPC                     & IEEE 34 barras          & Absorve/injeta $P$ conforme controlador \\
+    \cite{cao2021}     & MARL (MASDAC)             & IEEE 123 e 342 barras   & Absorve/injeta $P$ conforme controlador \\
+    \cite{emarati2021} & Estocástico dupla camada  & Rede real 10\,kV, 37 barras & Agendamento diário e suporte de reativos \\
+    \cite{fuzzy2022}   & FLC \emph{fuzzy}          & IEEE 33 barras          & Absorve/injeta $P$ e $Q$; grupos de SoC \\
+    \cite{alsaffar2020} & MCTS-RL + MPC            & IEEE 33 barras e rede real & Compensa capacidade de regiões críticas \\
+    \bottomrule
+  \end{tabular}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{table}
+
+\section{Algoritmos de consenso}
+\label{sec:consenso}
+
+A maior parte das estratégias de controle distribuído para BESS adota uma arquitetura hierárquica em duas camadas. A primeira camada (controle primário) é geralmente baseada em \emph{droop control}, responsável pela estabilidade local de tensão e frequência por meio de relações entre potência e tensão. Como essa abordagem introduz desvios em relação aos valores nominais, faz-se necessária uma camada secundária, na qual os algoritmos de consenso restauram a tensão média do sistema e coordenam o comportamento global dos BESS, ajustando as referências do controle primário.
+
+Os algoritmos de consenso são amplamente utilizados em sistemas multiagentes para garantir que variáveis de interesse global --- como tensão, potência ou estado de carga (\emph{State of Charge} --- SoC) --- convirjam para valores comuns a partir de interações locais. A rede de comunicação entre os BESS é modelada como um grafo $G$, no qual cada unidade é um nó e as conexões são descritas por uma matriz de adjacência $A$. A partir dessa representação, define-se a matriz Laplaciana
+\begin{equation}
+  L = D - A,
+  \label{eq:laplaciana}
+\end{equation}
+em que $D$ é a matriz de grau, que indica com quantos nós cada nó se relaciona. A matriz Laplaciana desempenha papel central na dinâmica do sistema e na convergência do algoritmo~\cite{tang2023}. A conectividade algébrica do grafo, associada ao segundo menor autovalor de $L$, denotado $\lambda_2$, determina diretamente a velocidade de convergência: uma conectividade muito baixa leva a convergência lenta, capaz de comprometer a resposta do sistema, enquanto uma conectividade excessivamente alta pode induzir instabilidades. Assim, o ajuste adequado dos parâmetros é essencial para garantir desempenho e robustez.
+
+Além da regulação de tensão, os algoritmos de consenso são empregados para o balanceamento do SoC entre as unidades, evitando que algumas baterias sejam sobrecarregadas enquanto outras permanecem subutilizadas~\cite{li2026}. A literatura aponta, contudo, que os objetivos de regulação de tensão e de balanceamento de SoC são conflitantes: análises baseadas em critérios de estabilidade de Lyapunov indicam que esses objetivos podem levar o sistema a dois pontos de equilíbrio distintos, exigindo estratégias que conciliem ambas as demandas~\cite{tang2023}.
+
+A estabilidade dos algoritmos de consenso costuma ser avaliada por meio de funções de Lyapunov, que quantificam o erro global e garantem a convergência. Quanto aos métodos de convergência, observa-se uma evolução temporal: trabalhos mais antigos empregam convergência em tempo finito (\emph{finite-time}), cujo tempo depende das condições iniciais~\cite{zhang2023,hu2019}; abordagens mais recentes priorizam o tempo fixo (\emph{fixed-time}), limitado por um valor superior independente do estado inicial~\cite{zeng2024,zhou2024}; e há ainda métodos de tempo prescrito (\emph{prescribed-time}), que permitem definir explicitamente o tempo de convergência~\cite{li2024}. Diversas extensões lidam com desafios práticos, como líderes virtuais~\cite{ren2022}, \emph{pinning control}~\cite{yang2018}, topologias variantes no tempo e resiliência a ataques ciberfísicos~\cite{zhou2024}, além de considerar heterogeneidade dos BESS, degradação e diferentes demandas de controle de frequência~\cite{wang2024,he2023}.
+
+\section{Posicionamento do trabalho}
+\label{sec:posicionamento}
+
+A revisão evidencia que os algoritmos de consenso constituem a base das estratégias de controle distribuído para BESS, com a teoria dos grafos fornecendo o arcabouço matemático e a combinação entre controle primário (\emph{droop}) e secundário (consenso) consolidando-se como a arquitetura predominante. Nesse contexto, dois trabalhos orientam diretamente este projeto: o controle por consenso de~\cite{xing2022}, que comprova a eficácia da abordagem na distribuição equitativa do esforço de regulação entre os BESS, e o algoritmo de dupla camada de~\cite{paradacontzen2024}, tomado como referência para a solução implementada. O método de Monte Carlo, empregado em~\cite{emarati2021} para gerar cenários diários de geração, também é adotado neste trabalho, porém estendido à variação espacial e dimensional dos recursos.
+
+Por fim, identificam-se as lacunas que o projeto pretende abordar ao longo de suas duas etapas: a ausência de análise do desempenho do controle distribuído em redes trifásicas desequilibradas e a desconsideração da degradação das baterias no laço de controle. Esses pontos, conforme delimitado na Seção~\ref{sec:objetivos}, integram o escopo da segunda etapa do projeto.

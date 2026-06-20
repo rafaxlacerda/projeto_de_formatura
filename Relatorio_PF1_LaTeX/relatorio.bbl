@@ -1,0 +1,255 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{v-1.9.7 }
+
+\bibitem{grainger1994}
+\abntrefinfo{Grainger e Stevenson}{GRAINGER; STEVENSON}{1994}
+{GRAINGER, J.~J.; STEVENSON, W.~D. \emph{Power System Analysis}. [S.l.]:
+  McGraw-Hill, 1994.}
+
+\bibitem{nabatirad2022}
+\abntrefinfo{Nabatirad, Razzaghi e Bahrani}{NABATIRAD; RAZZAGHI; BAHRANI}{2022}
+{NABATIRAD, M.; RAZZAGHI, R.; BAHRANI, B. Decentralized energy management and
+  voltage regulation in islanded dc microgrids.
+\emph{IEEE Systems Journal}, v.~16, n.~4, p. 5835--5844, 2022.}
+
+\bibitem{chreim2024}
+\abntrefinfo{Chreim, Esseghir e Merghem-Boulahia}{CHREIM; ESSEGHIR;
+  MERGHEM-BOULAHIA}{2024}
+{CHREIM, B.; ESSEGHIR, M.; MERGHEM-BOULAHIA, L. Splandid -- optimal sizing,
+  placement, and management of centralized and distributed shared battery
+  energy storage systems in residential communities: Application to smart
+  grids.
+\emph{Sustainable Cities and Society}, v.~113, p. 105694, 2024.}
+
+\bibitem{li2022}
+\abntrefinfo{Li et al.}{LI et al.}{2022}
+{LI, X. et al. Optimal dispatch for battery energy storage station in
+  distribution network considering voltage distribution improvement and peak
+  load shifting.
+\emph{Journal of Modern Power Systems and Clean Energy}, v.~10, n.~1, p.
+  131--139, 2022.}
+
+\bibitem{gangwar2024}
+\abntrefinfo{Gangwar, Padhy e Jena}{GANGWAR; PADHY; JENA}{2024}
+{GANGWAR, T.; PADHY, N.~P.; JENA, P. Energy management approach to battery
+  energy storage in unbalanced distribution networks.
+\emph{IEEE Transactions on Industry Applications}, v.~60, n.~1, p. 1345--1356,
+  2024.}
+
+\bibitem{paradacontzen2024}
+\abntrefinfo{Contzen}{CONTZEN}{2024}
+{CONTZEN, M. P. A distributed double-layer control algorithm for medium voltage
+  regulation and state of charge consensus of autonomous battery energy storage
+  systems in distribution networks.
+\emph{Journal of Energy Storage}, v.~103, p. 114314, 2024.}
+
+\bibitem{stecca2020}
+\abntrefinfo{Stecca et al.}{STECCA et al.}{2020}
+{STECCA, M. et al. A comprehensive review of the integration of battery energy
+  storage systems into distribution networks.
+\emph{IEEE Open Journal of the Industrial Electronics Society}, v.~1, p.
+  46--65, 2020.}
+
+\bibitem{qiu2025}
+\abntrefinfo{Qiu et al.}{QIU et al.}{2025}
+{QIU, C. et al. Distributed optimization for the trade-off between
+  state-of-charge balancing and strategic battery usage in a networked bess.
+\emph{Journal of Energy Storage}, v.~105, p. 114550, 2025.}
+
+\bibitem{freqreg2020}
+\abntrefinfo{confirmar] e Milanovi\'c}{CONFIRMAR]; MILANOVI\'C}{2020}
+{CONFIRMAR], A. a; MILANOVI\'C, J.~V. Distributed control of battery energy
+  storage systems for improved frequency regulation.
+\emph{IEEE Transactions on Power Systems}, v.~35, n.~5, p. 3729--3738, 2020.
+Primeiro autor ilegível no relatório parcial de origem (R1.1) -- confirmar.}
+
+\bibitem{tdinterc2022}
+\abntrefinfo{confirmar] e Milanovi\'c}{CONFIRMAR]; MILANOVI\'C}{2022}
+{CONFIRMAR], A. a; MILANOVI\'C, J.~V. Distributed control of battery energy
+  storage systems in distribution networks for voltage regulation at
+  transmission--distribution network interconnection points.
+\emph{Control Engineering Practice}, v.~119, p. 104988, 2022.
+Primeiro autor ilegível no relatório parcial de origem (R1.1) -- confirmar.}
+
+\bibitem{xing2022}
+\abntrefinfo{Xing et al.}{XING et al.}{2022}
+{XING, L. et al. Distributed voltage regulation for low-voltage and
+  high-pv-penetration networks with battery energy storage systems subject to
+  communication delay.
+\emph{IEEE Transactions on Control Systems Technology}, v.~30, n.~1, p.
+  426--433, 2022.}
+
+\bibitem{far2023}
+\abntrefinfo{Far et al.}{FAR et al.}{2023}
+{FAR, S.~R. et al. Admm-based multi-objective control scheme for mitigating the
+  impact of high penetration der integration in the modern distribution
+  systems.
+\emph{IEEE Access}, v.~11, p. 38589--38603, 2023.}
+
+\bibitem{ma2024}
+\abntrefinfo{Ma et al.}{MA et al.}{2024}
+{MA, C. et al. Distributed mpc-based voltage control for active distribution
+  networks considering uncertainty of distributed energy resources.
+\emph{Electronics}, v.~13, n.~14, 2024.}
+
+\bibitem{cao2021}
+\abntrefinfo{Cao et al.}{CAO et al.}{2021}
+{CAO, D. et al. Data-driven multi-agent deep reinforcement learning for
+  distribution system decentralized voltage control with high penetration of
+  pvs.
+\emph{IEEE Transactions on Smart Grid}, v.~12, n.~5, p. 4137--4150, 2021.}
+
+\bibitem{emarati2021}
+\abntrefinfo{Emarati et al.}{EMARATI et al.}{2021}
+{EMARATI, M. et al. A two-level over-voltage control strategy in distribution
+  networks with high pv penetration.
+\emph{International Journal of Electrical Power \& Energy Systems}, v.~130, p.
+  106763, 2021.}
+
+\bibitem{fuzzy2022}
+\abntrefinfo{confirmar]}{CONFIRMAR]}{2022}
+{CONFIRMAR], A. a. Fuzzy logic controller for active and reactive power
+  management in distribution networks considering battery degradation.
+\emph{International Journal of Electrical Power \& Energy Systems}, v.~139, p.
+  107867, 2022.
+Autoria ilegível no relatório parcial de origem (R1.1) -- confirmar.}
+
+\bibitem{alsaffar2020}
+\abntrefinfo{Al-Saffar e Musilek}{AL-SAFFAR; MUSILEK}{2020}
+{AL-SAFFAR, M.; MUSILEK, P. Reinforcement learning-based distributed bess
+  management for mitigating overvoltage issues in systems with high pv
+  penetration.
+\emph{IEEE Transactions on Smart Grid}, v.~11, n.~4, p. 2980--2994, 2020.}
+
+\bibitem{tang2023}
+\abntrefinfo{Tang et al.}{TANG et al.}{2023}
+{TANG, G. et al. Distributed coordinated control of battery energy storage
+  system based on consensus algorithm. In:  \emph{2023 IEEE International
+  Conference on Unmanned Systems (ICUS)}. [S.l.: s.n.], 2023. p. 1102--1107.}
+
+\bibitem{li2026}
+\abntrefinfo{Li, Yang e Huang}{LI; YANG; HUANG}{2026}
+{LI, B.; YANG, J.; HUANG, T. Lyapunov compatibility-based adaptive consensus
+  algorithm in pv-bess integrated island dc microgrids: A dynamic state of
+  charge balancing.
+\emph{IEEE Transactions on Sustainable Energy}, 2026.}
+
+\bibitem{zhang2023}
+\abntrefinfo{Zhang, Song e Fei}{ZHANG; SONG; FEI}{2023}
+{ZHANG, Y.; SONG, Y.; FEI, S. Distributed step-by-step finite-time consensus
+  design for battery energy storage devices with droop control.
+\emph{CSEE Journal of Power and Energy Systems}, v.~9, n.~5, p. 1893--1903,
+  2023.}
+
+\bibitem{hu2019}
+\abntrefinfo{Hu e Lanzon}{HU; LANZON}{2019}
+{HU, J.; LANZON, A. Distributed finite-time consensus control for heterogeneous
+  battery energy storage systems in droop-controlled microgrids.
+\emph{IEEE Transactions on Smart Grid}, 2019.}
+
+\bibitem{zeng2024}
+\abntrefinfo{Zeng et al.}{ZENG et al.}{2024}
+{ZENG, Y. et al. Fixed-time secondary controller for rapid state-of-charge
+  balancing and flexible bus voltage regulation in dc microgrids.
+\emph{IEEE Transactions on Power Systems}, 2024.}
+
+\bibitem{zhou2024}
+\abntrefinfo{Zhou et al.}{ZHOU et al.}{2024}
+{ZHOU, R. et al. Attack-resilient distributed fixed-time consensus control for
+  hbesss and circuit implementation.
+\emph{IEEE Transactions on Smart Grid}, v.~16, n.~2, p. 1392--1404, 2024.}
+
+\bibitem{li2024}
+\abntrefinfo{Li et al.}{LI et al.}{2024}
+{LI, J. et al. Prescribed-time consensus algorithm-based distributed secondary
+  control for dc microgrids. In:  \emph{2024 IEEE 19th Conference on Industrial
+  Electronics and Applications (ICIEA)}. [S.l.: s.n.], 2024.}
+
+\bibitem{ren2022}
+\abntrefinfo{Ren, Wang e Duan}{REN; WANG; DUAN}{2022}
+{REN, Y.; WANG, Q.; DUAN, Z. Optimal distributed leader-following consensus of
+  linear multi-agent systems: A dynamic average consensus-based approach.
+\emph{IEEE Transactions on Circuits and Systems II: Express Briefs}, v.~69,
+  n.~3, p. 1208--1212, 2022.}
+
+\bibitem{yang2018}
+\abntrefinfo{Yang et al.}{YANG et al.}{2018}
+{YANG, H. et al. Hierarchical distributed control for decentralized battery
+  energy storage system based on consensus algorithm with pinning node.
+\emph{Protection and Control of Modern Power Systems}, v.~3, n.~1, p. 1--11,
+  2018.}
+
+\bibitem{wang2024}
+\abntrefinfo{Wang et al.}{WANG et al.}{2024}
+{WANG, T. et al. Consensus-based optimal control strategy for multi-microgrid
+  systems with battery degradation consideration.
+\emph{CSEE Journal of Power and Energy Systems}, 2024.}
+
+\bibitem{he2023}
+\abntrefinfo{He et al.}{HE et al.}{2023}
+{HE, L. et al. A coordinated consensus control strategy for distributed battery
+  energy storages considering different frequency control demands.
+\emph{IEEE Transactions on Sustainable Energy}, 2023.}
+
+\bibitem{dugan2020opendss}
+\abntrefinfo{Dugan et al.}{DUGAN et al.}{2020}
+{DUGAN, R.~C. et al. \emph{{OpenDSS}: Open-Source Distribution System
+  Simulator}. 2020. Electric Power Research Institute (EPRI).
+Dispon\'ivel em: https://www.epri.com/pages/sa/opendss. Acesso em: 23 maio
+  2026.}
+
+\bibitem{baranwu1989}
+\abntrefinfo{Baran e Wu}{BARAN; WU}{1989}
+{BARAN, M.~E.; WU, F.~F. Network reconfiguration in distribution systems for
+  loss reduction and load balancing.
+\emph{IEEE Transactions on Power Delivery}, v.~4, n.~2, p. 1401--1407, 1989.}
+
+\bibitem{ghorbanian2019}
+\abntrefinfo{Ghorbanian, Siano e Hatziargyriou}{GHORBANIAN; SIANO;
+  HATZIARGYRIOU}{2019}
+{GHORBANIAN, M.; SIANO, P.; HATZIARGYRIOU, N.~D. An advanced model of a
+  distribution network with photovoltaic and battery storage units.
+\emph{IEEE Systems Journal}, p. 2562--2572, 2019.
+T\'itulo parcialmente ilegível no relatório parcial de origem (R1.3) --
+  confirmar.}
+
+\bibitem{cunha2021}
+\abntrefinfo{Cunha et al.}{CUNHA et al.}{2021}
+{CUNHA, V.~C. et al. Quasi-static time-series power flow solution for islanded
+  and unbalanced three-phase microgrids.
+\emph{IEEE Open Access Journal of Power and Energy}, v.~8, p. 97--106, 2021.}
+
+\bibitem{inpe_sonda}
+\abntrefinfo{{Instituto Nacional de Pesquisas Espaciais (INPE)}}{{Instituto
+  Nacional de Pesquisas Espaciais (INPE)}}{[s.d.]}
+{{Instituto Nacional de Pesquisas Espaciais (INPE)}. \emph{Base de dados da
+  Rede SONDA -- Sistema de Organiza\c{c}\~ao Nacional de Dados Ambientais}.
+  [s.d.]. Online.
+Dispon\'ivel em: http://sonda.ccst.inpe.br/. Acesso em: 23 abr. 2026.}
+
+\bibitem{lai2017}
+\abntrefinfo{Lai et al.}{LAI et al.}{2017}
+{LAI, C.~S. et al. Daily clearness index profiles cluster analysis for
+  photovoltaic system.
+\emph{IEEE Transactions on Industrial Informatics}, v.~13, n.~5, p. 2322--2332,
+  2017.}
+
+\bibitem{nbr16149}
+\abntrefinfo{{Associa\c{c}\~ao Brasileira de Normas
+  T\'ecnicas}}{{Associa\c{c}\~ao Brasileira de Normas T\'ecnicas}}{2013}
+{{Associa\c{c}\~ao Brasileira de Normas T\'ecnicas}. \emph{{NBR 16149}:
+  Sistemas fotovoltaicos (FV) -- Caracter\'isticas da interface de conex\~ao
+  com a rede el\'etrica de distribui\c{c}\~ao}. Rio de Janeiro: [s.n.], 2013.}
+
+\bibitem{repositorio}
+\abntrefinfo{Faria e Lacerda}{FARIA; LACERDA}{2026}
+{FARIA, A. J. d.~M.; LACERDA, R. S. d.~A. \emph{projeto\_de\_formatura:
+  c\'odigo-fonte das simula\c{c}\~oes e algoritmos de controle}. 2026. GitHub.
+Dispon\'ivel em: https://github.com/rafaxlacerda/projeto\_de\_formatura. Acesso
+  em: 19 jun. 2026.}
+
+\end{thebibliography}
