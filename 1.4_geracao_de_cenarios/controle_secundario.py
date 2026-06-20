@@ -127,9 +127,20 @@ CONSENSO_ALPHA = 0.15
 # fluxo de potência no OpenDSS.
 CONSENSO_MAX_ITER = 5
 
-# Tolerância de convergência: o consenso é encerrado antecipadamente se o
-# desvio máximo entre potências normalizadas dos BESS for inferior a este valor.
-CONSENSO_TOL = 0.01
+# Tolerância de convergência: o consenso é encerrado antecipadamente se a
+# magnitude máxima de ΔP gerada pelo consenso for inferior a este valor (kW).
+CONSENSO_TOL = 0.1
+
+# Peso do desvio de tensão na variável de consenso. Cada BESS usa a variável
+# augmentada: x_i = P_i/P_nom_i + GAMMA*(V_ref - V_i), onde V_ref = 1.0 pu.
+# Isso garante que barras com subtensão contribuam mais para a injeção de
+# potência ativa, quebrando a simetria causada pelo perfil fixo BESS_PERFIL.
+# Com GAMMA=2 e desvios típicos de 0,05 pu, o termo de tensão contribui 0,10
+# para x_i, comparável ao range de P_i/P_nom_i em [-1, 1].
+CONSENSO_GAMMA = 2.0
+
+# Tensão de referência para o algoritmo de consenso (valor nominal em pu).
+V_REF_CONSENSO = 1.0
 
 # Barras trifásicas do IEEE 34 bus onde os BESS podem ser alocados.
 # Correspondem às barras com cargas trifásicas no modelo original.
@@ -208,19 +219,25 @@ def calcular_delta_p_consenso(
     potencias_nominais: dict,
     L: np.ndarray,
     barras_ordenadas: list,
+    tensoes_atuais: dict,
 ) -> dict:
     """
     Calcula o sinal de correção de potência ativa ΔP para cada BESS com
-    base no algoritmo de consenso distribuído.
+    base no algoritmo de consenso distribuído com realimentação de tensão.
 
-    A variável de consenso é a potência ativa normalizada pela potência
-    nominal de cada BESS: x_i = P_i / P_nom_i. O sinal de correção é:
+    A variável de consenso é augmentada com o desvio de tensão em cada barra:
+
+        x_i = P_i/P_nom_i + γ * (V_ref - V_i)
+
+    O termo γ*(V_ref - V_i) é positivo quando há subtensão (V_i < V_ref),
+    fazendo o consenso empurrar mais injeção de potência ativa para essas
+    barras. O sinal de correção é:
 
         ΔP_i = -α * P_nom_i * [L * x]_i
 
-    onde [L * x]_i é a i-ésima componente do produto Laplaciano-vetor,
-    correspondente à diferença ponderada entre x_i e as potências
-    normalizadas de seus vizinhos.
+    Convenção de carga: ΔP < 0 → mais injeção (reduz kW consumido).
+    Durante descarga (kw < 0): ΔP < 0 aumenta a injeção, suportando tensão.
+    Durante carga   (kw > 0): ΔP < 0 reduz a absorção, aliviando subtensão.
 
     Parameters
     ----------
@@ -234,6 +251,8 @@ def calcular_delta_p_consenso(
         Matriz Laplaciana do grafo de comunicação.
     barras_ordenadas : list of int
         Ordem das barras correspondendo às linhas/colunas de L.
+    tensoes_atuais : dict
+        {barra_str: [v_fase1, v_fase2, ...]} — tensões em pu por barra.
 
     Returns
     -------
@@ -247,7 +266,9 @@ def calcular_delta_p_consenso(
     # Mapeia barra → nome_load para recuperar o kw atual de cada nó
     barra_para_nome = {barra: nome for nome, (_, barra) in kw_bess_atual.items()}
 
-    # Vetor de potências normalizadas x_i = P_i / P_nom_i
+    # Vetor de consenso augmentado: x_i = P_i/P_nom_i + γ*(V_ref - V_i)
+    # O termo de tensão cria heterogeneidade entre os BESS, permitindo que
+    # o consenso redistribua a potência em direção às barras com mais desvio.
     x = np.zeros(n)
     for i, barra in enumerate(barras_ordenadas):
         nome = barra_para_nome.get(barra)
@@ -255,8 +276,17 @@ def calcular_delta_p_consenso(
             continue
         kw_atual, _ = kw_bess_atual[nome]
         p_nom = potencias_nominais.get(barra, 1.0)
-        # Evita divisão por zero quando o BESS está inativo (BESS_PERFIL = 0)
-        x[i] = kw_atual / p_nom if abs(p_nom) > 1e-6 else 0.0
+        x_p = kw_atual / p_nom if abs(p_nom) > 1e-6 else 0.0
+
+        # Componente de tensão: usa a tensão média das fases do BESS
+        barra_str = str(barra)
+        v_desvio = 0.0
+        if barra_str in tensoes_atuais and tensoes_atuais[barra_str]:
+            fases = tensoes_atuais[barra_str]
+            v_avg = sum(fases) / len(fases)
+            v_desvio = V_REF_CONSENSO - v_avg  # positivo em subtensão
+
+        x[i] = x_p + CONSENSO_GAMMA * v_desvio
 
     # Produto Laplaciano: erro de consenso para cada nó
     Lx = L @ x
@@ -536,25 +566,16 @@ def simular_realizacao_controle_secundario(
             dss.Text.Command("Set ControlMode=OFF")
 
             for _ in range(CONSENSO_MAX_ITER):
-                # Calcula ΔP pelo algoritmo de consenso
+                # Calcula ΔP com variável de consenso augmentada (P + tensão)
                 delta_p = calcular_delta_p_consenso(
                     kw_bess, barras_bess_realizacao, potencias_nominais,
-                    L, barras_ordenadas,
+                    L, barras_ordenadas, tensoes_atuais,
                 )
 
                 # Calcula ΔQ para preservar o fator de potência do primário
                 delta_q = _calcular_q_para_delta_p(
                     delta_p, kw_bess, q_refs_bess,
                 )
-
-                # Verifica convergência antes de aplicar
-                x_norm = []
-                for nome, (kw, barra) in kw_bess.items():
-                    p_nom = potencias_nominais.get(barra, 1.0)
-                    if abs(p_nom) > 1e-6:
-                        x_norm.append(kw / p_nom)
-                if x_norm and (max(x_norm) - min(x_norm)) < CONSENSO_TOL:
-                    break
 
                 # Aplica correção: P_novo = P_base + ΔP; Q_novo = Q_primário + ΔQ
                 for nome, (kw, barra) in kw_bess.items():
@@ -578,6 +599,11 @@ def simular_realizacao_controle_secundario(
                 # para que o ΔQ da próxima iteração seja consistente
                 if com_primario:
                     q_refs_bess = _calcular_q_refs(kw_bess, tensoes_atuais)
+
+                # Verifica convergência APÓS aplicar: encerra quando o consenso
+                # não produz mais correções significativas
+                if max(abs(dp) for dp in delta_p.values()) < CONSENSO_TOL:
+                    break
 
             dss.Text.Command("Set ControlMode=STATIC")
 
