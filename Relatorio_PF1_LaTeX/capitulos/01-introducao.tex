@@ -1,23 +1,60 @@
 \chapter{Introdução}
 \label{cap:introducao}
 
-As redes elétricas de distribuição são tradicionalmente passivas, ou seja, a potência flui de forma unidirecional da geração para o consumo~\cite{grainger1994}. Nesse modelo, a qualidade da energia --- em especial a regulação de tensão e o fator de potência --- é assegurada pela robustez da geração centralizada, como hidrelétricas e termelétricas, pouco sensível a variações de curto prazo. A crescente integração de fontes de geração distribuída (GD), como os sistemas fotovoltaicos (FV), transformou essas redes em redes ativas, nas quais o fluxo de potência passa a ser bidirecional, determinado tanto pela geração quanto pela carga. Tal transformação impõe novos desafios à operação e ao controle, sobretudo no que tange à regulação de tensão.
+As redes elétricas de distribuição são tradicionalmente passivas, ou seja, 
+a potência flui de forma unidirecional da geração para o consumo~\cite{grainger1994}. 
+Nesse modelo, a qualidade da energia, em especial a regulação de tensão e o fator de potência, 
+é assegurada pela robustez da geração centralizada, como hidrelétricas e termelétricas, 
+pouco sensível a variações de curto prazo. A crescente integração de fontes de geração distribuída 
+(GD), como os sistemas fotovoltaicos (FV), transformou essas redes em redes ativas, nas quais o 
+fluxo de potência passa a ser bidirecional, determinado tanto pela geração quanto pela carga. 
+Tal transformação impõe novos desafios à operação e ao controle, sobretudo no que tange à regulação 
+de tensão.
 
-A disseminação da GD criou demanda por Sistemas de Armazenamento de Energia em Baterias (\emph{Battery Energy Storage Systems} --- BESS), empregados para armazenar o excedente de energia em horários de baixa demanda e injetá-lo na rede nos horários de ponta. A eficácia desses sistemas, contudo, depende diretamente da estratégia de controle adotada. O controle centralizado, tradicionalmente utilizado, apresenta limitações de escalabilidade e robustez, pois exige infraestrutura de comunicação complexa e é suscetível a falhas em um único ponto de processamento. Em contrapartida, as estratégias de controle distribuído permitem que cada unidade BESS tome decisões com base em informações locais e na comunicação parcial com vizinhos imediatos~\cite{nabatirad2022}, aumentando a confiabilidade e facilitando a operação \emph{plug-and-play} de novos dispositivos.
+A disseminação da GD criou demanda por Sistemas de Armazenamento de Energia em Baterias 
+(\emph{Battery Energy Storage Systems} --- BESS), empregados para armazenar o excedente de energia 
+em horários de baixa demanda e injetá-lo na rede nos horários de ponta. A eficácia desses sistemas, 
+contudo, depende diretamente da estratégia de controle adotada. O controle centralizado, 
+tradicionalmente utilizado, apresenta limitações de escalabilidade e robustez, pois exige infraestrutura 
+de comunicação complexa e é suscetível a falhas em um único ponto de processamento. Em contrapartida, 
+as estratégias de controle distribuído permitem que cada unidade BESS tome decisões com base em 
+informações locais e na comunicação parcial com vizinhos imediatos~\cite{nabatirad2022}, aumentando a 
+confiabilidade e facilitando a operação \emph{plug-and-play} de novos dispositivos.
 
-Os conjuntos formados por GD e BESS favorecem um controle distribuído e automático da rede por meio dos inversores que conectam tanto os geradores fotovoltaicos quanto os BESS. Ao controlar a potência ativa e reativa injetada ou absorvida, é possível regular a tensão localmente. À medida que cresce o número de BESS autônomos e distribuídos, torna-se necessário coordená-los, de modo que operem de forma harmônica também em nível global, sem deteriorar os perfis de tensão e o carregamento agregado da rede.
+Os conjuntos formados por GD e BESS favorecem um controle distribuído e automático da rede por meio dos 
+inversores que conectam tanto os geradores fotovoltaicos quanto os BESS. Ao controlar a potência ativa e 
+reativa injetada ou absorvida, é possível regular a tensão localmente. À medida que cresce o número de 
+BESS autônomos e distribuídos, torna-se necessário coordená-los, de modo que operem de forma harmônica 
+também em nível global, sem deteriorar os perfis de tensão e o carregamento agregado da rede.
 
 \section{Motivação e definição do problema}
 \label{sec:motivacao}
 
-Na literatura, há três grandes classes de soluções para o controle de BESS em redes de distribuição. A primeira é o despacho ótimo~\cite{chreim2024,li2022}, baseado na otimização de um problema de programação linear inteira mista (\emph{Mixed-Integer Linear Programming}) que calcula o perfil de carga e descarga do BESS para cada intervalo de tempo a partir de previsões de carga e geração; trata-se de uma estratégia em malha aberta, na qual desvios entre previsão e realidade degradam o desempenho. A segunda é o controle centralizado, em que dados de toda a rede são coletados para gerar ações em um único ponto de controle, exigindo infraestrutura de comunicação robusta e apresentando ponto único de falha. A terceira é o controle distribuído em dupla camada, no qual cada BESS age localmente de forma autônoma na primeira camada e se coordena com os vizinhos na segunda.
+Na literatura, há três grandes classes de soluções para o controle de BESS em redes de distribuição. A 
+primeira é o despacho ótimo~\cite{chreim2024,li2022}, baseado na otimização de um problema de programação 
+linear inteira mista (\emph{Mixed-Integer Linear Programming}) que calcula o perfil de carga e descarga 
+do BESS para cada intervalo de tempo a partir de previsões de carga e geração; trata-se de uma estratégia 
+em malha aberta, na qual desvios entre previsão e realidade degradam o desempenho. A segunda é o controle 
+centralizado, em que dados de toda a rede são coletados para gerar ações em um único ponto de controle, 
+exigindo infraestrutura de comunicação robusta e apresentando ponto único de falha. A terceira é o 
+controle distribuído em dupla camada, no qual cada BESS age localmente de forma autônoma na primeira 
+camada e se coordena com os vizinhos na segunda.
 
-Apesar do potencial das soluções distribuídas, persistem lacunas relevantes. A maior parte dos trabalhos não analisa como o desequilíbrio de fases, característico das redes reais, afeta o algoritmo de controle, e poucos incorporam modelos de degradação e ciclo de vida das baterias ao laço de controle, aspecto diretamente ligado à viabilidade econômica do uso de BESS para suporte de rede~\cite{gangwar2024}. Este projeto busca validar e estender a solução proposta por~\cite{paradacontzen2024}, implementando, nesta primeira etapa, uma estratégia análoga de controle distribuído em dupla camada e avaliando seu desempenho de regulação de tensão em uma rede de teste padrão.
+Apesar do potencial das soluções distribuídas, persistem lacunas relevantes. A maior parte dos trabalhos 
+não analisa como o desequilíbrio de fases, característico das redes reais, afeta o algoritmo de controle, 
+e poucos incorporam modelos de degradação e ciclo de vida das baterias ao laço de controle, aspecto 
+diretamente ligado à viabilidade econômica do uso de BESS para suporte de rede~\cite{gangwar2024}. Este 
+projeto busca validar e estender a solução proposta por~\cite{paradacontzen2024}, implementando, nesta 
+primeira etapa, uma estratégia análoga de controle distribuído em dupla camada e avaliando seu desempenho 
+de regulação de tensão em uma rede de teste padrão.
 
 \section{Objetivos}
 \label{sec:objetivos}
 
-O objetivo geral deste trabalho é desenvolver e avaliar uma estratégia de controle distribuído em dupla camada para BESS autônomos, voltada à regulação de tensão em redes de distribuição de média tensão com alta penetração de geração fotovoltaica. No escopo desta primeira etapa do Projeto de Formatura, definem-se os seguintes objetivos específicos:
+O objetivo geral deste trabalho é desenvolver e avaliar uma estratégia de controle distribuído em dupla 
+camada para BESS autônomos, voltada à regulação de tensão em redes de distribuição de média tensão com 
+alta penetração de geração fotovoltaica. No escopo desta primeira etapa do Projeto de Formatura, 
+definem-se os seguintes objetivos específicos:
 
 \begin{itemize}
   \item revisar a literatura de estratégias de controle distribuído e de algoritmos de consenso aplicados à coordenação de BESS;
@@ -27,9 +64,18 @@ O objetivo geral deste trabalho é desenvolver e avaliar uma estratégia de cont
   \item avaliar o desempenho da estratégia em termos de regulação de tensão, comparando os casos sem controle, com controle primário isolado e com as duas camadas, em uma rede de teste padrão da IEEE.
 \end{itemize}
 
-A extensão da solução a redes desequilibradas, a incorporação dos modelos de degradação e ciclo de vida das baterias e a aplicação a uma rede de distribuição real constituem objetivos da segunda etapa do projeto e são tratados, neste relatório, apenas como trabalhos futuros (Capítulo~\ref{cap:conclusao}).
+A extensão da solução a redes desequilibradas, a incorporação dos modelos de degradação e ciclo de vida 
+das baterias e a aplicação a uma rede de distribuição real constituem objetivos da segunda etapa do 
+projeto e são tratados, neste relatório, apenas como trabalhos futuros (Capítulo~\ref{cap:conclusao}).
 
 \section{Organização do trabalho}
 \label{sec:organizacao}
 
-O restante deste relatório está organizado da seguinte forma. O Capítulo~\ref{cap:fundamentacao} apresenta a fundamentação teórica e a revisão bibliográfica das estratégias de controle distribuído e dos algoritmos de consenso. O Capítulo~\ref{cap:ambiente} descreve o ambiente de cossimulação Python--OpenDSS e as redes de teste utilizadas. O Capítulo~\ref{cap:cenarios} detalha a geração de cenários pelo método de Monte Carlo. O Capítulo~\ref{cap:controle} formaliza a estratégia de controle em duas camadas. O Capítulo~\ref{cap:resultados} apresenta e discute os resultados. Por fim, o Capítulo~\ref{cap:conclusao} sintetiza as conclusões, mapeando-as aos objetivos, e aponta os próximos passos.
+O restante deste relatório está organizado da seguinte forma. O Capítulo~\ref{cap:fundamentacao} 
+apresenta a fundamentação teórica e a revisão bibliográfica das estratégias de controle distribuído e 
+dos algoritmos de consenso. O Capítulo~\ref{cap:ambiente} descreve o ambiente de cossimulação 
+Python--OpenDSS e as redes de teste utilizadas. O Capítulo~\ref{cap:cenarios} detalha a geração de 
+cenários pelo método de Monte Carlo. O Capítulo~\ref{cap:controle} formaliza a estratégia de controle em 
+duas camadas. O Capítulo~\ref{cap:resultados} apresenta e discute os resultados. Por fim, o 
+Capítulo~\ref{cap:conclusao} sintetiza as conclusões, mapeando-as aos objetivos, e aponta os próximos 
+passos.
