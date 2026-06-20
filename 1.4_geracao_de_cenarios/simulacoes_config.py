@@ -22,7 +22,7 @@ BARRAS_EXCLUIDAS_ANALISE = {
 # Caminho padrão do modelo IEEE34 - Usa arquivo original com loadshapes.
 DEFAULT_DSS_FILE = os.path.join("..", "IEEE34bus", "IEEE34_original_with_loadshapes.dss")
 
-# Faixas de horário usadas na análise
+# Faixas de horário usadas na análise (mantidas para compatibilidade com simulacao_opendss.py)
 TIME_BANDS = {
     "manhã": list(range(6, 12)),       # 06h-11h
     "tarde": list(range(12, 18)),       # 12h-17h
@@ -56,3 +56,13 @@ BESS_PERFIL[18:22] = 1.0
 # Constantes para análise de estatísticas descritivas
 NIVEIS_ESPECIAIS_ANALISE = [0, 50, 100, 150]  # % de penetração FV
 BARRAS_TRIFASICAS_ANALISE = [860, 840, 844, 848, 890]
+
+
+def obter_barras_topologicas_de_carga():
+    """
+    Retorna a lista de barras do alimentador IEEE34 na ordem topológica,
+    excluindo barras de fonte, regulador e transformador (BARRAS_EXCLUIDAS_ANALISE).
+    Representa apenas pontos reais de consumo.
+    """
+    excluidas = {str(b).lower() for b in BARRAS_EXCLUIDAS_ANALISE}
+    return [b for b in BARRAS_TOPOLOGICAS_IEEE34 if str(b).lower() not in excluidas]

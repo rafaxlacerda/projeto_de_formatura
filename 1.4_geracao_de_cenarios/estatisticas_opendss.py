@@ -1,9 +1,19 @@
 import os
 
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
 import pandas as pd
 
 from simulacoes_config import BARRAS_TRIFASICAS_ANALISE, NIVEIS_ESPECIAIS_ANALISE
+
+# Tamanhos de fonte consistentes com graficos_opendss.py
+_FONTSIZE_TITULO  = 16
+_FONTSIZE_EIXO    = 13
+_FONTSIZE_TICK    = 11
+_FONTSIZE_LEGENDA = 11
+
+_PALETA_CENARIOS  = ["#1f77b4", "#d62728", "#2ca02c"]
 
 
 def carregar_dados_nivel(pasta_nivel):
@@ -467,3 +477,167 @@ def gerar_tabelas_estatisticas(pasta_saida, pasta_monte_carlo, pasta_saida_opend
     html_path = os.path.join(pasta_saida, "tabela_estatisticas_descritivas.html")
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html_content)
+
+
+# ---------------------------------------------------------------------------
+# Tabela e gráfico de barras de erro (média ± DP) comparativos (item 10)
+# ---------------------------------------------------------------------------
+
+def _slugify_est(texto):
+    """Converte rótulo em slug para uso em nomes de arquivo."""
+    return (
+        texto.lower()
+        .replace(" ", "_")
+        .replace("ã", "a").replace("ç", "c").replace("é", "e")
+        .replace("ê", "e").replace("á", "a").replace("í", "i")
+        .replace("ó", "o").replace("ú", "u").replace("â", "a")
+        .replace("/", "_").replace("\\", "_")
+    )
+
+
+def gerar_estatisticas_comparativas(
+    cenarios,
+    pasta_saida,
+    indicador="sobretensao",
+    tipo_dia=None,
+    contexto: str = "",
+):
+    """
+    Gera tabela (CSV) e gráfico de barras de erro (média ± DP) de violações
+    por nível de penetração FV para 1 a 3 cenários simultâneos.
+
+    Parâmetros
+    ----------
+    cenarios : list[dict]
+        Lista de dicts com:
+          - "rotulo"            : str
+          - "caminho_master_csv": str  (master_resultados_opendss.csv)
+          - "cor"               : str  (opcional)
+    pasta_saida : str
+        Pasta de saída (será criada se necessário).
+    indicador : str
+        "sobretensao" ou "subtensao".
+    tipo_dia : str ou None
+        Filtra por tipo de dia. None = todos.
+    contexto : str
+        Texto adicional nos títulos.
+    """
+    os.makedirs(pasta_saida, exist_ok=True)
+    prefixo_col = indicador
+
+    # --- Carrega e processa cada cenário ---
+    dados_cenarios = []
+    for cen in cenarios:
+        caminho = cen["caminho_master_csv"]
+        if not os.path.isfile(caminho):
+            print(f"  ⚠ CSV não encontrado: {caminho}")
+            dados_cenarios.append(None)
+            continue
+
+        df = pd.read_csv(caminho, sep=";", decimal=",")
+        if tipo_dia is not None:
+            df = df[df["tipo_dia"] == tipo_dia]
+
+        cols_ind = [
+            c for c in df.columns
+            if c.startswith(prefixo_col + "_") and not c.startswith(prefixo_col + "_bess_")
+        ]
+        if not cols_ind:
+            dados_cenarios.append(None)
+            continue
+
+        df["total_diario"] = df[cols_ind].max(axis=1)
+        stats = (
+            df.groupby("pen_pct")["total_diario"]
+            .agg(
+                media="mean",
+                dp="std",
+                cv=lambda s: s.std() / s.mean() if s.mean() != 0 else np.nan,
+            )
+            .reset_index()
+            .sort_values("pen_pct")
+        )
+        stats["rotulo"] = cen["rotulo"]
+        dados_cenarios.append(stats)
+
+    # --- Tabela CSV comparativa ---
+    linhas_csv = []
+    cabecalho = ["pen_pct", "tipo_dia"]
+    for cen in cenarios:
+        r = cen["rotulo"]
+        cabecalho += [f"{r}_media", f"{r}_dp", f"{r}_cv"]
+    linhas_csv.append(";".join(cabecalho))
+
+    niveis_todos = sorted(set(
+        v for d in dados_cenarios if d is not None
+        for v in d["pen_pct"].values
+    ))
+    for nivel in niveis_todos:
+        linha = [str(int(nivel)), tipo_dia or "todos"]
+        for d in dados_cenarios:
+            if d is None:
+                linha += ["-", "-", "-"]
+            else:
+                row = d[d["pen_pct"] == nivel]
+                if row.empty:
+                    linha += ["-", "-", "-"]
+                else:
+                    m  = row["media"].values[0]
+                    dp = row["dp"].values[0]
+                    cv = row["cv"].values[0]
+                    linha += [f"{m:.4f}", f"{dp:.4f}", f"{cv:.4f}" if np.isfinite(cv) else "-"]
+        linhas_csv.append(";".join(linha))
+
+    sufixo_cen = "_vs_".join(_slugify_est(c["rotulo"]) for c in cenarios)
+    sufixo_td  = f"_{tipo_dia}" if tipo_dia else "_todos_dias"
+    nome_csv   = f"tabela_estatisticas_{indicador}_{sufixo_cen}{sufixo_td}.csv"
+    with open(os.path.join(pasta_saida, nome_csv), "w", encoding="utf-8") as f:
+        f.write("\n".join(linhas_csv))
+
+    # --- Gráfico de barras de erro ---
+    fig, ax = plt.subplots(figsize=(12, 6))
+    n_cen      = len(cenarios)
+    deslocamento = np.linspace(-0.3, 0.3, n_cen) if n_cen > 1 else [0]
+
+    for i, (cen, dados) in enumerate(zip(cenarios, dados_cenarios)):
+        if dados is None:
+            continue
+        cor = cen.get("cor", _PALETA_CENARIOS[i % len(_PALETA_CENARIOS)])
+        x_shift = dados["pen_pct"].values + deslocamento[i]
+        ax.errorbar(
+            x_shift,
+            dados["media"].values,
+            yerr=dados["dp"].values,
+            fmt="o",
+            color=cor,
+            ecolor=cor,
+            elinewidth=1.5,
+            capsize=4,
+            markersize=5,
+            label=cen["rotulo"],
+            linestyle="-",
+            linewidth=1.5,
+        )
+
+    label_ind = "Sobretensão (V > 1,05 pu)" if indicador == "sobretensao" else "Subtensão (V < 0,95 pu)"
+    ax.set_xlabel("Penetração fotovoltaica (%)", fontsize=_FONTSIZE_EIXO)
+    ax.set_ylabel("Barras c/ violação — média ± 1 DP", fontsize=_FONTSIZE_EIXO)
+    ax.set_title(
+        f"{label_ind} — Médias e desvios por nível de penetração"
+        + (f"\n{contexto}" if contexto else ""),
+        fontsize=_FONTSIZE_TITULO,
+    )
+    ax.legend(fontsize=_FONTSIZE_LEGENDA)
+    ax.yaxis.set_major_locator(mticker.MultipleLocator(2))
+    ax.set_ylim(bottom=0)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(True, linestyle="--", alpha=0.30)
+    ax.tick_params(axis="both", labelsize=_FONTSIZE_TICK)
+    fig.tight_layout()
+
+    nome_fig = f"barras_erro_{indicador}_{sufixo_cen}{sufixo_td}.png"
+    caminho_tmp = os.path.join(pasta_saida, f".tmp_{nome_fig}")
+    fig.savefig(caminho_tmp, dpi=200, bbox_inches="tight")
+    os.replace(caminho_tmp, os.path.join(pasta_saida, nome_fig))
+    plt.close(fig)
