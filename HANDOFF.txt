@@ -1,0 +1,579 @@
+================================================================================
+HANDOFF DOCUMENT — projeto_de_formatura
+Generated: 2026-06-20
+Author: Claude Sonnet 4.6 (claude-sonnet-4-6)
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. PROJECT OVERVIEW
+2. REPOSITORY STRUCTURE
+3. KEY SOURCE FILES
+4. ARCHITECTURE — MONTE CARLO PIPELINE
+5. ARCHITECTURE — PRIMARY CONTROL (CONTROLE PRIMÁRIO)
+6. MAIN DIAGNOSTIC SCRIPT: 5_primario_integrado.py
+   6a. Purpose
+   6b. Configuration constants
+   6c. Imports / sys.path wiring
+   6d. Auxiliary functions
+   6e. Visualization functions
+   6f. Main loop logic
+   6g. Outputs
+7. CRITICAL DOMAIN KNOWLEDGE
+8. KNOWN USER PREFERENCES / CONVENTIONS
+9. CURRENT STATE (as of handoff date)
+10. PENDING WORK / NEXT STEPS
+
+
+================================================================================
+1. PROJECT OVERVIEW
+================================================================================
+
+Brazilian electrical engineering thesis.
+Topic: Integration of primary VoltVar control (ABNT NBR 16149:2013, §4.7.3)
+       into a Monte Carlo simulation pipeline for the IEEE 34-bus distribution network.
+
+Primary language: Python 3.
+Simulator: OpenDSS via opendssdirect (python package `opendssdirect`, `dss`).
+Network: IEEE 34-bus feeder (file: IEEE34bus/IEEE34_original_with_loadshapes.dss).
+DER model: Load elements (NOT native PVSystem/Storage) — required for comparability
+           with the Monte Carlo pipeline.
+
+
+================================================================================
+2. REPOSITORY STRUCTURE
+================================================================================
+
+projeto_de_formatura/
+├── IEEE34bus/
+│   └── IEEE34_original_with_loadshapes.dss    # Network model
+├── 1.4_geracao_de_cenarios/                   # Monte Carlo pipeline source
+│   ├── simulacoes_config.py                   # Shared constants (BARRAS_EXCLUIDAS_ANALISE, etc.)
+│   ├── simulacao_opendss.py                   # DSS helpers (extrair_tensoes_por_barra, etc.)
+│   ├── controle_primario.py                   # VoltVar algorithm (volt_var_curve, _calcular_q_refs)
+│   ├── controle_secundario.py                 # Secondary control (separate, not yet integrated here)
+│   ├── sortear_monte_carlo.py                 # Scenario generator
+│   ├── estatisticas_opendss.py
+│   ├── graficos_opendss.py
+│   └── resultados_monte_carlo/
+│       ├── realizacoes_sorteadas/
+│       │   └── pen_{PPP}pct/                  # Per-penetration-level MC data
+│       │       ├── elementos_opendss.csv      # DER placement (barra, potencia_kw, classe)
+│       │       ├── perfis_irradiancia.csv     # Hourly irradiance factors per realization
+│       │       └── fatores_incerteza_carga.csv
+│       └── analise_opendss/
+│           └── pen_{PPP}pct/
+│               └── tensoes_opendss_completas.csv  # All-bus voltages from MC (no primary ctrl)
+└── 1.5_controle_primario/                     # Diagnostic scripts (this session's focus)
+    ├── 0_controle_primario.py                 # Early prototype
+    ├── 1_sem_controle_primario.py             # Baseline (no control)
+    ├── 2_invControl.py                        # OpenDSS InvControl element version
+    ├── 3_myVoltVar.py                         # Custom VoltVar (PF only)
+    ├── 4_myVoltVarQ.py                        # Custom VoltVar with Q (PVSystem/Storage native elements)
+    ├── 5_primario_integrado.py                # *** MAIN DIAGNOSTIC SCRIPT (active development) ***
+    ├── figuras/                               # Figures from scripts 1-4
+    ├── figuras_invcontrol/
+    ├── figuras_myvoltvar/
+    ├── figuras_myvoltvarQ/
+    ├── figuras_primario_integrado/            # Output dir for 5_primario_integrado.py
+    │   ├── fig_volt_var_curve.png
+    │   ├── fig_nominal_power.png
+    │   ├── fig_taps_por_hora.png
+    │   ├── fig_taps_comparacao.png
+    │   ├── fig_q_activation.png
+    │   ├── fig_violations_consumer_buses.png
+    │   ├── fig_violations_all_buses.png
+    │   ├── fig_voltvar_efeito_tensao.png
+    │   ├── fig_all_bus_vmin.png
+    │   └── fig_all_bus_vmax.png
+    └── resultados/                            # CSV outputs from all scripts
+        └── primario_integrado_pen{PPP}_real{RRRR}_*.csv
+
+
+================================================================================
+3. KEY SOURCE FILES
+================================================================================
+
+FILE: 1.4_geracao_de_cenarios/simulacoes_config.py
+------------------------------------------------------
+Defines shared constants used by the entire pipeline.
+
+  V_PU_MIN = 0.95
+  V_PU_MAX = 1.05
+
+  BARRAS_EXCLUIDAS_ANALISE = {
+      "sourcebus", "800", "812", "814", "814r", "850", "852", "852r", "888"
+  }
+  # These are non-consumer buses (transformer taps, switching, source reference).
+  # They have NO load and may show spurious voltage values.
+  # They ARE present in OpenDSS and CAN have voltage violations, but are EXCLUDED
+  # from analysis by design. This is a deliberate choice — not an absence of data.
+
+  BESS_PERFIL = np.zeros(24)
+  BESS_PERFIL[10:15] = -1.0   # charging (absorption)
+  BESS_PERFIL[18:22] = 1.0    # discharging (injection)
+
+  BARRAS_TOPOLOGICAS_IEEE34 = [800, 802, 806, ..., 890]  # BFS order from source
+
+
+FILE: 1.4_geracao_de_cenarios/controle_primario.py
+----------------------------------------------------
+Contains the VoltVar algorithm imported by 5_primario_integrado.py.
+
+  Key constants:
+    V_DEADBAND_LOW  = 0.97   # p.u.
+    V_DEADBAND_HIGH = 1.03   # p.u.
+    V_SAT_LOW       = 0.90   # p.u. (saturation)
+    V_SAT_HIGH      = 1.10   # p.u. (saturation)
+    Q_MAX_PU        = 0.4358 # = sin(arccos(0.90)), NOT tan(arccos(0.90))
+                              # tan(arccos(0.90)) ≈ 0.4843 — code comment is WRONG
+    MAX_VOLTVAR_ITER = 10
+
+  Key functions:
+    volt_var_curve(v_pu, p_inst_kw) -> float (Q in kVAr, generator convention)
+    _get_q_ref_barra(v_pu, p_inst_kw) -> float
+    _calcular_q_refs(kw_dict, tensoes_dict) -> {nome: q_kvar}
+
+  IMPORTANT — Sign convention:
+    volt_var_curve returns Q in GENERATOR convention (Q > 0 = capacitive = inject Q).
+    OpenDSS Load elements use LOAD convention (kvar > 0 = absorb Q).
+    Therefore: editar_load(nome, kw, -q_refs[nome])
+                                     ↑ negation is REQUIRED
+
+
+FILE: 1.4_geracao_de_cenarios/simulacao_opendss.py
+----------------------------------------------------
+DSS utility functions imported by 5_primario_integrado.py.
+
+  redirecionar_circuito(dss_path)       # Compile DSS file
+  carregar_cargas_base()                # Returns dict of base load parameters
+  criar_elementos_simulacao(pv_df, bess_df, id_realizacao)  # Creates Load elements in DSS
+  editar_load(nome, kw, kvar)           # Set kW and kvar on a Load element
+  extrair_tensoes_por_barra()           # Returns {bus: [phase_pu_values]}
+                                        # FILTERS out BARRAS_EXCLUIDAS_ANALISE
+  ler_elementos_opendss(pasta)          # Reads elementos_opendss.csv
+  ler_fatores_incerteza_carga(pasta)    # Reads fatores_incerteza_carga.csv
+  ler_perfis_irradiancia(pasta)         # Reads perfis_irradiancia.csv
+  obter_multiplicadores_shapes()        # Returns {shape_name: [24 hourly factors]}
+
+
+================================================================================
+4. ARCHITECTURE — MONTE CARLO PIPELINE
+================================================================================
+
+The Monte Carlo pipeline (in 1.4_geracao_de_cenarios/) works as follows:
+
+1. sortear_monte_carlo.py: generates N realizations per penetration level.
+   - Randomly places PVSystem and Storage elements on consumer buses.
+   - Assigns irradiance profiles and load uncertainty factors.
+   - Saves CSVs under resultados_monte_carlo/realizacoes_sorteadas/pen_{PPP}pct/.
+
+2. simulacao_opendss.py: runs each realization through OpenDSS.
+   - For each hour 0-23: sets Load element kW/kvar, calls Solve(), records voltages.
+
+3. controle_primario.py: applies VoltVar control on top of step 2.
+   - Loops up to MAX_VOLTVAR_ITER times per hour.
+   - Updates Q injected by each DER based on bus voltage.
+   - Freezes regulator taps (ControlMode=OFF) during VoltVar iterations.
+
+4. analise_opendss/ contains the post-processed results (tensoes_opendss_completas.csv).
+
+The diagnostic script 5_primario_integrado.py replicates step 2+3 for a SINGLE
+realization and exposes internal state (taps, Q per DER, violations per bus, etc.)
+that the batch pipeline does not record.
+
+
+================================================================================
+5. ARCHITECTURE — PRIMARY CONTROL (CONTROLE PRIMÁRIO)
+================================================================================
+
+Standard: ABNT NBR 16149:2013, §4.7.3
+
+Dead band: [0.97, 1.03] p.u.  → VoltVar outputs Q = 0 in this range
+Saturation: [0.90, 1.10] p.u. → VoltVar outputs ±Q_MAX in this range
+Q_MAX_PU = 0.4358 = sin(arccos(0.90))
+
+Between dead band and saturation: linear interpolation.
+
+Q sign:
+  - V too LOW  (< 0.97) → inject capacitive Q (Q > 0 in generator convention)
+  - V too HIGH (> 1.03) → absorb inductive Q (Q < 0 in generator convention)
+
+Maximum Q per DER:
+  Q_kvar_max = Q_MAX_PU × |P_inst_kw|
+
+Since Q ≤ Q_MAX_PU × P_inst is always satisfied by construction,
+the apparent power increase ΔS = √(P² + Q²) - P ≤ P × (√(1 + Q_MAX_PU²) - 1) ≈ 9.1% × P
+is automatically bounded. No P curtailment occurs — OpenDSS Load elements do NOT
+have a kVA capacity limit; P is maintained at P_inst regardless of Q dispatch.
+
+This means: DO NOT implement "curtailed energy" or "curtailed P" metrics.
+The model does not curtail P. (This was verified and confirmed in session.)
+
+Regulator freeze:
+  During VoltVar iterations, ControlMode is set to OFF to freeze LTC/RegControl taps.
+  This is the "primary control" assumption: Q is faster than tap-changers.
+  After VoltVar converges, ControlMode=STATIC is restored.
+
+
+================================================================================
+6. MAIN DIAGNOSTIC SCRIPT: 5_primario_integrado.py
+================================================================================
+
+PATH: 1.5_controle_primario/5_primario_integrado.py
+LINES: 907 total (as of 2026-06-20)
+RUN: cd 1.5_controle_primario && python 5_primario_integrado.py
+
+6a. PURPOSE
+-----------
+Single-realization diagnostic: replicates controle_primario.py logic for one
+realization (PEN_PCT, ID_REALIZACAO) with full hour-by-hour transparency.
+Uses Load elements (not PVSystem/Storage) for MC comparability.
+
+6b. CONFIGURATION CONSTANTS (lines 66-68)
+------------------------------------------
+  PEN_PCT       = 90      # penetration level in %
+  ID_REALIZACAO = 1       # realization index
+  TOTAL_HOURS   = 24
+
+  FIG_DIR  = .../1.5_controle_primario/figuras_primario_integrado/
+  CSV_DIR  = .../1.5_controle_primario/resultados/
+  BASE_DSS = .../IEEE34bus/IEEE34_original_with_loadshapes.dss
+  MC_DIR   = .../1.4_geracao_de_cenarios/resultados_monte_carlo/realizacoes_sorteadas/
+  ANALISE_DIR = .../1.4_geracao_de_cenarios/resultados_monte_carlo/analise_opendss/
+
+6c. IMPORTS / sys.path WIRING (lines 28-52)
+--------------------------------------------
+  SCRIPT_DIR = dirname(abspath(__file__))
+  sys.path.insert(0, SCRIPT_DIR + "/../1.4_geracao_de_cenarios")
+
+  from controle_primario import (
+      V_DEADBAND_HIGH, V_DEADBAND_LOW, V_SAT_HIGH, V_SAT_LOW,
+      MAX_VOLTVAR_ITER, Q_MAX_PU, _calcular_q_refs, volt_var_curve
+  )
+  from simulacao_opendss import (
+      carregar_cargas_base, criar_elementos_simulacao, editar_load,
+      extrair_tensoes_por_barra, ler_elementos_opendss, ler_fatores_incerteza_carga,
+      ler_perfis_irradiancia, obter_multiplicadores_shapes, redirecionar_circuito
+  )
+  from simulacoes_config import BESS_PERFIL, BARRAS_EXCLUIDAS_ANALISE
+
+6d. AUXILIARY FUNCTIONS
+------------------------
+
+preparar_cenario_load(pen_pct, id_realizacao) -> (pv_real, bess_real, fat_irr, fat_carga)
+  Lines 75-107
+  Reads MC CSVs, calls criar_elementos_simulacao(), returns DataFrames and factor lists.
+  pv_real  = DataFrame of all DERs (PVSystem + Storage) for this realization
+  bess_real = subset of pv_real where classe == "Storage"
+  fat_irr   = list of 24 floats (hourly irradiance multipliers)
+  fat_carga = dict {barra_int: [24 floats]} (per-bus load uncertainty multipliers)
+
+capture_taps(reg_names) -> dict
+  Lines 110-121
+  Returns {reg_name: {"transformer": str, "winding": int, "tap": float}}
+  Called before and after VoltVar loop to verify tap freeze.
+
+carregar_violacoes_mc(pen_pct, id_realizacao) -> list[int]
+  Lines 124-147
+  Reads tensoes_opendss_completas.csv.
+  FILTERS OUT BARRAS_EXCLUIDAS_ANALISE before counting.
+  Returns list of 24 ints (violation count per hour, consumer buses only).
+  Used as the "blue bar" (Monte Carlo baseline) in plot_violations.
+
+count_voltage_violations(tensoes: dict) -> (int, dict)
+  Lines 150-168
+  Input: {bus: [phase_pu_values]} — same format as extrair_tensoes_por_barra().
+  Returns (n_violations, {bus: {"v_min", "v_max", "under", "over"}}).
+  Thresholds: v < 0.95 or v > 1.05001 (1.05001 avoids float equality issue).
+
+extrair_tensoes_all_buses() -> dict
+  Lines 171-182
+  Like extrair_tensoes_por_barra() but WITHOUT BARRAS_EXCLUIDAS_ANALISE filter.
+  Returns {bus: [phase_pu_values]} for ALL buses in the circuit.
+  Used to populate viols_all_por_hora for plot_violations_all_buses.
+
+6e. VISUALIZATION FUNCTIONS
+-----------------------------
+
+plot_nominal_power(pv_real)             -> fig_nominal_power.png          lines 189-251
+  Shows P_nom (solid bar) and Q_max = Q_MAX_PU * P_nom (hatched overlay)
+  per DER. Color: steelblue=PV, darkorange=BESS.
+
+plot_volt_var_curve()                   -> fig_volt_var_curve.png         lines 254-279
+  Normalized VoltVar curve Q/Q_max vs V.
+  Dead band and saturation points marked with vertical lines.
+
+plot_taps_por_hora(df_taps)             -> fig_taps_por_hora.png          lines 282-301
+  Line per regulator, tap position (pre-VoltVar) over 24h.
+
+plot_taps_comparacao(df_taps)           -> fig_taps_comparacao.png        lines 304-333
+  Subplots per regulator: pre-VoltVar (blue) vs post-VoltVar (orange).
+  Coincidence confirms that tap freeze during VoltVar worked correctly.
+
+plot_q_activation(df_der)              -> fig_q_activation.png           lines 336-368
+  Heatmap: DER × hour, values = q_kvar.
+  Blue = capacitive (Q > 0, inject). Red = inductive (Q < 0, absorb).
+
+_annotate_bar_buses(ax, bar, viol_dict) (helper, not called standalone)  lines 371-401
+  Annotates bus names inside (or above) a bar chart bar.
+  Color coding: yellow (#fdd835) = undervoltage, red (#e53935) = overvoltage,
+  orange = both.
+
+plot_violations(df_hora, n_viols_mc, viols_por_hora)
+                                        -> fig_violations_consumer_buses.png  lines 404-490
+  Double-bar chart per hour: Monte Carlo (blue) vs with VoltVar (orange).
+  Arrows: green = improvement, red = worsening.
+  Consumer buses only (MC counts filtered by BARRAS_EXCLUIDAS_ANALISE).
+  NOTE: annotation blocks (_annotate_bar_buses calls and numeric labels)
+  are currently wrapped in ''' ... ''' (triple-quote comment block) — USER CHOICE.
+  Do NOT remove these ''' blocks; user may re-enable them.
+
+plot_violations_all_buses(df_hora, viols_all_por_hora)
+                                        -> fig_violations_all_buses.png   lines 493-571
+  Same layout as plot_violations but uses ALL buses (no exclusion filter).
+  No MC comparison bar (MC CSV doesn't easily provide all-bus counts separately).
+  Annotation blocks also in ''' ... ''' — same USER CHOICE, preserve them.
+
+plot_voltvar_efeito(df_der)            -> fig_voltvar_efeito_tensao.png  lines 574-610
+  Scatter: V_pre vs V_pos for each (DER, hour) pair.
+  Points with |Q| > 1e-6 highlighted (VoltVar active).
+  Diagonal = no effect reference line.
+
+_plot_bus_voltage_profile(...)         (helper)                           lines 614-642
+plot_all_bus_vmin(bus_records)         -> fig_all_bus_vmin.png            lines 645-649
+plot_all_bus_vmax(bus_records)         -> fig_all_bus_vmax.png            lines 652-656
+  Line per bus over 24h showing min/max voltage.
+  Limit lines at 0.95 (red) and 1.05 (orange).
+
+6f. MAIN LOOP LOGIC (lines 663-901)
+-------------------------------------
+
+main():
+  1. redirecionar_circuito(BASE_DSS)
+  2. cargas_base = carregar_cargas_base()
+  3. pv_real, bess_real, fatores_irradiancia, fatores_carga =
+         preparar_cenario_load(PEN_PCT, ID_REALIZACAO)
+  4. multiplicadores_perfil_carga = obter_multiplicadores_shapes()
+  5. reg_names = dss.RegControls.AllNames()
+  6. plot_volt_var_curve(); plot_nominal_power(pv_real)
+
+  Initialize accumulators:
+    records_hora, records_der, records_bus, records_taps  (for CSV export)
+    viols_por_hora      = []   # list of (viols_pre_dict, viols_pos_dict) — filtered buses
+    viols_all_por_hora  = []   # idem — ALL buses
+
+  For each hora in 0..23:
+    a. Set cargas_base kW/kvar using LoadShape × uncertainty factor
+    b. Set PV kW = -P_nom × irradiance[hora], kvar = 0
+    c. Set BESS kW = -P_nom × BESS_PERFIL[hora], kvar = 0
+    d. ControlMode=STATIC → Solve()
+       (DSSException 485 = "Max Control Iterations" → skip hour)
+    e. taps_pre = capture_taps(reg_names)
+    f. tensoes_pre = extrair_tensoes_por_barra()
+    g. tensoes_pre_all = extrair_tensoes_all_buses()
+    h. n_viols_pre, viols_pre = count_voltage_violations(tensoes_pre)
+    i. q_refs_pv = _calcular_q_refs(kw_pv, tensoes_pre)
+       q_refs_bess = _calcular_q_refs(kw_bess, tensoes_pre)
+    j. voltvar_ativo = any(|q| > 1e-6)
+
+    if voltvar_ativo:
+      ControlMode=OFF (freeze taps)
+      for iter in 0..MAX_VOLTVAR_ITER:
+        q_aplicado_pv = dict(q_refs_pv)
+        q_aplicado_bess = dict(q_refs_bess)
+        editar_load(nome, kw, -q_refs[nome])  # note: negation for load convention
+        Solve()
+        tensoes_final = extrair_tensoes_por_barra()
+        recalculate q_refs
+        if all |q| < 1e-6: break (dead band)
+      ControlMode=STATIC
+
+    k. taps_pos = capture_taps(reg_names)
+    l. tensoes_final_all = extrair_tensoes_all_buses()
+    m. n_viols_pos, viols_pos = count_voltage_violations(tensoes_final)
+       _, viols_pre_all = count_voltage_violations(tensoes_pre_all)
+       _, viols_pos_all = count_voltage_violations(tensoes_final_all)
+
+    n. Append to records_hora, records_der, records_taps, records_bus
+    o. Append (viols_pre, viols_pos) to viols_por_hora
+    o. Append (viols_pre_all, viols_pos_all) to viols_all_por_hora
+
+  After loop:
+    Export CSVs (df_hora, df_der, df_taps)
+    plot_taps_por_hora, plot_taps_comparacao
+    plot_q_activation, plot_voltvar_efeito
+    n_viols_mc = carregar_violacoes_mc(PEN_PCT, ID_REALIZACAO)
+    plot_violations(df_hora, n_viols_mc, viols_por_hora)
+    plot_violations_all_buses(df_hora, viols_all_por_hora)
+    plot_all_bus_vmin, plot_all_bus_vmax
+
+6g. OUTPUTS
+-----------
+
+CSVs in 1.5_controle_primario/resultados/:
+  primario_integrado_pen{PPP:03d}_real{RRR:04d}_por_hora.csv
+    cols: hora, n_viols_pre, n_viols_pos, voltvar_ativo, iters_voltvar
+
+  primario_integrado_pen{PPP:03d}_real{RRR:04d}_por_der.csv
+    cols: hora, der, tipo, barra, v_pre, v_pos, q_kvar, p_inst_kw, q_pct_pinst
+
+  primario_integrado_pen{PPP:03d}_real{RRR:04d}_taps.csv
+    cols: hora, regulador, tap_pre_voltvar, tap_pos_voltvar
+
+Figures in 1.5_controle_primario/figuras_primario_integrado/:
+  fig_volt_var_curve.png
+  fig_nominal_power.png
+  fig_taps_por_hora.png
+  fig_taps_comparacao.png
+  fig_q_activation.png
+  fig_violations_consumer_buses.png    (consumer buses only, MC comparison)
+  fig_violations_all_buses.png         (all buses, no MC comparison)
+  fig_voltvar_efeito_tensao.png
+  fig_all_bus_vmin.png
+  fig_all_bus_vmax.png
+
+
+================================================================================
+7. CRITICAL DOMAIN KNOWLEDGE
+================================================================================
+
+[A] BARRAS_EXCLUIDAS_ANALISE are NOT absent from violations — they CAN have violations.
+    They are explicitly EXCLUDED from analysis because they are non-consumer buses.
+    Buses 812, 814, 852 in particular DO have voltage violations but are excluded.
+
+[B] Q_MAX_PU = 0.4358 = sin(arccos(0.90)).
+    Code comment in controle_primario.py incorrectly says tan(arccos(0.90)).
+    tan(arccos(0.90)) ≈ 0.4843. The actual constant 0.4358 is correct; comment is wrong.
+
+[C] Load element sign convention:
+    - editar_load(nome, kw, kvar): kW < 0 means INJECTION (generator behavior)
+    - kvar > 0 means ABSORPTION in Load convention
+    - volt_var_curve returns Q in GENERATOR convention (Q > 0 = capacitive)
+    - Therefore: editar_load(nome, kw, -q_refs[nome])  ← negation is MANDATORY
+
+[D] P is NOT curtailed by VoltVar. OpenDSS Load elements have no kVA limit.
+    When Q is added, P stays at P_inst. The apparent power increase is:
+    ΔS = √(P_inst² + Q²) - P_inst ≤ P_inst × (√(1 + Q_MAX_PU²) - 1) ≈ 9.1% × P_inst
+    This is bounded automatically. Do NOT implement curtailed-energy metrics.
+    (plot_curtailed_energy was removed from the script — do not re-add it.)
+
+[E] DSSException error code 485 = "Max Control Iterations exceeded".
+    Caught by try/except in both the main solve and the VoltVar loop.
+    Hours where this occurs are SKIPPED (continue in the for loop).
+
+[F] ControlMode=OFF during VoltVar iterations:
+    This freezes LTC (Load Tap Changer) and RegControl operations.
+    Primary control assumption: Q response is faster than mechanical tap changes.
+    After VoltVar loop: ControlMode=STATIC is restored.
+
+[G] extrair_tensoes_por_barra() (from simulacao_opendss.py) uses BARRAS_EXCLUIDAS_ANALISE.
+    extrair_tensoes_all_buses() (local function in 5_primario_integrado.py) does NOT filter.
+    Both return {bus_name_lower: [phase_pu_values]}.
+
+[H] BESS_PERFIL:
+    hours 10-14: -1.0 (charging/absorption)
+    hours 18-21: +1.0 (discharging/injection)
+    all others:   0.0 (idle)
+
+[I] DER naming convention in 5_primario_integrado.py:
+    PV:   f"PV_{ID_REALIZACAO}_{idx}_barra{linha['barra']}"
+    BESS: f"BESS_{ID_REALIZACAO}_{idx}_barra{linha['barra']}"
+    (idx = enumeration index over the pv_real / bess_real DataFrame)
+
+[J] The MC CSV (tensoes_opendss_completas.csv) contains ALL buses.
+    carregar_violacoes_mc() applies BARRAS_EXCLUIDAS_ANALISE filter to get
+    consumer-bus-only counts. This is why fig_violations_consumer_buses.png
+    shows lower MC counts than fig_violations_all_buses.png would.
+
+
+================================================================================
+8. KNOWN USER PREFERENCES / CONVENTIONS
+================================================================================
+
+[P1] Do NOT remove ''' ... ''' comment blocks in visualization functions.
+     User intentionally commented out: bus-name annotation calls,
+     numeric count labels on bars, and Patch legend items.
+     These are kept as commented code for possible future re-enabling.
+     Specifically: lines 426-444 and 480-484 in plot_violations,
+                   lines 511-525 and 561-565 in plot_violations_all_buses.
+
+[P2] Figure style follows the existing scripts in 1.5_controle_primario/:
+     - figsize typically (14, 6) for time-series, (8, 5) for curves
+     - dpi=150, bbox_inches="tight"
+     - Color palette: steelblue / darkorange / tomato / gray
+     - Grid: linestyle="--", alpha=0.4
+
+[P3] The script is a diagnostic tool, not a batch pipeline.
+     It is meant to be run interactively: cd 1.5_controle_primario && python 5_primario_integrado.py
+
+[P4] User expects the code to match exactly the logic of controle_primario.py,
+     not to simplify or abstract it. Comparability with MC pipeline is required.
+
+[P5] CSV separator: some MC CSVs use sep=";", decimal=",". Check before reading.
+     (tensoes_opendss_completas.csv: sep=";", decimal=",")
+     Output CSVs from 5_primario_integrado.py use default pandas (sep=",").
+
+
+================================================================================
+9. CURRENT STATE (as of 2026-06-20)
+================================================================================
+
+LAST COMMIT: 5a9b1bc "remove unused plot_curtailed_energy function and its associated figure"
+
+5_primario_integrado.py STATUS: COMPLETE AND FUNCTIONAL
+  - All 10 figures implemented and producing output
+  - 3 CSV outputs per run
+  - All requested features from the session are implemented
+  - No known bugs
+
+FIGURES THAT EXIST (last run was pen=90%, realization=1):
+  figuras_primario_integrado/ contains all 10 expected figures.
+
+RESULTADOS CSVs that exist for pen090_real0001:
+  primario_integrado_pen090_real0001_por_hora.csv
+  primario_integrado_pen090_real0001_por_der.csv
+  primario_integrado_pen090_real0001_taps.csv
+
+FEATURES COMPLETED THIS SESSION:
+  [x] Bus name annotations inside violation bars (_annotate_bar_buses)
+  [x] plot_violations_all_buses (all buses, no exclusion filter)
+  [x] MC counts in plot_violations filtered to consumer buses only
+  [x] Figure renamed fig_violations.png → fig_violations_consumer_buses.png
+  [x] plot_nominal_power (P_nom + Q_max per DER)
+  [x] plot_curtailed_energy REMOVED (model does not curtail P)
+
+
+================================================================================
+10. PENDING WORK / NEXT STEPS
+================================================================================
+
+As of the handoff date, NO tasks were explicitly left pending by the user.
+The session ended after confirming removal of plot_curtailed_energy.
+
+POSSIBLE NATURAL NEXT STEPS (not yet requested, inferred from context):
+
+[N1] Secondary control integration:
+     controle_secundario.py exists in 1.4_geracao_de_cenarios/ but is NOT yet
+     integrated into 5_primario_integrado.py. A logical next step would be a
+     6_secundario_integrado.py or extending 5_primario_integrado.py.
+
+[N2] Multi-realization sweep:
+     Currently PEN_PCT and ID_REALIZACAO are hardcoded constants.
+     User may want to run the diagnostic across multiple realizations or
+     penetration levels.
+
+[N3] fig_all_bus_vmin / fig_all_bus_vmax use only post-VoltVar state (tensoes_final).
+     A pre-VoltVar version could be added for comparison.
+
+[N4] plot_violations annotation blocks (currently in ''' '''):
+     The user commented them out to reduce clutter. May want to re-enable
+     for specific presentations. Code is intact, just needs ''' removed.
+
+[N5] The Q_MAX_PU comment in controle_primario.py is factually wrong
+     (says tan(arccos(0.90)) when it should say sin(arccos(0.90))).
+     User was informed but did not request a fix.
+
+================================================================================
+END OF HANDOFF DOCUMENT
+================================================================================
