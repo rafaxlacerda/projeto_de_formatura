@@ -16,6 +16,7 @@ import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 import pandas as pd
 from dss._cffi_api_util import DSSException
@@ -48,7 +49,7 @@ from simulacao_opendss import (  # noqa: E402
     obter_multiplicadores_shapes,
     redirecionar_circuito,
 )
-from simulacoes_config import BESS_PERFIL  # noqa: E402
+from simulacoes_config import BESS_PERFIL, BARRAS_EXCLUIDAS_ANALISE  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -129,6 +130,8 @@ def carregar_violacoes_mc(pen_pct: int, id_realizacao: int) -> list:
     csv_path = os.path.join(ANALISE_DIR, f"pen_{pen_pct:03d}pct", "tensoes_opendss_completas.csv")
     df = pd.read_csv(csv_path, sep=";", decimal=",")
     df = df[df["id_realizacao"] == id_realizacao].copy()
+    # Exclui barras de passagem/referência — mantém apenas barras consumidoras
+    df = df[~df["barra"].astype(str).str.lower().isin(BARRAS_EXCLUIDAS_ANALISE)]
 
     fase_cols = ["tensao_fase_1_pu", "tensao_fase_2_pu", "tensao_fase_3_pu"]
     violacoes = []
@@ -165,9 +168,88 @@ def count_voltage_violations(tensoes: dict) -> tuple:
     return len(violations), violations
 
 
+def extrair_tensoes_all_buses() -> dict:
+    """Como extrair_tensoes_por_barra(), mas inclui TODAS as barras sem filtrar
+    BARRAS_EXCLUIDAS_ANALISE (sourcebus, 800, 812, 814, 814r, 850, 852, 852r, 888)."""
+    dados = {}
+    for bus in dss.Circuit.AllBusNames():
+        dss.Circuit.SetActiveBus(bus)
+        pu_vals = dss.Bus.puVmagAngle()
+        mags    = pu_vals[0::2]
+        if not mags:
+            continue
+        dados[bus.lower()] = list(mags)
+    return dados
+
+
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE VISUALIZAÇÃO
 # ---------------------------------------------------------------------------
+
+def plot_nominal_power(pv_real: pd.DataFrame):
+    """Potência nominal de cada RED (PV e BESS) na realização simulada.
+
+    Mostra P_nom (kW) e a capacidade máxima de reativo Q_max = Q_MAX_PU × P_nom
+    que o RED pode fornecer pelo controle VoltVar (NBR 16149:2013).
+    """
+    rows = []
+    for _, linha in pv_real.iterrows():
+        classe = linha["classe"]
+        tipo   = "PV" if classe == "PVSystem" else "BESS"
+        barra  = int(linha["barra"])
+        p_nom  = float(linha["potencia_kw"])
+        q_max  = Q_MAX_PU * p_nom
+        rows.append({"label": f"{tipo}\n{barra}", "tipo": tipo,
+                     "barra": barra, "p_nom": p_nom, "q_max": q_max})
+
+    df = pd.DataFrame(rows).sort_values(["tipo", "barra"]).reset_index(drop=True)
+
+    x     = np.arange(len(df))
+    width = 0.55
+    cores = {"PV": "steelblue", "BESS": "darkorange"}
+    colors = [cores[t] for t in df["tipo"]]
+
+    fig, ax = plt.subplots(figsize=(max(10, len(df) * 0.9), 6))
+
+    bars_p = ax.bar(x, df["p_nom"], width, color=colors, edgecolor="white",
+                    label="_nolegend_")
+    # Q_max sobreposto com hachura
+    bars_q = ax.bar(x, df["q_max"], width, color=colors, edgecolor="white",
+                    alpha=0.35, hatch="//", label="_nolegend_")
+
+    # Anotação P_nom no topo de cada barra
+    for xi, p, q in zip(x, df["p_nom"], df["q_max"]):
+        ax.text(xi, p + ax.get_ylim()[1] * 0.01, f"{p:.0f}", ha="center",
+                va="bottom", fontsize=8, fontweight="bold")
+        ax.text(xi, q / 2, f"{q:.0f}", ha="center", va="center",
+                fontsize=8, color="white", fontweight="bold")
+
+    from matplotlib.patches import Patch
+    ax.legend(handles=[
+        Patch(facecolor="steelblue",  label="PV - P_nom"),
+        Patch(facecolor="darkorange", label="BESS - P_nom"),
+        Patch(facecolor="gray", alpha=0.4, hatch="//",
+              label=f"Q_max = {Q_MAX_PU:.4f} × P_nom  (FP ≥ 0,90)"),
+    ], fontsize=10)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(df["label"], fontsize=10)
+    ax.tick_params(axis="y", labelsize=12)
+    ax.set_xlabel("DER", fontsize=13)
+    ax.set_ylabel("Potência (kW / kVAr)", fontsize=13)
+    ax.set_title(
+        f"Potência nominal dos REDs — penetração={PEN_PCT}% / realização={ID_REALIZACAO}\n"
+        f"Barra cheia = P_nom (kW)  |  Hachura = Q_max (kVAr) disponível para VoltVar",
+        fontsize=12,
+    )
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.grid(True, linestyle="--", alpha=0.4, axis="y")
+
+    path = os.path.join(FIG_DIR, "fig_nominal_power.png")
+    fig.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[Plot] Potência nominal dos REDs salvo em: {path}")
+
 
 def plot_volt_var_curve():
     """Curva Volt-VAr normalizada (Q/Qmax × V) — ABNT NBR 16149:2013."""
@@ -263,34 +345,74 @@ def plot_q_activation(df_der: pd.DataFrame):
     im = ax.imshow(vals, cmap="RdBu", vmin=-q_abs, vmax=q_abs, aspect="auto")
 
     ax.set_xticks(range(len(hours)))
-    ax.set_xticklabels(hours, fontsize=8)
+    ax.set_xticklabels(hours, fontsize=12)
     ax.set_yticks(range(len(der_labels)))
-    ax.set_yticklabels(der_labels, fontsize=8)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("DER")
+    ax.set_yticklabels(der_labels, fontsize=12)
+    ax.set_xlabel("Hora do dia", fontsize=12)
+    ax.set_ylabel("RED", fontsize=12)
     ax.set_title(
         f"kVAr aplicado pelo controle Volt-VAr — pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
-        f"Azul = capacitivo (↑V, q>0)  |  Vermelho = indutivo (↓V, q<0)  |  Branco = zona morta"
+        f"Azul = capacitivo (↑V, q>0)  |  Vermelho = indutivo (↓V, q<0)  |  Branco = zona morta", 
+        fontsize=12
     )
     for i, der in enumerate(der_labels):
         for j, h in enumerate(hours):
             val = pivot.loc[der, h]
             if not np.isnan(val) and abs(val) > 1e-6:
-                ax.text(j, i, f"{val:+.1f}", ha="center", va="center", fontsize=6, color="black")
+                ax.text(j, i, f"{val:+.1f}", ha="center", va="center", fontsize=8, color="black")
 
-    fig.colorbar(im, ax=ax, label="kVAr  (+ capacitivo / − indutivo)")
+    fig.colorbar(im, ax=ax, label="kVAr  (+ capacitivo / − indutivo)", fontsize=12)
     path = os.path.join(FIG_DIR, "fig_q_activation.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"[Plot] Heatmap kVAr salvo em: {path}")
 
 
-def plot_violations(df_hora: pd.DataFrame, n_viols_mc: list = None):
+def _annotate_bar_buses(ax, bar, viol_dict: dict):
+    """Anota nomes de barras dentro (ou acima) de uma barra do gráfico.
+
+    Esquema de cores:
+      amarelo (#fdd835) — subtensão
+      vermelho (#e53935) — sobretensão
+      laranja            — sub e sobretensão simultâneas
+    """
+    if not viol_dict:
+        return
+    bar_h = bar.get_height()
+    bar_x = bar.get_x() + bar.get_width() / 2
+    items = sorted(viol_dict.items())
+    n     = len(items)
+    for i, (barra, info) in enumerate(items):
+        if info["under"] and info["over"]:
+            bg = "orange"
+        elif info["under"]:
+            bg = "#fdd835"
+        else:
+            bg = "#e53935"
+        if bar_h >= 1.0:
+            y_pos = bar_h * (i + 0.5) / n
+            va    = "center"
+        else:
+            y_pos = bar_h + 0.05 + i * 0.28
+            va    = "bottom"
+        ax.text(bar_x, y_pos, str(barra), ha="center", va=va,
+                fontsize=5, rotation=45, color="black",
+                bbox=dict(facecolor=bg, alpha=0.85, pad=1.2,
+                          edgecolor="none", boxstyle="round,pad=0.25"))
+
+
+def plot_violations(df_hora: pd.DataFrame, n_viols_mc: list = None,
+                    viols_por_hora: list = None):
     """Barras duplas: violações de tensão sem e com VoltVar por hora.
 
-    n_viols_mc: contagens do Monte Carlo sem controle primário (barra azul).
-                Se None, usa n_viols_pre da simulação atual como fallback.
+    n_viols_mc   : contagens do Monte Carlo sem controle primário (barra azul).
+                   Se None, usa n_viols_pre da simulação atual como fallback.
+    viols_por_hora: lista de (viols_pre_dict, viols_pos_dict) paralela a df_hora.
+                    Se fornecida, anota os nomes das barras em violação dentro de
+                    cada barra do gráfico.
     """
+    from matplotlib.patches import Patch
+
     horas = df_hora["hora"].tolist()
     n_pre = n_viols_mc if n_viols_mc is not None else df_hora["n_viols_pre"].tolist()
     n_pos = df_hora["n_viols_pos"].tolist()
@@ -301,6 +423,95 @@ def plot_violations(df_hora: pd.DataFrame, n_viols_mc: list = None):
     label_pre = "Monte Carlo (sem controle primário)" if n_viols_mc is not None else "Sem VoltVar"
     bars_pre = ax.bar(x - width / 2, n_pre, width, label=label_pre,    color="steelblue",  edgecolor="white")
     bars_pos = ax.bar(x + width / 2, n_pos, width, label="Com VoltVar", color="darkorange", edgecolor="white")
+    '''
+    # Nomes de barras dentro de cada coluna do gráfico
+    if viols_por_hora:
+        for bar_pre, bar_pos, (vpre, vpos) in zip(bars_pre, bars_pos, viols_por_hora):
+            _annotate_bar_buses(ax, bar_pre, vpre)
+            _annotate_bar_buses(ax, bar_pos, vpos)
+
+    # Contagem numérica no topo de cada coluna
+    for bar in bars_pre:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, h + 0.05, str(int(h)),
+                    ha="center", va="bottom", fontsize=8, color="steelblue", fontweight="bold")
+    for bar in bars_pos:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, h + 0.05, str(int(h)),
+                    ha="center", va="bottom", fontsize=8, color="darkorange", fontweight="bold")
+    '''
+    # Setas indicando variação: verde (melhora), vermelha (piora)
+    arrow_props = dict(arrowstyle="-|>", lw=2.5, mutation_scale=14)
+    for xi, pre, pos in zip(x, n_pre, n_pos):
+        if pos == pre:
+            continue
+        if pos < pre:
+            ax.annotate(
+                "", xy=(xi + width / 2, pos), xytext=(xi + width / 2, pre),
+                arrowprops={**arrow_props, "color": "green"},
+            )
+        else:
+            ax.annotate(
+                "", xy=(xi - width / 2, pos), xytext=(xi - width / 2, pre),
+                arrowprops={**arrow_props, "color": "red"},
+            )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(horas, fontsize=13)
+    ax.tick_params(axis="y", labelsize=13)
+    ax.set_xlabel("Hora do dia", fontsize=14)
+    ax.set_ylabel("Barras com violação de tensão", fontsize=14)
+    ax.set_title(
+        f"Violações de tensão nas barras consumidoras (sem e com controle VoltVar)\n"
+        f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  Limites: V < 0.95 p.u. ou V > 1.05 p.u.",
+        fontsize=14
+    )
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.grid(True, linestyle="--", alpha=0.4, axis="y")
+    y_top = max(max(n_pre, default=0), max(n_pos, default=0)) + 2
+    ax.set_ylim(0, max(y_top, 2))
+
+    legend_handles = [
+        plt.Rectangle((0, 0), 1, 1, color="steelblue",  label=label_pre),
+        plt.Rectangle((0, 0), 1, 1, color="darkorange", label="Com VoltVar"),
+    ]
+    '''
+        Patch(facecolor="#fdd835", label="Subtensão  (V < 0.95 p.u.)"),
+        Patch(facecolor="#e53935", label="Sobretensão (V > 1.05 p.u.)"),
+        Patch(facecolor="orange",  label="Sub e sobretensão"),
+    ]'''
+    ax.legend(handles=legend_handles, fontsize=10, loc="upper right", framealpha=0.9)
+
+    path = os.path.join(FIG_DIR, "fig_violations_consumer_buses.png")
+    fig.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[Plot] Violações (barras consumidoras) salvo em: {path}")
+
+
+def plot_violations_all_buses(df_hora: pd.DataFrame, viols_all_por_hora: list):
+    """Igual a plot_violations, mas considera TODAS as barras da rede,
+    incluindo sourcebus, 800, 812, 814, 814r, 850, 852, 852r e 888.
+
+    Mostra apenas simulação pré vs pós VoltVar (sem comparação com Monte Carlo,
+    pois o CSV de MC não discrimina barras excluídas).
+    """
+    from matplotlib.patches import Patch
+
+    horas = df_hora["hora"].tolist()
+    n_pre = [len(vpre) for vpre, _     in viols_all_por_hora]
+    n_pos = [len(vpos) for _,    vpos  in viols_all_por_hora]
+    x     = np.arange(len(horas))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(14, 6))
+    bars_pre = ax.bar(x - width / 2, n_pre, width, label="Sem VoltVar",  color="steelblue",  edgecolor="white")
+    bars_pos = ax.bar(x + width / 2, n_pos, width, label="Com VoltVar",  color="darkorange", edgecolor="white")
+    '''
+    for bar_pre, bar_pos, (vpre, vpos) in zip(bars_pre, bars_pos, viols_all_por_hora):
+        _annotate_bar_buses(ax, bar_pre, vpre)
+        _annotate_bar_buses(ax, bar_pos, vpos)
 
     for bar in bars_pre:
         h = bar.get_height()
@@ -312,42 +523,52 @@ def plot_violations(df_hora: pd.DataFrame, n_viols_mc: list = None):
         if h > 0:
             ax.text(bar.get_x() + bar.get_width() / 2, h + 0.05, str(int(h)),
                     ha="center", va="bottom", fontsize=8, color="darkorange", fontweight="bold")
-
-    # Setas indicando variação: verde na barra laranja (pré→pós, ↓), vermelha na barra azul (pré→pós, ↑)
+    '''
     arrow_props = dict(arrowstyle="-|>", lw=2.5, mutation_scale=14)
     for xi, pre, pos in zip(x, n_pre, n_pos):
         if pos == pre:
             continue
         if pos < pre:
-            # Seta verde em cima da barra laranja: começa na altura do azul, aponta para baixo até o laranja
             ax.annotate(
                 "", xy=(xi + width / 2, pos), xytext=(xi + width / 2, pre),
                 arrowprops={**arrow_props, "color": "green"},
             )
         else:
-            # Seta vermelha em cima da barra azul: começa na altura do azul, aponta para cima até o laranja
             ax.annotate(
                 "", xy=(xi - width / 2, pos), xytext=(xi - width / 2, pre),
                 arrowprops={**arrow_props, "color": "red"},
             )
 
     ax.set_xticks(x)
-    ax.set_xticklabels(horas)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("Barras com violação de tensão")
+    ax.set_xticklabels(horas, fontsize=13)
+    ax.tick_params(axis="y", labelsize=13)
+    ax.set_xlabel("Hora do dia", fontsize=14)
+    ax.set_ylabel("Barras com violação de tensão", fontsize=14)
     ax.set_title(
-        f"Violações de tensão sem e com controle VoltVar\n"
-        f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  Limites: V < 0.95 p.u. ou V > 1.05 p.u."
+        f"Violações de tensão em TODAS as barras (sem e com VoltVar)\n"
+        f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  Limites: V < 0.95 p.u. ou V > 1.05 p.u.",
+        fontsize=14
     )
-    ax.legend()
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(True, linestyle="--", alpha=0.4, axis="y")
     y_top = max(max(n_pre, default=0), max(n_pos, default=0)) + 2
     ax.set_ylim(0, max(y_top, 2))
 
-    path = os.path.join(FIG_DIR, "fig_violations.png")
+    legend_handles = [
+        plt.Rectangle((0, 0), 1, 1, color="steelblue",  label="Sem VoltVar"),
+        plt.Rectangle((0, 0), 1, 1, color="darkorange", label="Com VoltVar"),
+    ]
+    '''
+        Patch(facecolor="#fdd835", label="Subtensão  (V < 0.95 p.u.)"),
+        Patch(facecolor="#e53935", label="Sobretensão (V > 1.05 p.u.)"),
+        Patch(facecolor="orange",  label="Sub e sobretensão"),
+    ]'''
+    ax.legend(handles=legend_handles, fontsize=10, loc="upper right", framealpha=0.9)
+
+    path = os.path.join(FIG_DIR, "fig_violations_all_buses.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    print(f"[Plot] Violações sem/com VoltVar salvo em: {path}")
+    print(f"[Plot] Violações (todas as barras) salvo em: {path}")
 
 
 def plot_voltvar_efeito(df_der: pd.DataFrame):
@@ -387,6 +608,84 @@ def plot_voltvar_efeito(df_der: pd.DataFrame):
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"[Plot] Efeito VoltVar nas tensões salvo em: {path}")
+
+
+def plot_curtailed_energy(df_der: pd.DataFrame):
+    """
+    Quantifica a potência ativa (kW) que deixou de ser injetada em cada hora
+    porque o inversor reservou parte da sua capacidade (kVA) para fornecimento
+    de reativo pelo controle VoltVar.
+
+    Modelo adotado — kVA constante com FP = 1,0 nominal:
+        S_max = P_inst   (toda a capacidade disponível seria usada para P sem VoltVar)
+        P_nova = sqrt(S_max² − Q²) = sqrt(P_inst² − Q²)
+        ΔP    = P_inst − P_nova   (potência ativa bloqueada)
+
+    Por integração horária (Δt = 1 h):
+        ΔE [kWh] = ΔP [kW]  (cada barra do gráfico é também a energia bloqueada naquela hora)
+    """
+    df = df_der.copy()
+    df["p_inst_kw"] = df["p_inst_kw"].abs()
+    df["q_abs"]     = df["q_kvar"].abs()
+
+    # ΔP = P_inst − sqrt(max(P_inst² − Q², 0))
+    p2 = df["p_inst_kw"] ** 2
+    q2 = df["q_abs"] ** 2
+    df["delta_p_kw"] = np.where(
+        df["q_abs"] > 1e-6,
+        df["p_inst_kw"] - np.sqrt(np.maximum(p2 - q2, 0.0)),
+        0.0,
+    )
+
+    # Agrupa por hora e tipo de DER
+    grouped = (
+        df.groupby(["hora", "tipo"])["delta_p_kw"]
+        .sum()
+        .unstack(fill_value=0.0)
+        .reindex(range(TOTAL_HOURS), fill_value=0.0)
+    )
+    pv_delta   = grouped["PV"].tolist()   if "PV"   in grouped.columns else [0.0] * TOTAL_HOURS
+    bess_delta = grouped["BESS"].tolist() if "BESS" in grouped.columns else [0.0] * TOTAL_HOURS
+    total      = [pv + bess for pv, bess in zip(pv_delta, bess_delta)]
+
+    x = np.arange(TOTAL_HOURS)
+    fig, ax = plt.subplots(figsize=(14, 6))
+    ax.bar(x, pv_delta,   label="PV",   color="steelblue",  edgecolor="white")
+    ax.bar(x, bess_delta, label="BESS", color="darkorange", edgecolor="white",
+           bottom=pv_delta)
+
+    # Valor total no topo de cada barra
+    for xi, tot in zip(x, total):
+        if tot > 0.05:
+            ax.text(xi, tot + 0.03, f"{tot:.1f}", ha="center", va="bottom",
+                    fontsize=7.5, fontweight="bold")
+
+    # Caixa com total acumulado no dia
+    total_kwh = sum(total)
+    ax.text(0.99, 0.97, f"Total no dia: {total_kwh:.1f} kWh",
+            transform=ax.transAxes, ha="right", va="top", fontsize=11,
+            bbox=dict(facecolor="white", edgecolor="gray", alpha=0.85,
+                      boxstyle="round,pad=0.4"))
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(list(range(TOTAL_HOURS)), fontsize=13)
+    ax.tick_params(axis="y", labelsize=13)
+    ax.set_xlabel("Hora do dia", fontsize=14)
+    ax.set_ylabel("Energia ativa bloqueada (kWh)", fontsize=14)
+    ax.set_title(
+        f"Energia ativa não injetada devido ao controle VoltVar\n"
+        f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  "
+        r"$\Delta P = P_{inst} - \sqrt{P_{inst}^2 - Q^2}$",
+        fontsize=13,
+    )
+    ax.yaxis.set_major_locator(MaxNLocator(integer=False))
+    ax.legend(fontsize=12)
+    ax.grid(True, linestyle="--", alpha=0.4, axis="y")
+
+    path = os.path.join(FIG_DIR, "fig_curtailed_energy.png")
+    fig.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[Plot] Energia bloqueada pelo VoltVar salvo em: {path}")
 
 
 def _plot_bus_voltage_profile(df_v: pd.DataFrame, col: str, limit: float,
@@ -455,11 +754,14 @@ def main():
     print(f"[RegControls] {len(reg_names)} regulador(es): {reg_names}")
 
     plot_volt_var_curve()
+    plot_nominal_power(pv_real)
 
-    records_hora = []
-    records_der  = []
-    records_bus  = []
-    records_taps = []
+    records_hora    = []
+    records_der     = []
+    records_bus     = []
+    records_taps    = []
+    viols_por_hora     = []   # [(viols_pre_dict, viols_pos_dict)] por hora — barras filtradas
+    viols_all_por_hora = []   # idem, mas com TODAS as barras (sem BARRAS_EXCLUIDAS_ANALISE)
 
     # --- Loop 24h ---
     for hora in range(TOTAL_HOURS):
@@ -504,9 +806,10 @@ def main():
                 continue
             raise
 
-        taps_pre    = capture_taps(reg_names)
-        tensoes_pre = extrair_tensoes_por_barra()
-        n_viols_pre, _ = count_voltage_violations(tensoes_pre)
+        taps_pre        = capture_taps(reg_names)
+        tensoes_pre     = extrair_tensoes_por_barra()
+        tensoes_pre_all = extrair_tensoes_all_buses()
+        n_viols_pre, viols_pre = count_voltage_violations(tensoes_pre)
 
         for reg, info in taps_pre.items():
             print(f"  [Tap pré ] {reg}: tap={info['tap']:.6f}")
@@ -562,11 +865,14 @@ def main():
 
             dss.Text.Command("Set ControlMode=STATIC")
 
-        taps_pos = capture_taps(reg_names)
+        taps_pos         = capture_taps(reg_names)
+        tensoes_final_all = extrair_tensoes_all_buses()
         for reg, info in taps_pos.items():
             print(f"  [Tap pós ] {reg}: tap={info['tap']:.6f}")
 
         n_viols_pos, viols_pos = count_voltage_violations(tensoes_final)
+        _, viols_pre_all       = count_voltage_violations(tensoes_pre_all)
+        _, viols_pos_all       = count_voltage_violations(tensoes_final_all)
 
         # --- Registros por hora ---
         records_hora.append({
@@ -576,6 +882,8 @@ def main():
             "voltvar_ativo": voltvar_ativo,
             "iters_voltvar": iters_voltvar,
         })
+        viols_por_hora.append((viols_pre, viols_pos))
+        viols_all_por_hora.append((viols_pre_all, viols_pos_all))
 
         # --- Registros por DER ---
         for nome, (kw, barra) in {**kw_pv, **kw_bess}.items():
@@ -660,9 +968,11 @@ def main():
     if not df_der.empty:
         plot_q_activation(df_der)
         plot_voltvar_efeito(df_der)
+        plot_curtailed_energy(df_der)
     if not df_hora.empty:
         n_viols_mc = carregar_violacoes_mc(PEN_PCT, ID_REALIZACAO)
-        plot_violations(df_hora, n_viols_mc)
+        plot_violations(df_hora, n_viols_mc, viols_por_hora)
+        plot_violations_all_buses(df_hora, viols_all_por_hora)
     if records_bus:
         plot_all_bus_vmin(records_bus)
         plot_all_bus_vmax(records_bus)
