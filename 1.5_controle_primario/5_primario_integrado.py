@@ -22,6 +22,12 @@ import pandas as pd
 from dss._cffi_api_util import DSSException
 from opendssdirect import dss
 
+# Constantes de estilo — iguais a 1.4_geracao_de_cenarios/graficos_opendss.py
+FONTSIZE_TITULO  = 16
+FONTSIZE_EIXO    = 13
+FONTSIZE_TICK    = 11
+FONTSIZE_LEGENDA = 11
+
 # ---------------------------------------------------------------------------
 # Imports da pipeline Monte Carlo (evita duplicação de código)
 # ---------------------------------------------------------------------------
@@ -230,17 +236,17 @@ def plot_nominal_power(pv_real: pd.DataFrame):
         Patch(facecolor="darkorange", label="BESS - P_nom"),
         Patch(facecolor="gray", alpha=0.4, hatch="//",
               label=f"Q_max = {Q_MAX_PU:.4f} × P_nom  (FP ≥ 0,90)"),
-    ], fontsize=10)
+    ], fontsize=FONTSIZE_LEGENDA)
 
     ax.set_xticks(x)
-    ax.set_xticklabels(df["label"], fontsize=10)
-    ax.tick_params(axis="y", labelsize=12)
-    ax.set_xlabel("DER", fontsize=13)
-    ax.set_ylabel("Potência (kW / kVAr)", fontsize=13)
+    ax.set_xticklabels(df["label"], fontsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("DER", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Potência (kW / kVAr)", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Potência nominal dos REDs — penetração={PEN_PCT}% / realização={ID_REALIZACAO}\n"
         f"Barra cheia = P_nom (kW)  |  Hachura = Q_max (kVAr) disponível para VoltVar",
-        fontsize=12,
+        fontsize=FONTSIZE_TITULO,
     )
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(True, linestyle="--", alpha=0.4, axis="y")
@@ -266,11 +272,12 @@ def plot_volt_var_curve():
 
     ax.fill_betweenx([-1.1, 1.1], V_DEADBAND_LOW, V_DEADBAND_HIGH,
                      alpha=0.1, color="gray", label="Zona morta")
-    ax.set_xlabel("Tensão na barra (p.u.)")
-    ax.set_ylabel("Q / Q$_{max}$ (p.u. de P$_{inst}$)")
-    ax.set_title("Curva Volt-VAr — ABNT NBR 16149:2013")
+    ax.set_xlabel("Tensão na barra (p.u.)", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Q / Q$_{max}$ (p.u. de P$_{inst}$)", fontsize=FONTSIZE_EIXO)
+    ax.set_title("Curva Volt-VAr — ABNT NBR 16149:2013", fontsize=FONTSIZE_TITULO)
+    ax.tick_params(axis="both", labelsize=FONTSIZE_TICK)
     ax.set_ylim(-1.2, 1.2)
-    ax.legend()
+    ax.legend(fontsize=FONTSIZE_LEGENDA)
     ax.grid(True, linestyle="--", alpha=0.4)
 
     path = os.path.join(FIG_DIR, "fig_volt_var_curve.png")
@@ -288,11 +295,14 @@ def plot_taps_por_hora(df_taps: pd.DataFrame):
         ax.plot(sub["hora"], sub["tap_pre_voltvar"], marker="o", markersize=4,
                 linewidth=1.5, label=reg)
     ax.set_xticks(range(TOTAL_HOURS))
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("Posição de tap (p.u.)")
+    ax.tick_params(axis="x", labelsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Posição de tap (p.u.)", fontsize=FONTSIZE_EIXO)
     ax.set_title(f"Posições de tap dos reguladores — pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
-                 f"Estado pré-VoltVar (após primeiro solve com reguladores livres)")
-    ax.legend(fontsize=8)
+                 f"Estado pré-VoltVar (após primeiro solve com reguladores livres)",
+                 fontsize=FONTSIZE_TITULO)
+    ax.legend(fontsize=FONTSIZE_LEGENDA)
     ax.grid(True, linestyle="--", alpha=0.4)
 
     path = os.path.join(FIG_DIR, "fig_taps_por_hora.png")
@@ -315,16 +325,18 @@ def plot_taps_comparacao(df_taps: pd.DataFrame):
                 marker="o", markersize=5, linewidth=1.5, label="Pré-VoltVar")
         ax.plot(sub["hora"], sub["tap_pos_voltvar"], color="darkorange",
                 marker="x", markersize=6, linewidth=1.5, linestyle="--", label="Pós-VoltVar")
-        ax.set_ylabel("Tap (p.u.)")
-        ax.set_title(f"Regulador: {reg}")
-        ax.legend(fontsize=8)
+        ax.set_ylabel("Tap (p.u.)", fontsize=FONTSIZE_EIXO)
+        ax.set_title(f"Regulador: {reg}", fontsize=FONTSIZE_EIXO)
+        ax.tick_params(axis="both", labelsize=FONTSIZE_TICK)
+        ax.legend(fontsize=FONTSIZE_LEGENDA)
         ax.grid(True, linestyle="--", alpha=0.4)
 
-    axes[-1].set_xlabel("Hora do dia")
+    axes[-1].set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
     axes[0].set_title(
         f"Tap pré vs pós VoltVar — pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
         f"Coincidência confirma freeze dos taps durante controle primário (ControlMode=OFF)\n"
-        + axes[0].get_title()
+        + axes[0].get_title(),
+        fontsize=FONTSIZE_TITULO,
     )
     fig.tight_layout()
     path = os.path.join(FIG_DIR, "fig_taps_comparacao.png")
@@ -345,15 +357,15 @@ def plot_q_activation(df_der: pd.DataFrame):
     im = ax.imshow(vals, cmap="RdBu", vmin=-q_abs, vmax=q_abs, aspect="auto")
 
     ax.set_xticks(range(len(hours)))
-    ax.set_xticklabels(hours, fontsize=12)
+    ax.set_xticklabels(hours, fontsize=FONTSIZE_TICK)
     ax.set_yticks(range(len(der_labels)))
-    ax.set_yticklabels(der_labels, fontsize=12)
-    ax.set_xlabel("Hora do dia", fontsize=12)
-    ax.set_ylabel("RED", fontsize=12)
+    ax.set_yticklabels(der_labels, fontsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("RED", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"kVAr aplicado pelo controle Volt-VAr — pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
-        f"Azul = capacitivo (↑V, q>0)  |  Vermelho = indutivo (↓V, q<0)  |  Branco = zona morta", 
-        fontsize=12
+        f"Azul = capacitivo (↑V, q>0)  |  Vermelho = indutivo (↓V, q<0)  |  Branco = zona morta",
+        fontsize=FONTSIZE_TITULO,
     )
     for i, der in enumerate(der_labels):
         for j, h in enumerate(hours):
@@ -361,7 +373,7 @@ def plot_q_activation(df_der: pd.DataFrame):
             if not np.isnan(val) and abs(val) > 1e-6:
                 ax.text(j, i, f"{val:+.1f}", ha="center", va="center", fontsize=8, color="black")
 
-    fig.colorbar(im, ax=ax, label="kVAr  (+ capacitivo / − indutivo)", fontsize=12)
+    fig.colorbar(im, ax=ax, label="kVAr  (+ capacitivo / − indutivo)")
     path = os.path.join(FIG_DIR, "fig_q_activation.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -459,14 +471,14 @@ def plot_violations(df_hora: pd.DataFrame, n_viols_mc: list = None,
             )
 
     ax.set_xticks(x)
-    ax.set_xticklabels(horas, fontsize=13)
-    ax.tick_params(axis="y", labelsize=13)
-    ax.set_xlabel("Hora do dia", fontsize=14)
-    ax.set_ylabel("Barras com violação de tensão", fontsize=14)
+    ax.set_xticklabels(horas, fontsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Barras com violação de tensão", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Violações de tensão nas barras consumidoras (sem e com controle VoltVar)\n"
         f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  Limites: V < 0.95 p.u. ou V > 1.05 p.u.",
-        fontsize=14
+        fontsize=FONTSIZE_TITULO,
     )
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(True, linestyle="--", alpha=0.4, axis="y")
@@ -482,7 +494,7 @@ def plot_violations(df_hora: pd.DataFrame, n_viols_mc: list = None,
         Patch(facecolor="#e53935", label="Sobretensão (V > 1.05 p.u.)"),
         Patch(facecolor="orange",  label="Sub e sobretensão"),
     ]'''
-    ax.legend(handles=legend_handles, fontsize=10, loc="upper right", framealpha=0.9)
+    ax.legend(handles=legend_handles, fontsize=FONTSIZE_LEGENDA, loc="upper right", framealpha=0.9)
 
     path = os.path.join(FIG_DIR, "fig_violations_consumer_buses.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
@@ -540,14 +552,14 @@ def plot_violations_all_buses(df_hora: pd.DataFrame, viols_all_por_hora: list):
             )
 
     ax.set_xticks(x)
-    ax.set_xticklabels(horas, fontsize=13)
-    ax.tick_params(axis="y", labelsize=13)
-    ax.set_xlabel("Hora do dia", fontsize=14)
-    ax.set_ylabel("Barras com violação de tensão", fontsize=14)
+    ax.set_xticklabels(horas, fontsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Barras com violação de tensão", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Violações de tensão em TODAS as barras (sem e com VoltVar)\n"
         f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  Limites: V < 0.95 p.u. ou V > 1.05 p.u.",
-        fontsize=14
+        fontsize=FONTSIZE_TITULO,
     )
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(True, linestyle="--", alpha=0.4, axis="y")
@@ -563,7 +575,7 @@ def plot_violations_all_buses(df_hora: pd.DataFrame, viols_all_por_hora: list):
         Patch(facecolor="#e53935", label="Sobretensão (V > 1.05 p.u.)"),
         Patch(facecolor="orange",  label="Sub e sobretensão"),
     ]'''
-    ax.legend(handles=legend_handles, fontsize=10, loc="upper right", framealpha=0.9)
+    ax.legend(handles=legend_handles, fontsize=FONTSIZE_LEGENDA, loc="upper right", framealpha=0.9)
 
     path = os.path.join(FIG_DIR, "fig_violations_all_buses.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
@@ -595,13 +607,15 @@ def plot_voltvar_efeito(df_der: pd.DataFrame):
         ax.axhline(v, color=c, linewidth=0.8, linestyle=":", alpha=0.7)
     ax.set_xlim(vmin, vmax)
     ax.set_ylim(vmin, vmax)
-    ax.set_xlabel("Tensão pré-VoltVar (p.u.)")
-    ax.set_ylabel("Tensão pós-VoltVar (p.u.)")
+    ax.set_xlabel("Tensão pré-VoltVar (p.u.)", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Tensão pós-VoltVar (p.u.)", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Efeito do VoltVar nas tensões dos DERs\n"
-        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  cada ponto = (DER, hora)"
+        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  cada ponto = (DER, hora)",
+        fontsize=FONTSIZE_TITULO,
     )
-    ax.legend(fontsize=8)
+    ax.tick_params(axis="both", labelsize=FONTSIZE_TICK)
+    ax.legend(fontsize=FONTSIZE_LEGENDA)
     ax.grid(True, linestyle="--", alpha=0.4)
 
     path = os.path.join(FIG_DIR, "fig_voltvar_efeito_tensao.png")
@@ -668,18 +682,18 @@ def plot_curtailed_energy(df_der: pd.DataFrame):
                       boxstyle="round,pad=0.4"))
 
     ax.set_xticks(x)
-    ax.set_xticklabels(list(range(TOTAL_HOURS)), fontsize=13)
-    ax.tick_params(axis="y", labelsize=13)
-    ax.set_xlabel("Hora do dia", fontsize=14)
-    ax.set_ylabel("Energia ativa bloqueada (kWh)", fontsize=14)
+    ax.set_xticklabels(list(range(TOTAL_HOURS)), fontsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Energia ativa bloqueada (kWh)", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Energia ativa não injetada devido ao controle VoltVar\n"
         f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  "
         r"$\Delta P = P_{inst} - \sqrt{P_{inst}^2 - Q^2}$",
-        fontsize=13,
+        fontsize=FONTSIZE_TITULO,
     )
     ax.yaxis.set_major_locator(MaxNLocator(integer=False))
-    ax.legend(fontsize=12)
+    ax.legend(fontsize=FONTSIZE_LEGENDA)
     ax.grid(True, linestyle="--", alpha=0.4, axis="y")
 
     path = os.path.join(FIG_DIR, "fig_curtailed_energy.png")
@@ -704,11 +718,14 @@ def _plot_bus_voltage_profile(df_v: pd.DataFrame, col: str, limit: float,
                label=f"{limit_label} = {limit} p.u.")
     ax.axhline(1.00, color="gray", linewidth=0.8, linestyle=":", alpha=0.7)
     ax.set_xticks(hours)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("Tensão (p.u.)")
+    ax.tick_params(axis="x", labelsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Tensão (p.u.)", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Tensão {title_suffix} nas barras da rede\n"
-        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  Controle Primário VoltVar ativo"
+        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  Controle Primário VoltVar ativo",
+        fontsize=FONTSIZE_TITULO,
     )
     ax.grid(True, linestyle="--", alpha=0.35)
     ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1), fontsize=6,

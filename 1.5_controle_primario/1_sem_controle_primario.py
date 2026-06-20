@@ -15,6 +15,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+# Constantes de estilo — iguais a 1.4_geracao_de_cenarios/graficos_opendss.py
+FONTSIZE_TITULO  = 16
+FONTSIZE_EIXO    = 13
+FONTSIZE_TICK    = 11
+FONTSIZE_LEGENDA = 11
+
 
 # ---------------------------------------------------------------------------
 # CONFIGURAÇÕES
@@ -143,11 +149,14 @@ def _plot_bus_voltage_profile(df_v: pd.DataFrame, col: str, limit: float,
     ax.axhline(1.00,  color="gray", linewidth=0.8, linestyle=":", alpha=0.7)
 
     ax.set_xticks(hours)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("Tensão (p.u.)")
+    ax.tick_params(axis="x", labelsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Tensão (p.u.)", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Tensão {title_suffix} nas barras da rede\n"
-        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  Controle Volt-VAr ativo"
+        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  Sem controle primário",
+        fontsize=FONTSIZE_TITULO,
     )
     ax.grid(True, linestyle="--", alpha=0.35)
     ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1), fontsize=6,
@@ -268,12 +277,15 @@ def plot_violations_no_control(hr: pd.DataFrame):
     bars = ax.bar(hours, counts, color="tomato", edgecolor="white", linewidth=1.0)
     ax.axhline(0, color="gray", linewidth=0.8, linestyle="--")
     ax.set_xticks(hours)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("Barras com violação de tensão")
+    ax.tick_params(axis="x", labelsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Barras com violação de tensão", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Violações de tensão SEM controle primário\n"
         f"pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
-        f"Limites: V < 0.95 p.u. ou V > 1.05 p.u."
+        f"Limites: V < 0.95 p.u. ou V > 1.05 p.u.",
+        fontsize=FONTSIZE_TITULO,
     )
 
     for bar, (_, row) in zip(bars, hr.iterrows()):
@@ -311,7 +323,7 @@ def plot_violations_no_control(hr: pd.DataFrame):
             Patch(facecolor="#e53935", label="Sobretensão (V_max > 1.05 p.u.)"),
             Patch(facecolor="orange",  label="Sub e sobretensão"),
         ],
-        loc="upper right", fontsize=8, framealpha=0.9,
+        loc="upper right", fontsize=FONTSIZE_LEGENDA, framealpha=0.9,
     )
 
     if counts:

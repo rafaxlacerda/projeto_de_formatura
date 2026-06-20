@@ -21,6 +21,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+# Constantes de estilo — iguais a 1.4_geracao_de_cenarios/graficos_opendss.py
+FONTSIZE_TITULO  = 16
+FONTSIZE_EIXO    = 13
+FONTSIZE_TICK    = 11
+FONTSIZE_LEGENDA = 11
+
 
 # ---------------------------------------------------------------------------
 # CONFIGURAÇÕES
@@ -306,15 +312,16 @@ def plot_voltvar_curve():
     }
     for v in [bp for bp, _ in breakpoints.values()]:
         ax.axvline(v, color="tomato", linewidth=1, linestyle=":", alpha=0.8)
-        ax.text(v, 0.05, f"{v:.2f}", ha="center", va="bottom", fontsize=8, color="tomato")
+        ax.text(v, 0.05, f"{v:.2f}", ha="center", va="bottom", fontsize=FONTSIZE_TICK, color="tomato")
 
     ax.fill_betweenx([-1.1, 1.1], V_DEADBAND_LOW, V_DEADBAND_HIGH,
                      alpha=0.1, color="gray", label="Zona morta")
-    ax.set_xlabel("Tensão na barra (p.u.)")
-    ax.set_ylabel("Q / Q$_{max}$ (p.u. de P$_{nom}$)")
-    ax.set_title("Curva Volt-VAr — ABNT NBR 16149:2013")
+    ax.set_xlabel("Tensão na barra (p.u.)", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Q / Q$_{max}$ (p.u. de P$_{nom}$)", fontsize=FONTSIZE_EIXO)
+    ax.set_title("Curva Volt-VAr — ABNT NBR 16149:2013", fontsize=FONTSIZE_TITULO)
+    ax.tick_params(axis="both", labelsize=FONTSIZE_TICK)
     ax.set_ylim(-1.2, 1.2)
-    ax.legend()
+    ax.legend(fontsize=FONTSIZE_LEGENDA)
     ax.grid(True, linestyle="--", alpha=0.4)
 
     path = os.path.join(FIG_DIR, "fig_voltvar_curve.png")
@@ -597,13 +604,14 @@ def plot_q_activation(df: pd.DataFrame):
     im = ax.imshow(pivot.values, cmap="RdBu", vmin=-1, vmax=1, aspect="auto")
 
     ax.set_xticks(range(len(hours)))
-    ax.set_xticklabels(hours, fontsize=8)
+    ax.set_xticklabels(hours, fontsize=FONTSIZE_TICK)
     ax.set_yticks(range(len(bess_labels)))
-    ax.set_yticklabels(bess_labels, fontsize=8)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("BESS")
+    ax.set_yticklabels(bess_labels, fontsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("BESS", fontsize=FONTSIZE_EIXO)
     ax.set_title(f"Ativação do controle Volt-VAr — pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
-                 f"Azul = capacitivo (↑V)   |   Vermelho = indutivo (↓V)   |   Branco = zona morta")
+                 f"Azul = capacitivo (↑V)   |   Vermelho = indutivo (↓V)   |   Branco = zona morta",
+                 fontsize=FONTSIZE_TITULO)
 
     # Anotações com valor de Q/Qmax
     for i, bess in enumerate(bess_labels):
@@ -611,7 +619,7 @@ def plot_q_activation(df: pd.DataFrame):
             val = pivot.loc[bess, h]
             if not np.isnan(val) and val != 0.0:
                 ax.text(j, i, f"{val:+.2f}", ha="center", va="center",
-                        fontsize=6, color="black")
+                        fontsize=8, color="black")
 
     fig.colorbar(im, ax=ax, label="Q / Q$_{max}$")
     path = os.path.join(FIG_DIR, "fig_q_activation.png")
@@ -636,12 +644,15 @@ def plot_violations(hr: pd.DataFrame):
     # Linhas de referência
     ax.axhline(0, color="gray", linewidth=0.8, linestyle="--")
     ax.set_xticks(hours)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("Barras com violação de tensão")
+    ax.tick_params(axis="x", labelsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Barras com violação de tensão", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Violações de tensão com controle primário ativo\n"
         f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  V_AGGREGATION={V_AGGREGATION!r}\n"
-        f"Limites: V < 0.95 p.u. ou V > 1.05 p.u."
+        f"Limites: V < 0.95 p.u. ou V > 1.05 p.u.",
+        fontsize=FONTSIZE_TITULO,
     )
 
     # Anota cada barra com chips coloridos por tipo de violação
@@ -690,7 +701,7 @@ def plot_violations(hr: pd.DataFrame):
             Patch(facecolor="#e53935", label="Sobretensão (V_max > 1.05 p.u.)"),
             Patch(facecolor="orange",  label="Sub e sobretensão"),
         ],
-        loc="upper right", fontsize=8, framealpha=0.9,
+        loc="upper right", fontsize=FONTSIZE_LEGENDA, framealpha=0.9,
     )
 
     # Margem extra no topo para anotações acima das barras
@@ -723,8 +734,9 @@ def plot_bess_soc(df: pd.DataFrame):
 
         ax.plot(hours, soc, color="steelblue", linewidth=2, marker="o", markersize=4, label="SOC (%)")
         ax.set_ylim(0, 110)
-        ax.set_ylabel("SOC (%)")
-        ax.set_title(f"BESS: {bess}")
+        ax.set_ylabel("SOC (%)", fontsize=FONTSIZE_EIXO)
+        ax.set_title(f"BESS: {bess}", fontsize=FONTSIZE_EIXO)
+        ax.tick_params(axis="both", labelsize=FONTSIZE_TICK)
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.axhline(0, color="gray", linewidth=0.6)
 
@@ -740,13 +752,14 @@ def plot_bess_soc(df: pd.DataFrame):
             Line2D([0], [0], color="steelblue", linewidth=2, label="SOC (%)"),
             Line2D([0], [0], marker="^", color="blue", linestyle="None", markersize=8, label="Q capacitivo (↑V)"),
             Line2D([0], [0], marker="v", color="red",  linestyle="None", markersize=8, label="Q indutivo (↓V)"),
-        ], fontsize=8, loc="upper right")
+        ], fontsize=FONTSIZE_LEGENDA, loc="upper right")
 
-    axes[-1].set_xlabel("Hora do dia")
+    axes[-1].set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
     axes[0].set_title(
         f"Estado de carga (SOC) dos BESSs — pen={PEN_PCT}% / real={ID_REALIZACAO}\n"
         f"Nota: injeção de Q não consome energia da bateria neste modelo\n"
-        + axes[0].get_title()
+        + axes[0].get_title(),
+        fontsize=FONTSIZE_TITULO,
     )
     fig.tight_layout()
     path = os.path.join(FIG_DIR, "fig_bess_soc.png")
@@ -778,11 +791,14 @@ def _plot_bus_voltage_profile(df_v: pd.DataFrame, col: str, limit: float,
     ax.axhline(1.00,  color="gray", linewidth=0.8, linestyle=":", alpha=0.7)
 
     ax.set_xticks(hours)
-    ax.set_xlabel("Hora do dia")
-    ax.set_ylabel("Tensão (p.u.)")
+    ax.tick_params(axis="x", labelsize=FONTSIZE_TICK)
+    ax.tick_params(axis="y", labelsize=FONTSIZE_TICK)
+    ax.set_xlabel("Hora do dia", fontsize=FONTSIZE_EIXO)
+    ax.set_ylabel("Tensão (p.u.)", fontsize=FONTSIZE_EIXO)
     ax.set_title(
         f"Tensão {title_suffix} nas barras da rede\n"
-        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  Controle Volt-VAr ativo"
+        f"pen={PEN_PCT}% / real={ID_REALIZACAO}  |  Controle Volt-VAr ativo",
+        fontsize=FONTSIZE_TITULO,
     )
     ax.grid(True, linestyle="--", alpha=0.35)
     ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1), fontsize=6,
