@@ -361,7 +361,7 @@ def plot_q_activation(df_der: pd.DataFrame):
             if not np.isnan(val) and abs(val) > 1e-6:
                 ax.text(j, i, f"{val:+.1f}", ha="center", va="center", fontsize=8, color="black")
 
-    fig.colorbar(im, ax=ax, label="kVAr  (+ capacitivo / − indutivo)", fontsize=12)
+    fig.colorbar(im, ax=ax, label="kVAr  (+ capacitivo / − indutivo)")
     path = os.path.join(FIG_DIR, "fig_q_activation.png")
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -609,83 +609,6 @@ def plot_voltvar_efeito(df_der: pd.DataFrame):
     plt.close(fig)
     print(f"[Plot] Efeito VoltVar nas tensões salvo em: {path}")
 
-
-def plot_curtailed_energy(df_der: pd.DataFrame):
-    """
-    Quantifica a potência ativa (kW) que deixou de ser injetada em cada hora
-    porque o inversor reservou parte da sua capacidade (kVA) para fornecimento
-    de reativo pelo controle VoltVar.
-
-    Modelo adotado — kVA constante com FP = 1,0 nominal:
-        S_max = P_inst   (toda a capacidade disponível seria usada para P sem VoltVar)
-        P_nova = sqrt(S_max² − Q²) = sqrt(P_inst² − Q²)
-        ΔP    = P_inst − P_nova   (potência ativa bloqueada)
-
-    Por integração horária (Δt = 1 h):
-        ΔE [kWh] = ΔP [kW]  (cada barra do gráfico é também a energia bloqueada naquela hora)
-    """
-    df = df_der.copy()
-    df["p_inst_kw"] = df["p_inst_kw"].abs()
-    df["q_abs"]     = df["q_kvar"].abs()
-
-    # ΔP = P_inst − sqrt(max(P_inst² − Q², 0))
-    p2 = df["p_inst_kw"] ** 2
-    q2 = df["q_abs"] ** 2
-    df["delta_p_kw"] = np.where(
-        df["q_abs"] > 1e-6,
-        df["p_inst_kw"] - np.sqrt(np.maximum(p2 - q2, 0.0)),
-        0.0,
-    )
-
-    # Agrupa por hora e tipo de DER
-    grouped = (
-        df.groupby(["hora", "tipo"])["delta_p_kw"]
-        .sum()
-        .unstack(fill_value=0.0)
-        .reindex(range(TOTAL_HOURS), fill_value=0.0)
-    )
-    pv_delta   = grouped["PV"].tolist()   if "PV"   in grouped.columns else [0.0] * TOTAL_HOURS
-    bess_delta = grouped["BESS"].tolist() if "BESS" in grouped.columns else [0.0] * TOTAL_HOURS
-    total      = [pv + bess for pv, bess in zip(pv_delta, bess_delta)]
-
-    x = np.arange(TOTAL_HOURS)
-    fig, ax = plt.subplots(figsize=(14, 6))
-    ax.bar(x, pv_delta,   label="PV",   color="steelblue",  edgecolor="white")
-    ax.bar(x, bess_delta, label="BESS", color="darkorange", edgecolor="white",
-           bottom=pv_delta)
-
-    # Valor total no topo de cada barra
-    for xi, tot in zip(x, total):
-        if tot > 0.05:
-            ax.text(xi, tot + 0.03, f"{tot:.1f}", ha="center", va="bottom",
-                    fontsize=7.5, fontweight="bold")
-
-    # Caixa com total acumulado no dia
-    total_kwh = sum(total)
-    ax.text(0.99, 0.97, f"Total no dia: {total_kwh:.1f} kWh",
-            transform=ax.transAxes, ha="right", va="top", fontsize=11,
-            bbox=dict(facecolor="white", edgecolor="gray", alpha=0.85,
-                      boxstyle="round,pad=0.4"))
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(list(range(TOTAL_HOURS)), fontsize=13)
-    ax.tick_params(axis="y", labelsize=13)
-    ax.set_xlabel("Hora do dia", fontsize=14)
-    ax.set_ylabel("Energia ativa bloqueada (kWh)", fontsize=14)
-    ax.set_title(
-        f"Energia ativa não injetada devido ao controle VoltVar\n"
-        f"penetração={PEN_PCT}% / realização={ID_REALIZACAO}  |  "
-        r"$\Delta P = P_{inst} - \sqrt{P_{inst}^2 - Q^2}$",
-        fontsize=13,
-    )
-    ax.yaxis.set_major_locator(MaxNLocator(integer=False))
-    ax.legend(fontsize=12)
-    ax.grid(True, linestyle="--", alpha=0.4, axis="y")
-
-    path = os.path.join(FIG_DIR, "fig_curtailed_energy.png")
-    fig.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    print(f"[Plot] Energia bloqueada pelo VoltVar salvo em: {path}")
 
 
 def _plot_bus_voltage_profile(df_v: pd.DataFrame, col: str, limit: float,
@@ -968,7 +891,6 @@ def main():
     if not df_der.empty:
         plot_q_activation(df_der)
         plot_voltvar_efeito(df_der)
-        plot_curtailed_energy(df_der)
     if not df_hora.empty:
         n_viols_mc = carregar_violacoes_mc(PEN_PCT, ID_REALIZACAO)
         plot_violations(df_hora, n_viols_mc, viols_por_hora)
