@@ -1,7 +1,14 @@
 \chapter{Geração de cenários por Monte Carlo}
 \label{cap:cenarios}
 
-O objetivo desta etapa é construir um conjunto representativo de configurações operacionais da rede IEEE~34 barras sob diferentes condições de inserção de geração fotovoltaica e de BESS, permitindo a avaliação probabilística do impacto desses recursos sobre os perfis de tensão. As configurações incluem o nível de penetração FV, a distribuição espacial e o dimensionamento das unidades FV e BESS, o tipo de dia e o respectivo perfil de irradiância, e o perfil de carga da rede.
+O objetivo desta etapa é construir um conjunto representativo de configurações operacionais de redes de 
+distribuição 
+sob diferentes condições de inserção de geração fotovoltaica e de BESS, permitindo a
+avaliação probabilística do impacto desses recursos sobre os perfis de tensão. Embora a metodologia 
+proposta seja geral e aplicável a qualquer rede de distribuição, nesta etapa ela foi aplicada 
+especificamente à rede de teste IEEE~34 barras. As configurações incluem 
+o nível de penetração FV, a distribuição espacial e o dimensionamento das unidades FV e BESS, o tipo de 
+dia e o respectivo perfil de irradiância, e o perfil de carga da rede.
 
 \section{O método de Monte Carlo}
 \label{sec:montecarlo}
@@ -21,21 +28,25 @@ Os sistemas FV foram restritos às barras que alimentam cargas trifásicas do al
   \label{eq:pfv_total}
 \end{equation}
 
-A distribuição de $P_\text{FV}^\text{total}$ entre as barras segue uma alocação proporcional com perturbação gaussiana controlada, adotada para evitar que a variabilidade espacial domine a variância dos resultados de tensão. Cada uma das $N=5$ barras trifásicas elegíveis recebe uma fração $w_j$ da potência total, obtida pela normalização de um fator multiplicativo $g_j$ sorteado de forma independente, segundo as Equações~\eqref{eq:fv_aloc}:
+A distribuição de $P_\text{FV}^\text{total}$ entre as barras segue uma alocação proporcional com perturbação gaussiana controlada, adotada para evitar que a variabilidade espacial domine a variância dos resultados de tensão. Cada uma das $N=5$ barras trifásicas elegíveis, indexadas por $j = 1, \ldots, N$, recebe uma fração $w_j$ da potência total, obtida pela normalização de um fator multiplicativo $g_j$ sorteado de forma independente para cada barra, segundo as Equações~\eqref{eq:fv_aloc}:
 \begin{subequations}
   \label{eq:fv_aloc}
   \begin{align}
     g_j &\sim \mathcal{N}(1{,}0,\ \sigma_\text{aloc}^2), \qquad g_j \in [0{,}5;\ 1{,}5], \label{eq:fv_g}\\
-    w_j &= \frac{g_j}{\sum_{k=1}^{N} g_k}, \label{eq:fv_w}\\
+    w_j &= \frac{g_j}{\sum_{k=1}^{N} g_k}, \qquad \sum_{j=1}^{N} w_j = 1, \label{eq:fv_w}\\
     P_{\text{FV},j} &= P_\text{FV}^\text{total}\, w_j. \label{eq:fv_pj}
   \end{align}
 \end{subequations}
-O fator $g_j$ é truncado ao intervalo $[0{,}5;\ 1{,}5]$, de modo que nenhuma barra receba menos de 0,5 nem mais de 1,5 vez a fração média; a variância $\sigma_\text{aloc}^2$ controla a dispersão espacial da potência FV. A normalização em~\eqref{eq:fv_w} garante que os pesos somem a unidade, redistribuindo a potência total sem alterar o montante instalado.
+Nessas equações, $j$ identifica a barra trifásica elegível à qual a grandeza se refere, enquanto $k$ é o índice de somatório que percorre as mesmas $N$ barras elegíveis no denominador de~\eqref{eq:fv_w}, de modo que esse denominador corresponde à soma de todos os fatores $g_j$ sorteados. O fator $g_j$ é truncado ao intervalo $[0{,}5;\ 1{,}5]$, de modo que nenhuma barra receba menos de 0,5 nem mais de 1,5 vez a fração média; a variância $\sigma_\text{aloc}^2$ controla a dispersão espacial da potência FV. A normalização em~\eqref{eq:fv_w} garante que os pesos somem a unidade, redistribuindo a potência total sem alterar o montante instalado.
 
 \section{Alocação e operação dos BESS}
 \label{sec:alocacao_bess}
 
-Assim como os sistemas FV, as unidades BESS foram restritas às barras trifásicas. A potência nominal total do conjunto de BESS é fixada como fração de 35\% da potência FV total instalada, conforme a Equação~\eqref{eq:bess_total}:
+Assim como os sistemas FV, as unidades BESS foram restritas às barras trifásicas. 
+A potência nominal total do conjunto de BESS é fixada como fração de 35\% da 
+potência FV total instalada, conforme a Equação~\eqref{eq:bess_total}. Embora, 
+neste trabalho, tenha sido adotada a fração de 35\%, outras porcentagens poderão ser
+analisadas nas etapas posteriores.
 \begin{equation}
   P_\text{BESS}^\text{total} = 0{,}35\, P_\text{FV}^\text{total}.
   \label{eq:bess_total}

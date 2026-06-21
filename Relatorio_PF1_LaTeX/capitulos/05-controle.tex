@@ -3,8 +3,8 @@
 
 Este capítulo formaliza a estratégia de controle adotada, composta por duas camadas que atuam sobre variáveis distintas do inversor. A camada primária realiza a regulação local de tensão por meio da potência reativa, enquanto a camada secundária coordena os BESS por meio da potência ativa, empregando um algoritmo de consenso.
 
-\section{Arquitetura e separação de variáveis}
-\label{sec:arquitetura_controle}
+%\section{Arquitetura e separação de variáveis}
+%\label{sec:arquitetura_controle}
 
 O controle primário atua localmente em cada recurso energético distribuído (RED) ajustando a potência reativa $Q$ em função da tensão na barra, conforme a curva volt-var. O controle secundário atua exclusivamente sobre a potência ativa $P$ dos BESS, adicionando um sinal de correção $\Delta P$ calculado pelo algoritmo de consenso. Como as camadas operam em variáveis ortogonais do inversor --- $Q$ e $P$, respectivamente ---, não há conflito direto de atuação, o que permite a operação simultânea de ambas. Para preservar o fator de potência estabelecido pelo primário, a correção $\Delta P$ é acompanhada de uma correção proporcional de potência reativa $\Delta Q$, de modo a manter o ângulo de potência aparente vigente em cada BESS.
 
@@ -28,7 +28,19 @@ A curva adotada, apresentada na Figura~\ref{fig:voltvar}, é definida por quatro
   \par\vspace{2pt}\fonte{adaptado de~\cite{nbr16149}}
 \end{figure}
 
-A implementação consiste em um laço de controle externo em Python, com dois \emph{solves} em modo \emph{snapshot} por hora no OpenDSS. No primeiro \emph{solve}, com os reguladores livres, registram-se as posições de tap após a convergência; em seguida, para cada RED, lê-se a tensão das fases da barra e calcula-se a referência de reativos pela curva volt-var, priorizando a violação mais crítica (maior desvio em relação à zona morta). O valor de $Q_\text{max}$ é proporcional à potência ativa instantânea do RED, de modo que inversores com geração parcial contribuem proporcionalmente, mantendo o fator de potência mínimo de 0,90. Caso ao menos um RED saia da zona morta, congelam-se as posições de tap (premissa de que a resposta de reativos do inversor é mais rápida que a comutação mecânica dos reguladores) e executa-se um segundo \emph{solve} no mesmo patamar horário, com a referência de reativos aplicada.
+A implementação consiste em um laço de controle externo em Python, com dois 
+\emph{solves} em modo \emph{snapshot} por hora no OpenDSS. No primeiro \emph{solve}, 
+com os reguladores livres, registram-se as posições de tap após a convergência; em 
+seguida, para cada RED, lê-se a tensão das fases da barra e calcula-se a referência 
+de reativos pela curva volt-var, priorizando a violação mais crítica (maior desvio 
+em relação à zona morta). O valor de $Q_\text{max}$ é proporcional à potência ativa 
+instantânea do RED, de modo que inversores com geração parcial contribuem 
+proporcionalmente, mantendo o fator de potência mínimo de 0,90. Caso ao menos um 
+RED saia da zona morta, a posição dos taps dos reguladores de tensão é mantida 
+inalterada (premissa de que a resposta 
+de reativos do inversor é mais rápida que a comutação mecânica dos reguladores) e 
+executa-se um segundo \emph{solve} no mesmo patamar horário, com a referência de 
+reativos aplicada, ou seja, com um novo fator de potência.
 
 \section{Controle secundário por consenso}
 \label{sec:secundario}
@@ -46,7 +58,19 @@ A variável de consenso de cada BESS $i$ é a sua potência ativa normalizada pe
   x_i = \frac{P_i}{P_{\text{nom},i}} + \gamma\,(V_\text{ref} - V_i),
   \label{eq:x_consenso}
 \end{equation}
-em que $P_i$ é a potência ativa vigente, $V_i$ a tensão média entre as fases da barra, $V_\text{ref} = 1{,}0$~p.u. a tensão de referência e $\gamma = 2{,}0$ o peso do termo de tensão. Esse termo introduz heterogeneidade entre os BESS conforme as condições locais de tensão: sem ele, o consenso convergiria trivialmente sem produzir correção útil.
+em que $P_i$ é a potência ativa vigente, $V_i$ a tensão média 
+entre as fases da barra, $V_\text{ref} = 1{,}0$~p.u. a tensão 
+de referência e $\gamma = 2{,}0$ o peso do termo de tensão. 
+Conceitualmente, $x_i$ é a grandeza que o algoritmo de consenso 
+busca igualar entre os BESS vizinhos. Ao equalizar $x_i$, os 
+BESS compartilham o esforço de regulação de forma proporcional 
+à sua capacidade (parcela $P_i/P_{\text{nom},i}$, que mede o 
+quanto da potência nominal cada unidade está utilizando) e, ao 
+mesmo tempo, direcionam mais correção às barras com maior desvio 
+de tensão (parcela $\gamma\,(V_\text{ref} - V_i)$). Esse 
+segundo termo introduz heterogeneidade entre os BESS conforme 
+as condições locais de tensão: sem ele, o consenso convergiria 
+trivialmente sem produzir correção útil.
 
 A lei de controle distribuído calcula, para cada BESS $i$, um sinal de correção de potência ativa $\Delta P_i$ composto por uma parcela de consenso e uma parcela de \emph{droop}, conforme a Equação~\eqref{eq:dp}:
 \begin{equation}

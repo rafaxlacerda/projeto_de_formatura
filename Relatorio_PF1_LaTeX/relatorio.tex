@@ -62,16 +62,56 @@
 
 % ========== Resumo ==========
 \begin{resumo}
-A crescente penetração de geração fotovoltaica (FV) nas redes de distribuição de média tensão impõe desafios de regulação de tensão, sobretudo pela ocorrência de sobretensões nos períodos de maior irradiância. Este trabalho investiga uma estratégia de controle distribuído em duas camadas para Sistemas de Armazenamento de Energia em Baterias (BESS), com o objetivo de regular a tensão de forma autônoma e coordenada. Foi desenvolvido um ambiente de cossimulação acoplando Python e o software OpenDSS, sobre o qual se implementou um gerador de cenários pelo método de Monte Carlo aplicado à rede de teste IEEE~34 barras, contemplando onze níveis de penetração FV. A camada de controle primário baseia-se na curva volt-var normatizada pela ABNT~NBR~16149:2013, atuando localmente sobre a potência reativa dos inversores; a camada secundária emprega um algoritmo de consenso sobre a potência ativa dos BESS, combinado a uma parcela de droop. As estratégias foram avaliadas de forma pareada sobre os mesmos cenários. Os resultados mostram que o controle primário reduz de forma expressiva e previsível o número de barras em sobretensão, enquanto o controle secundário por consenso, na rede e configuração estudadas, não reduziu as violações remanescentes, em razão da concentração espacial dos BESS no alimentador. As conclusões delimitam as condições de eficácia de cada camada e orientam os próximos passos do projeto.
+A crescente penetração de geração fotovoltaica (FV) nas redes de distribuição 
+de média tensão impõe desafios de regulação de tensão, sobretudo pela 
+ocorrência de sobretensões nos períodos de maior irradiância. Este trabalho 
+investiga uma estratégia de controle distribuído em duas camadas para 
+Sistemas de Armazenamento de Energia em Baterias (BESS), com o objetivo de 
+regular a tensão de forma autônoma e coordenada. Foi desenvolvido um ambiente 
+de cossimulação acoplando Python e o software OpenDSS, sobre o qual se 
+implementou um gerador de cenários pelo método de Monte Carlo aplicado à 
+rede de teste IEEE~34 barras, contemplando onze níveis de penetração FV. A 
+camada de controle primário baseia-se na curva volt-var normatizada pela 
+ABNT~NBR~16149:2013, atuando localmente sobre a potência reativa dos 
+inversores; a camada secundária emprega um algoritmo de consenso sobre a
+potência ativa dos BESS, combinado a uma parcela de droop local, que ajusta a
+potência ativa de cada BESS em função da tensão na barra de instalação. 
+Os resultados preliminares 
+mostram que o controle primário reduz de forma expressiva e previsível o
+número de barras consumidoras em sobretensão, enquanto o controle secundário 
+por consenso, na rede e configuração estudadas, não reduziu as violações 
+remanescentes em barras consumidoras, em 
+razão da concentração espacial dos BESS no alimentador. As conclusões 
+delimitam as condições de eficácia de cada camada e orientam os próximos 
+passos do projeto.
 %
 \\[3\baselineskip]
 %
-\textbf{Palavras-Chave} -- Controle distribuído, Sistemas de armazenamento em baterias, Regulação de tensão, Geração fotovoltaica, Algoritmo de consenso.
+\textbf{Palavras-Chave} -- Controle distribuído, Sistemas de armazenamento de energia em baterias, Regulação de tensão, Geração fotovoltaica, Algoritmo de consenso.
 \end{resumo}
 
 % ========== Abstract ==========
 \begin{abstract}
-The increasing penetration of photovoltaic (PV) generation in medium-voltage distribution networks raises voltage regulation challenges, particularly overvoltage during peak irradiance hours. This work investigates a two-layer distributed control strategy for Battery Energy Storage Systems (BESS) aimed at regulating voltage autonomously and in a coordinated manner. A co-simulation environment coupling Python and the OpenDSS software was developed, on top of which a Monte Carlo scenario generator was implemented for the IEEE~34-bus test feeder, spanning eleven PV penetration levels. The primary control layer relies on the volt-var curve standardized by ABNT~NBR~16149:2013, acting locally on the reactive power of the inverters; the secondary layer employs a consensus algorithm on the active power of the BESS, combined with a droop term. The strategies were evaluated in a paired manner over the same scenarios. Results show that primary control significantly and predictably reduces the number of buses in overvoltage, whereas the consensus-based secondary control, for the studied network and configuration, did not reduce the remaining violations, owing to the spatial concentration of the BESS along the feeder. The conclusions delimit the effectiveness conditions of each layer and guide the next steps of the project.
+The increasing penetration of photovoltaic (PV) generation in medium-voltage 
+distribution networks raises voltage regulation challenges, particularly 
+overvoltage during peak irradiance hours. This work investigates a two-layer 
+distributed control strategy for Battery Energy Storage Systems (BESS) aimed 
+at regulating voltage autonomously and in a coordinated manner. A 
+co-simulation environment coupling Python and the OpenDSS software was 
+developed, on top of which a Monte Carlo scenario generator was implemented 
+for the IEEE~34-bus test feeder, spanning eleven PV penetration levels. The 
+primary control layer relies on the volt-var curve standardized by 
+ABNT~NBR~16149:2013, acting locally on the reactive power of the inverters; 
+the secondary layer employs a consensus algorithm on the active power of the
+BESS, combined with a local droop term that adjusts each unit's active power
+according to the voltage at its installation bus. The strategies were evaluated in a paired
+manner over the same scenarios. Results show that primary control 
+significantly and predictably reduces the number of consumer (load-connected) 
+buses in overvoltage, whereas the consensus-based secondary control, for the 
+studied network and configuration, did not reduce the remaining violations in 
+consumer buses, 
+owing to the spatial concentration of the BESS along the feeder. The 
+conclusions delimit the effectiveness conditions of each layer and guide the next steps of the project.
 %
 \\[3\baselineskip]
 %

@@ -11,7 +11,10 @@ fluxo de potência passa a ser bidirecional, determinado tanto pela geração qu
 Tal transformação impõe novos desafios à operação e ao controle, sobretudo no que tange à regulação 
 de tensão.
 
-A disseminação da GD criou demanda por Sistemas de Armazenamento de Energia em Baterias 
+A disseminação da GD, a necessidade de um gerenciamento eficiente destas 
+fontes nas redes de distribuição e o melhor aproveitamento energético das 
+fontes renováveis inermitentes criou demanda por Sistemas de Armazenamento 
+de Energia em Baterias 
 (\emph{Battery Energy Storage Systems} --- BESS), empregados para armazenar o excedente de energia 
 em horários de baixa demanda e injetá-lo na rede nos horários de ponta. A eficácia desses sistemas, 
 contudo, depende diretamente da estratégia de controle adotada. O controle centralizado, 
@@ -21,10 +24,10 @@ as estratégias de controle distribuído permitem que cada unidade BESS tome dec
 informações locais e na comunicação parcial com vizinhos imediatos~\cite{nabatirad2022}, aumentando a 
 confiabilidade e facilitando a operação \emph{plug-and-play} de novos dispositivos.
 
-Os conjuntos formados por GD e BESS favorecem um controle distribuído e automático da rede por meio dos 
+Os conjuntos formados por FV e BESS favorecem um controle distribuído e automático da rede por meio dos 
 inversores que conectam tanto os geradores fotovoltaicos quanto os BESS. Ao controlar a potência ativa e 
 reativa injetada ou absorvida, é possível regular a tensão localmente. À medida que cresce o número de 
-BESS autônomos e distribuídos, torna-se necessário coordená-los, de modo que operem de forma harmônica 
+BESS autônomos e distribuídos, torna-se necessário coordená-los, de modo que operem de forma harmoniosa 
 também em nível global, sem deteriorar os perfis de tensão e o carregamento agregado da rede.
 
 \section{Motivação e definição do problema}
@@ -59,8 +62,8 @@ definem-se os seguintes objetivos específicos:
 \begin{itemize}
   \item revisar a literatura de estratégias de controle distribuído e de algoritmos de consenso aplicados à coordenação de BESS;
   \item desenvolver um ambiente de cossimulação acoplando Python e o software OpenDSS para a execução de fluxos de potência iterativos em séries temporais;
-  \item elaborar cenários de penetração de recursos energéticos distribuídos (FV e BESS) por meio do método de Monte Carlo;
-  \item implementar o controle primário (local) e o controle secundário (colaborativo, por consenso) sobre as unidades distribuídas;
+  \item elaborar cenários de penetração de recursos energéticos distribuídos (FV e BESS) por meio do método Monte Carlo;
+  \item implementar o controle primário (local) baseado na funcionalidade volt/var dos inversores e o controle secundário (colaborativo, por consenso) sobre as unidades distribuídas;
   \item avaliar o desempenho da estratégia em termos de regulação de tensão, comparando os casos sem controle, com controle primário isolado e com as duas camadas, em uma rede de teste padrão da IEEE.
 \end{itemize}
 
