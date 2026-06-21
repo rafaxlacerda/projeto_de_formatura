@@ -1,10 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  20 JUN 2026 22:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  20 JUN 2026 23:13
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/rafaelalacerda/Documents/PF/projeto_de_formatura/Relatorio_PF1_LaTeX/relatorio
-(/Users/rafaelalacerda/Documents/PF/projeto_de_formatura/Relatorio_PF1_LaTeX/relatorio.tex
+**relatorio.tex
+(./relatorio.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
 (./politex.cls
@@ -13,9 +12,11 @@ Document Class: politex 2013/12/29 POLI-USP LaTeX Class
 Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks17
 \inpenc@posthook=\toks18
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/ifthen.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/calc.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2023/07/08 v4.3 Infix arithmetic (KKT,FJ)
 \calc@Acount=\count188
 \calc@Bcount=\count189
@@ -27,7 +28,8 @@ LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
 \calc@Ccount=\count190
 \calc@Cskip=\skip50
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/multicol.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/tools/multicol.sty
 Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
 \c@tracingmulticols=\count191
 \mult@box=\box51
@@ -96,7 +98,8 @@ Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
 \mult@nat@firstbox=\box95
 \colbreak@box=\box96
 \mc@col@check@num=\count266
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/report.cls
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/base/report.cls
 Document Class: report 2023/05/17 v1.4n Standard LaTeX document class
 (/usr/local/texlive/2024/texmf-dist/tex/latex/base/size12.clo
 File: size12.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
@@ -113,14 +116,18 @@ File: size12.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
 \abovecaptionskip=\skip53
 \belowcaptionskip=\skip54
 \bibindent=\dimen151
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/geometry/geometry.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/geometry/geometry.sty
 Package: geometry 2020/01/02 v5.9 Page Geometry
- (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/keyval.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks19
-) (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifvtex.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
- (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/iftex.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
 ))
 \Gm@cnth=\count276
@@ -135,8 +142,10 @@ Package: iftex 2022/02/03 v1.0f TeX engine tests
 \Gm@layouthoffset=\dimen158
 \Gm@layoutvoffset=\dimen159
 \Gm@dimlist=\toks20
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 Package: fancyhdr 2022/11/09 v4.1 Extensive control of page headers and footers
+
 \f@nch@headwidth=\skip55
 \f@nch@O@elh=\skip56
 \f@nch@O@erh=\skip57
@@ -146,7 +155,8 @@ Package: fancyhdr 2022/11/09 v4.1 Extensive control of page headers and footers
 \f@nch@O@erf=\skip61
 \f@nch@O@olf=\skip62
 \f@nch@O@orf=\skip63
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/setspace/setspace.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2022/12/04 v6.7b set line spacing
 )
 *geometry* verbose mode - [ newgeometry ] result:
@@ -186,7 +196,8 @@ Package: setspace 2022/12/04 v6.7b set line spacing
 \ABNTsignwidth=\skip66
 \ABNTsignthickness=\skip67
 \ABNTsignskip=\skip68
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/mathptmx.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/mathptmx.sty
 Package: mathptmx 2020/03/25 PSNFSS-v9.3 Times w/ Math, improved (SPQR, WaS) 
 LaTeX Font Info:    Redeclaring symbol font `operators' on input line 28.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
@@ -221,43 +232,55 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/ptm/m/it on input line 35.
 LaTeX Info: Redefining \hbar on input line 50.
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/helvet.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/helvet.sty
 Package: helvet 2020/03/25 PSNFSS-v9.3 (WaS) 
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/indentfirst.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/tools/indentfirst.sty
 Package: indentfirst 2023/07/02 v1.03 Indent first paragraph (DPC)
-)) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/fontenc.sty
+))
+(/usr/local/texlive/2024/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
-LaTeX Font Info:    Trying to load font information for T1+ptm on input line 112.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/t1ptm.fd
+LaTeX Font Info:    Trying to load font information for T1+ptm on input line 11
+2.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/t1ptm.fd
 File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
-)) (/usr/local/texlive/2024/texmf-dist/tex/generic/babel/babel.sty
+))
+(/usr/local/texlive/2024/texmf-dist/tex/generic/babel/babel.sty
 Package: babel 2024/02/07 v24.2 The Babel package
 \babel@savecnt=\count279
 \U@D=\dimen160
 \l@unhyphenated=\language89
- (/usr/local/texlive/2024/texmf-dist/tex/generic/babel/txtbabel.def)
+
+(/usr/local/texlive/2024/texmf-dist/tex/generic/babel/txtbabel.def)
 \bbl@readstream=\read2
 \bbl@dirlevel=\count280
- (/usr/local/texlive/2024/texmf-dist/tex/generic/babel-portuges/brazil.ldf
+
+(/usr/local/texlive/2024/texmf-dist/tex/generic/babel-portuges/brazil.ldf
 Language: portuges 2021/07/09 v1.2t Portuguese support from the babel system
 Package babel Info: Hyphen rules for 'brazil' set to \l@portuguese
 (babel)             (\language72). Reported on input line 111.
 Package babel Info: Making " an active character on input line 143.
-)) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsmath.sty
+))
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2023/05/13 v2.17o AMS math features
 \@mathmargin=\skip69
 
 For additional information on amsmath, use the `?' option.
 (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amstext.sty
 Package: amstext 2021/08/26 v2.01 AMS text
- (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsgen.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks21
 \ex@=\dimen161
-)) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsbsy.sty
+))
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 \pmbraise@=\dimen162
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsopn.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
 \inf@bad=\count281
@@ -307,15 +330,18 @@ LaTeX Info: Redefining \Relbar on input line 971.
 \mathdisplay@stack=\toks25
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amssymb.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
- (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \symAMSa=\mathgroup6
 \symAMSb=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-)) (/usr/local/texlive/2024/texmf-dist/tex/latex/amscls/amsthm.sty
+))
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amscls/amsthm.sty
 Package: amsthm 2020/05/29 v2.20.6
 \thm@style=\toks26
 \thm@bodyfont=\toks27
@@ -326,22 +352,28 @@ Package: amsthm 2020/05/29 v2.20.6
 \thm@postskip=\skip73
 \thm@headsep=\skip74
 \dth@everypar=\toks31
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphicx.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
- (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphics.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
- (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/trig.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-def/pdftex.def
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-def/pdftex.def
 File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen170
 \Gin@req@width=\dimen171
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/booktabs/booktabs.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/booktabs/booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \heavyrulewidth=\dimen172
 \lightrulewidth=\dimen173
@@ -360,7 +392,8 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \@thisruleclass=\count295
 \@lastruleclass=\count296
 \@thisrulewidth=\dimen184
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/array.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/tools/array.sty
 Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
 \col@sep=\dimen185
 \ar@mcellbox=\box99
@@ -369,26 +402,31 @@ Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
 \extratabsurround=\skip75
 \backup@length=\skip76
 \ar@cellbox=\box100
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/multirow/multirow.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/multirow/multirow.sty
 Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
 \multirow@colwidth=\skip77
 \multirow@cntb=\count297
 \multirow@dima=\skip78
 \bigstrutjot=\dimen187
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/float/float.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count298
 \float@exts=\toks33
 \float@box=\box101
 \@float@everytoks=\toks34
 \@floatcapt=\box102
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/xcolor/xcolor.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
- (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/color.cfg
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 274.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/mathcolor.ltx)
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1350.
 Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1354.
 Package xcolor Info: Model `RGB' extended on input line 1366.
@@ -398,9 +436,12 @@ Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1370.
 Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/abntex2/abntex2cite.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/abntex2/abntex2cite.sty
 Package: abntex2cite 2018/11/24 v-1.9.7 abnTeX2
- (/usr/local/texlive/2024/texmf-dist/tex/latex/abntex2/abntex2abrev.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/url/url.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/abntex2/abntex2abrev.sty)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
@@ -408,22 +449,31 @@ Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 \ABCIauxlen=\skip80
 \c@ABCIaux=\count299
 \c@ABCImax=\count300
- (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifpdf.sty
+
+(/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifpdf.sty
 Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
-) (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifxetex.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifxetex.sty
 Package: ifxetex 2019/10/25 v0.7 ifxetex legacy package. Use iftex instead.
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/relsize/relsize.sty
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/relsize/relsize.sty
 Package: relsize 2013/03/29 ver 4.1
 )
 \biblabelsep=\skip81
 LaTeX Info: Redefining \newblock on input line 591.
 LaTeX Info: Redefining \cite on input line 862.
 \ABCItoken=\toks35
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+)
+(/usr/local/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-02-20 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count301
 \l__pdf_internal_box=\box103
-) (./relatorio.aux (./capitulos/01-introducao.aux) (./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux) (./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux) (./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux) (./anexos.aux))
+)
+(./relatorio.aux (./capitulos/01-introducao.aux)
+(./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux)
+(./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux)
+(./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux
+) (./anexos.aux))
 \openout1 = `relatorio.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
@@ -490,31 +540,46 @@ LaTeX Font Info:    ... okay on input line 56.
 \everyMPtoPDFconversion=\toks37
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
-Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
-)) [1
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+[1
 
 
-{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}]
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 60.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
+{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
+al/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}]
+LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line
+ 60.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 60.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omlztmcm.fd
+LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line
+ 60.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 60.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omsztmcm.fd
+LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line
+ 60.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 60.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omxztmcm.fd
+LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line
+ 60.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 60.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 6
+0.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
@@ -527,21 +592,24 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
 
 ] [1
 
-] [2
+]
+[2
 
 
 ] [3
 
 ] (./relatorio.lof
 Overfull \hbox (28.66519pt too wide) in paragraph at lines 9--9
- [][] []\T1/ptm/m/n/12 Curva volt-var ado-tada para o con-trole pri-má-rio, con-forme a ABNT NBR 16149:2013. [][]  
+ [][] []\T1/ptm/m/n/12 Curva volt-var ado-tada para o con-trole pri-má-rio, con
+-forme a ABNT NBR 16149:2013. [][]  
  []
 
 [4
 
 ]
 Overfull \hbox (14.408pt too wide) in paragraph at lines 23--23
- \T1/ptm/m/n/12 ção de ce-ná-rios, a si-mu-la-ção sob cada es-tra-té-gia de con-trole e o pós-processamento. [][]  
+ \T1/ptm/m/n/12 ção de ce-ná-rios, a si-mu-la-ção sob cada es-tra-té-gia de con
+-trole e o pós-processamento. [][]  
  []
 
 )
@@ -565,25 +633,31 @@ Overfull \hbox (14.408pt too wide) in paragraph at lines 23--23
  [9]
 \openout2 = `capitulos/01-introducao.aux'.
 
- (./capitulos/01-introducao.tex
+
+(./capitulos/01-introducao.tex
 Cap\'{\i }tulo 1.
 [1
 
 
 
 ]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 60.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 6
+0.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [2]) [3]
+) [2])
+[3]
 \openout2 = `capitulos/02-fundamentacao.aux'.
 
  (./capitulos/02-fundamentacao.tex
 Cap\'{\i }tulo 2.
-<figuras/arquiteturas_de_controle_distribuidos.png, id=55, 456.615pt x 283.824pt>
+<figuras/arquiteturas_de_controle_distribuidos.png, id=55, 456.615pt x 283.824p
+t>
 File: figuras/arquiteturas_de_controle_distribuidos.png Graphic file (type png)
+
 <use figuras/arquiteturas_de_controle_distribuidos.png>
-Package pdftex.def Info: figuras/arquiteturas_de_controle_distribuidos.png  used on input line 25.
+Package pdftex.def Info: figuras/arquiteturas_de_controle_distribuidos.png  use
+d on input line 25.
 (pdftex.def)             Requested size: 386.96027pt x 240.53696pt.
 [4
 
@@ -600,11 +674,13 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
  [6] [7]) [8]
 \openout2 = `capitulos/03-ambiente.aux'.
 
- (./capitulos/03-ambiente.tex
+
+(./capitulos/03-ambiente.tex
 Cap\'{\i }tulo 3.
 
 Overfull \hbox (4.4347pt too wide) in paragraph at lines 26--34
-\T1/ptm/m/n/12 zando es-tu-dos de con-tro-la-do-res de BESS em di-fe-ren-tes ce-ná-rios. Para essa in-te-gra-ção, avaliaram-
+\T1/ptm/m/n/12 zando es-tu-dos de con-tro-la-do-res de BESS em di-fe-ren-tes ce
+-ná-rios. Para essa in-te-gra-ção, avaliaram-
  []
 
 [9
@@ -616,18 +692,21 @@ Overfull \hbox (4.4347pt too wide) in paragraph at lines 26--34
 <figuras/diagrama_unifilar_33_barras.jpg, id=77, 911.405pt x 347.2975pt>
 File: figuras/diagrama_unifilar_33_barras.jpg Graphic file (type jpg)
 <use figuras/diagrama_unifilar_33_barras.jpg>
-Package pdftex.def Info: figuras/diagrama_unifilar_33_barras.jpg  used on input line 57.
+Package pdftex.def Info: figuras/diagrama_unifilar_33_barras.jpg  used on input
+ line 57.
 (pdftex.def)             Requested size: 418.82375pt x 159.59981pt.
 
 Overfull \hbox (8.02113pt too wide) in paragraph at lines 61--72
-[]\T1/ptm/m/n/12 Para va-li-dar o am-bi-ente, executou-se o fluxo de po-tên-cia da rede em modo es-tá-tico (\T1/ptm/m/it/12 snapshot\T1/ptm/m/n/12 ),
+[]\T1/ptm/m/n/12 Para va-li-dar o am-bi-ente, executou-se o fluxo de po-tên-cia
+ da rede em modo es-tá-tico (\T1/ptm/m/it/12 snapshot\T1/ptm/m/n/12 ),
  []
 
 [10 <./figuras/diagrama_unifilar_33_barras.jpg>]
 <figuras/diagrama_unifilar_34_barras.png, id=81, 490.779pt x 216.81pt>
 File: figuras/diagrama_unifilar_34_barras.png Graphic file (type png)
 <use figuras/diagrama_unifilar_34_barras.png>
-Package pdftex.def Info: figuras/diagrama_unifilar_34_barras.png  used on input line 85.
+Package pdftex.def Info: figuras/diagrama_unifilar_34_barras.png  used on input
+ line 85.
 (pdftex.def)             Requested size: 455.24411pt x 201.12173pt.
  [11 <./figuras/diagrama_unifilar_34_barras.png>]
 <figuras/curvas_carga.png, id=86, 722.7pt x 433.62pt>
@@ -638,7 +717,8 @@ Package pdftex.def Info: figuras/curvas_carga.png  used on input line 127.
 ) [12] [13 <./figuras/curvas_carga.png>]
 \openout2 = `capitulos/04-cenarios.aux'.
 
- (./capitulos/04-cenarios.tex
+
+(./capitulos/04-cenarios.tex
 Cap\'{\i }tulo 4.
 [14
 
@@ -655,21 +735,26 @@ Package pdftex.def Info: figuras/perfil_bess.png  used on input line 61.
 <figuras/sonda_classificacao_kt.png, id=108, 643.203pt x 352.1958pt>
 File: figuras/sonda_classificacao_kt.png Graphic file (type png)
 <use figuras/sonda_classificacao_kt.png>
-Package pdftex.def Info: figuras/sonda_classificacao_kt.png  used on input line 97.
+Package pdftex.def Info: figuras/sonda_classificacao_kt.png  used on input line
+ 97.
 (pdftex.def)             Requested size: 318.66948pt x 174.49599pt.
 <figuras/sonda_perfis_irradiancia.png, id=109, 959.2638pt x 358.941pt>
 File: figuras/sonda_perfis_irradiancia.png Graphic file (type png)
 <use figuras/sonda_perfis_irradiancia.png>
-Package pdftex.def Info: figuras/sonda_perfis_irradiancia.png  used on input line 107.
+Package pdftex.def Info: figuras/sonda_perfis_irradiancia.png  used on input li
+ne 107.
 (pdftex.def)             Requested size: 318.66948pt x 119.23958pt.
- [17 <./figuras/sonda_classificacao_kt.png>]) [18 <./figuras/sonda_perfis_irradiancia.png>]
+ [17 <./figuras/sonda_classificacao_kt.png>]) [18 <./figuras/sonda_perfis_irrad
+iancia.png>]
 \openout2 = `capitulos/05-controle.aux'.
 
- (./capitulos/05-controle.tex
+
+(./capitulos/05-controle.tex
 Cap\'{\i }tulo 5.
 
 Overfull \hbox (28.64853pt too wide) in paragraph at lines 14--15
-[]\T1/ptm/m/n/12 A ca-mada pri-má-ria baseia-se na curva volt-var de-fi-nida pela norma ABNT NBR 16149:2013  [35],
+[]\T1/ptm/m/n/12 A ca-mada pri-má-ria baseia-se na curva volt-var de-fi-nida pe
+la norma ABNT NBR 16149:2013  [35],
  []
 
 [19
@@ -679,7 +764,8 @@ Overfull \hbox (28.64853pt too wide) in paragraph at lines 14--15
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 25--25
-[]\T1/ptm/m/n/12 Figura 5.1: Curva volt-var ado-tada para o con-trole pri-má-rio, con-forme a
+[]\T1/ptm/m/n/12 Figura 5.1: Curva volt-var ado-tada para o con-trole pri-má-ri
+o, con-forme a
  []
 
 <figuras/volt_var_curve.png, id=121, 514.5624pt x 345.4506pt>
@@ -690,7 +776,8 @@ Package pdftex.def Info: figuras/volt_var_curve.png  used on input line 27.
 [20 <./figuras/volt_var_curve.png>] [21]) [22] [23]
 \openout2 = `capitulos/06-resultados.aux'.
 
- (./capitulos/06-resultados.tex
+
+(./capitulos/06-resultados.tex
 Cap\'{\i }tulo 6.
 [24
 
@@ -701,7 +788,8 @@ Cap\'{\i }tulo 6.
 <figuras/prim_violations_consumer.png, id=139, 835.923pt x 420.6114pt>
 File: figuras/prim_violations_consumer.png Graphic file (type png)
 <use figuras/prim_violations_consumer.png>
-Package pdftex.def Info: figuras/prim_violations_consumer.png  used on input line 22.
+Package pdftex.def Info: figuras/prim_violations_consumer.png  used on input li
+ne 22.
 (pdftex.def)             Requested size: 364.19667pt x 183.2533pt.
 <figuras/prim_q_activation.png, id=140, 910.1202pt x 670.1838pt>
 File: figuras/prim_q_activation.png Graphic file (type png)
@@ -713,56 +801,69 @@ File: figuras/prim_vmax.png Graphic file (type png)
 <use figuras/prim_vmax.png>
 Package pdftex.def Info: figuras/prim_vmax.png  used on input line 42.
 (pdftex.def)             Requested size: 364.19667pt x 160.57848pt.
- [25 <./figuras/prim_violations_consumer.png>] [26 <./figuras/prim_q_activation.png> <./figuras/prim_vmax.png>]
+ [25 <./figuras/prim_violations_consumer.png>] [26 <./figuras/prim_q_activation
+.png> <./figuras/prim_vmax.png>]
 <figuras/sec_violations_3way.png, id=152, 948.1824pt x 421.0932pt>
 File: figuras/sec_violations_3way.png Graphic file (type png)
 <use figuras/sec_violations_3way.png>
-Package pdftex.def Info: figuras/sec_violations_3way.png  used on input line 55.
+Package pdftex.def Info: figuras/sec_violations_3way.png  used on input line 55
+.
 (pdftex.def)             Requested size: 364.19667pt x 161.7455pt.
 <figuras/sec_bess_kw_profile.png, id=153, 1004.0712pt x 1260.8706pt>
 File: figuras/sec_bess_kw_profile.png Graphic file (type png)
 <use figuras/sec_bess_kw_profile.png>
-Package pdftex.def Info: figuras/sec_bess_kw_profile.png  used on input line 65.
+Package pdftex.def Info: figuras/sec_bess_kw_profile.png  used on input line 65
+.
 (pdftex.def)             Requested size: 364.19667pt x 457.33768pt.
 <figuras/sec_bess_delta_p_heatmap.png, id=154, 886.0302pt x 308.8338pt>
 File: figuras/sec_bess_delta_p_heatmap.png Graphic file (type png)
 <use figuras/sec_bess_delta_p_heatmap.png>
-Package pdftex.def Info: figuras/sec_bess_delta_p_heatmap.png  used on input line 73.
+Package pdftex.def Info: figuras/sec_bess_delta_p_heatmap.png  used on input li
+ne 73.
 (pdftex.def)             Requested size: 364.19667pt x 126.94783pt.
- [27 <./figuras/sec_violations_3way.png>] [28 <./figuras/sec_bess_kw_profile.png>]
+ [27 <./figuras/sec_violations_3way.png>]
+[28 <./figuras/sec_bess_kw_profile.png>]
 <figuras/mc_curva_mestre_base.png, id=163, 859.65166pt x 426.393pt>
 File: figuras/mc_curva_mestre_base.png Graphic file (type png)
 <use figuras/mc_curva_mestre_base.png>
-Package pdftex.def Info: figuras/mc_curva_mestre_base.png  used on input line 95.
+Package pdftex.def Info: figuras/mc_curva_mestre_base.png  used on input line 9
+5.
 (pdftex.def)             Requested size: 355.08984pt x 176.13pt.
 <figuras/mc_heatmap_base_100.png, id=164, 931.19894pt x 500.1084pt>
 File: figuras/mc_heatmap_base_100.png Graphic file (type png)
 <use figuras/mc_heatmap_base_100.png>
-Package pdftex.def Info: figuras/mc_heatmap_base_100.png  used on input line 103.
+Package pdftex.def Info: figuras/mc_heatmap_base_100.png  used on input line 10
+3.
 (pdftex.def)             Requested size: 355.08984pt x 190.69943pt.
  [29 <./figuras/sec_bess_delta_p_heatmap.png>]
 <figuras/mc_barras_erro_primario.png, id=169, 859.2903pt x 426.03165pt>
 File: figuras/mc_barras_erro_primario.png Graphic file (type png)
 <use figuras/mc_barras_erro_primario.png>
-Package pdftex.def Info: figuras/mc_barras_erro_primario.png  used on input line 118.
+Package pdftex.def Info: figuras/mc_barras_erro_primario.png  used on input lin
+e 118.
 (pdftex.def)             Requested size: 355.08984pt x 176.05225pt.
  [30 <./figuras/mc_curva_mestre_base.png> <./figuras/mc_heatmap_base_100.png>]
 <figuras/mc_boxplot_primario_100.png, id=175, 1582.35165pt x 425.6703pt>
 File: figuras/mc_boxplot_primario_100.png Graphic file (type png)
 <use figuras/mc_boxplot_primario_100.png>
-Package pdftex.def Info: figuras/mc_boxplot_primario_100.png  used on input line 128.
+Package pdftex.def Info: figuras/mc_boxplot_primario_100.png  used on input lin
+e 128.
 (pdftex.def)             Requested size: 355.08984pt x 95.51836pt.
 <figuras/mc_heatmap_dif_primario_100.png, id=176, 930.8376pt x 498.30165pt>
 File: figuras/mc_heatmap_dif_primario_100.png Graphic file (type png)
 <use figuras/mc_heatmap_dif_primario_100.png>
-Package pdftex.def Info: figuras/mc_heatmap_dif_primario_100.png  used on input line 136.
+Package pdftex.def Info: figuras/mc_heatmap_dif_primario_100.png  used on input
+ line 136.
 (pdftex.def)             Requested size: 355.08984pt x 190.08652pt.
 <figuras/mc_curva_mestre_tres.png, id=177, 859.65166pt x 426.393pt>
 File: figuras/mc_curva_mestre_tres.png Graphic file (type png)
 <use figuras/mc_curva_mestre_tres.png>
-Package pdftex.def Info: figuras/mc_curva_mestre_tres.png  used on input line 149.
+Package pdftex.def Info: figuras/mc_curva_mestre_tres.png  used on input line 1
+49.
 (pdftex.def)             Requested size: 355.08984pt x 176.13pt.
-) [31 <./figuras/mc_barras_erro_primario.png> <./figuras/mc_boxplot_primario_100.png>] [32 <./figuras/mc_heatmap_dif_primario_100.png> <./figuras/mc_curva_mestre_tres.png>]
+) [31 <./figuras/mc_barras_erro_primario.png> <./figuras/mc_boxplot_primario_10
+0.png>] [32 <./figuras/mc_heatmap_dif_primario_100.png> <./figuras/mc_curva_mes
+tre_tres.png>]
 \openout2 = `capitulos/07-conclusao.aux'.
 
  (./capitulos/07-conclusao.tex
@@ -790,26 +891,27 @@ Apendice B.
 <figuras/fluxograma-consenso.png, id=208, 329.23pt x 570.13pt>
 File: figuras/fluxograma-consenso.png Graphic file (type png)
 <use figuras/fluxograma-consenso.png>
-Package pdftex.def Info: figuras/fluxograma-consenso.png  used on input line 48.
-(pdftex.def)             Requested size: 332.78592pt x 576.28726pt.
-<figuras/fluxograma-monte_carlo-primario-consenso.png, id=209, 455.7025pt x 496.85625pt>
-File: figuras/fluxograma-monte_carlo-primario-consenso.png Graphic file (type png)
+Package pdftex.def Info: figuras/fluxograma-consenso.png  used on input line 48
+.
+(pdftex.def)             Requested size: 344.95819pt x 597.36665pt.
+<figuras/fluxograma-monte_carlo-primario-consenso.png, id=209, 455.7025pt x 496
+.85625pt>
+File: figuras/fluxograma-monte_carlo-primario-consenso.png Graphic file (type p
+ng)
 <use figuras/fluxograma-monte_carlo-primario-consenso.png>
-Package pdftex.def Info: figuras/fluxograma-monte_carlo-primario-consenso.png  used on input line 56.
-(pdftex.def)             Requested size: 528.59439pt x 576.28726pt.
-
-Overfull \hbox (73.35028pt too wide) in paragraph at lines 56--57
- [][] 
- []
-
+Package pdftex.def Info: figuras/fluxograma-monte_carlo-primario-consenso.png  
+used on input line 56.
+(pdftex.def)             Requested size: 455.25635pt x 496.36981pt.
 ) [39
 
-] [40 <./figuras/fluxograma-consenso.png>] [41 <./figuras/fluxograma-monte_carlo-primario-consenso.png>]
+] [40 <./figuras/fluxograma-consenso.png>] [41 <./figuras/fluxograma-monte_carl
+o-primario-consenso.png>]
 \openout2 = `anexos.aux'.
 
  (./anexos.tex
 Anexo A.
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 4.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 4
+.
 (/usr/local/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 ) [42
@@ -821,22 +923,36 @@ File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 Anexo B.
 ) [43
 
-] (./relatorio.aux (./capitulos/01-introducao.aux) (./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux) (./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux) (./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux) (./anexos.aux))
+] (./relatorio.aux (./capitulos/01-introducao.aux)
+(./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux)
+(./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux)
+(./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux
+) (./anexos.aux))
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 7423 strings out of 474116
- 123017 string characters out of 5743682
+ 7422 strings out of 474116
+ 122791 string characters out of 5743682
  1936187 words of memory out of 5000000
  29556 multiletter control sequences out of 15000+600000
  624653 words of font info for 133 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 72i,13n,79p,1576b,536s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on relatorio.pdf (54 pages, 3043643 bytes).
+ 72i,13n,79p,1504b,536s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb
+></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
+</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
+usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></u
+sr/local/texlive/2024/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb></usr/local
+/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></usr/local/t
+exlive/2024/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024
+/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024/texmf-dist
+/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/typ
+e1/urw/times/utmr8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/tim
+es/utmri8a.pfb>
+Output written on relatorio.pdf (54 pages, 3043671 bytes).
 PDF statistics:
  280 PDF objects out of 1000 (max. 8388607)
  157 compressed objects within 2 object streams

@@ -129,6 +129,10 @@ SONDA — Sistema de Organização Nacional de Dados Ambientais.
 \include{capitulos/07-conclusao}
 
 % ========== Referências ==========
+% Colchetes nos rótulos da lista (ex.: [1], [2]), preservando a estrutura do abntex2cite
+\makeatletter
+\renewcommand{\@biblabel}[1]{[{\citenumstyle #1}]\hspace{\biblabelsep}}
+\makeatother
 \bibliographystyle{abntex2-num}
 \bibliography{referencias}
 
