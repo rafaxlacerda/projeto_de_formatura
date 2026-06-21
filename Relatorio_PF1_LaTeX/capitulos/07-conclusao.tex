@@ -1,24 +1,53 @@
 \chapter{Conclusão}
 \label{cap:conclusao}
 
-Este relatório documentou a primeira etapa do Projeto de Formatura, dedicada ao desenvolvimento e à avaliação de uma estratégia de controle distribuído em dupla camada para BESS, voltada à regulação de tensão em redes de distribuição de média tensão com alta penetração de geração fotovoltaica. A seguir, retomam-se os objetivos específicos definidos na Seção~\ref{sec:objetivos}, confrontando-os com os resultados obtidos.
+Este relatório documentou a primeira etapa do Projeto de Formatura, dedicada ao desenvolvimento 
+e à avaliação de uma estratégia de controle distribuído em dupla camada para BESS, voltada à 
+regulação de tensão em redes de distribuição de média tensão com alta penetração de geração 
+fotovoltaica. A seguir, retomam-se os objetivos específicos definidos na 
+Seção~\ref{sec:objetivos}, confrontando-os com os resultados obtidos.
 
-A revisão da literatura (Capítulo~\ref{cap:fundamentacao}) sistematizou as arquiteturas de controle e as principais formulações distribuídas, identificando os algoritmos de consenso como a base predominante da camada de coordenação e fundamentando as escolhas metodológicas do trabalho. O ambiente de cossimulação Python--OpenDSS (Capítulo~\ref{cap:ambiente}) foi desenvolvido e validado na rede IEEE~33 barras, estabelecendo a infraestrutura para a execução de fluxos de potência iterativos em séries temporais. A geração de cenários por Monte Carlo (Capítulo~\ref{cap:cenarios}) produziu um conjunto de 5500~cenários sobre a rede IEEE~34 barras, contemplando onze níveis de penetração e a incerteza de irradiância, alocação de recursos e demanda. As duas camadas de controle (Capítulo~\ref{cap:controle}) foram implementadas e integradas, e seu desempenho foi avaliado de forma pareada (Capítulo~\ref{cap:resultados}).
+A revisão da literatura (Capítulo~\ref{cap:fundamentacao}) sistematizou as arquiteturas de 
+controle e as principais formulações distribuídas, identificando os algoritmos de consenso 
+como a base predominante da camada de coordenação e fundamentando as escolhas metodológicas 
+do trabalho. O ambiente de cossimulação Python--OpenDSS (Capítulo~\ref{cap:ambiente}) foi 
+desenvolvido e validado na rede IEEE~33 barras, estabelecendo a infraestrutura para a execução 
+de fluxos de potência iterativos em séries temporais. A geração de cenários por Monte Carlo 
+(Capítulo~\ref{cap:cenarios}) produziu um conjunto de 5500~cenários sobre a rede IEEE~34 
+barras, contemplando onze níveis de penetração e a incerteza de irradiância, alocação de 
+recursos e demanda. As duas camadas de controle (Capítulo~\ref{cap:controle}) foram 
+implementadas e integradas, e seu desempenho foi avaliado de forma pareada 
+(Capítulo~\ref{cap:resultados}).
 
-Quanto à avaliação de desempenho, três conclusões se destacam. Primeiro, nas condições simuladas, o desafio dominante de regulação de tensão é a sobretensão diurna, que cresce sistematicamente com a penetração fotovoltaica, enquanto a subtensão é satisfatoriamente mitigada pelos dispositivos convencionais da rede, à exceção da barra de extremidade do ramal de 4,16~kV. Segundo, o controle primário por curva volt-var mostrou-se eficaz: reduziu de forma expressiva o número médio de barras em sobretensão --- de cerca de dezessete para quatro em 100\% de penetração --- e comprimiu a dispersão entre cenários, tornando o desempenho da rede mais previsível, sem causar corte de geração. Terceiro, o controle secundário por consenso, na rede e configuração estudadas, não reduziu as violações remanescentes ao primário, apresentando inclusive efeito adverso pontual; tal resultado decorre da concentração espacial dos BESS no alimentador, que limita o alcance da redistribuição de potência sobre as barras críticas próximas à subestação.
+Quanto à avaliação de desempenho, três conclusões se destacam. Primeiro, nas condições 
+simuladas, o desafio dominante de regulação de tensão é a sobretensão diurna, que cresce 
+sistematicamente com a penetração fotovoltaica, enquanto a subtensão é satisfatoriamente 
+mitigada pelos dispositivos convencionais da rede, à exceção da barra de extremidade do 
+ramal de 4,16~kV. Segundo, o controle primário por curva volt-var mostrou-se eficaz: 
+reduziu de forma expressiva o número médio de barras em sobretensão (de cerca de dezessete 
+para quatro em 100\% de penetração) e comprimiu a dispersão entre cenários, tornando o 
+desempenho da rede mais previsível, sem causar corte de geração. Terceiro, o controle 
+secundário por consenso, na rede e configuração estudadas, não reduziu as violações 
+remanescentes ao primário, apresentando inclusive efeito adverso pontual; tal resultado 
+decorre da concentração espacial dos BESS no alimentador, que limita o alcance da 
+redistribuição de potência sobre as barras críticas próximas à subestação.
 
-O resultado negativo da camada de consenso, longe de invalidar a abordagem, delimita suas condições de eficácia e orienta os próximos passos. Cabe ressaltar dois ajustes em relação ao plano de trabalho, ambos justificados ao longo do texto: a adoção da biblioteca OpenDSSDirect.py em lugar da interface COM, e a substituição da lógica \emph{fuzzy} pela curva volt-var normatizada, estendida também aos inversores FV.
+O resultado negativo da camada de consenso, longe de invalidar a abordagem, delimita suas 
+condições de eficácia e orienta os próximos passos. Cabe ressaltar dois ajustes em relação ao 
+plano de trabalho, ambos justificados ao longo do texto: a adoção da biblioteca 
+OpenDSSDirect.py em lugar da interface COM, e a substituição da lógica \emph{fuzzy} pela curva 
+volt-var normatizada, estendida também aos inversores FV.
 
 \section{Trabalhos futuros}
 \label{sec:futuro}
 
-Os resultados obtidos delineiam os próximos passos da pesquisa, a serem desenvolvidos na segunda etapa do Projeto de Formatura:
+Os resultados obtidos delineiam os próximos passos da pesquisa, a serem desenvolvidos na 
+segunda etapa do Projeto de Formatura:
 
 \begin{itemize}
   \item aprimorar os modelos de FV e BESS, em particular incorporando o rastreamento do estado de carga (SoC) das baterias, hoje modeladas como elementos de carga equivalente;
   \item reavaliar o desempenho da rede na ausência dos reguladores automáticos de tensão, isolando a contribuição do controle distribuído;
-  \item revisar a alocação e o dimensionamento do armazenamento --- incluindo mais unidades ou uma rede mais favorável --- de modo a criar condições adequadas à atuação da camada de consenso, e definir novos critérios de desempenho, como redução de perdas, suporte de reativos e mitigação de desequilíbrio;
+  \item revisar a alocação e o dimensionamento do armazenamento, incluindo mais unidades ou uma rede mais favorável, de modo a criar condições adequadas à atuação da camada de consenso, e definir novos critérios de desempenho, como redução de perdas, suporte de reativos e mitigação de desequilíbrio;
   \item estender a solução a redes trifásicas desequilibradas, analisando o impacto da assimetria de fases sobre o algoritmo de controle;
   \item incorporar modelos de degradação e ciclo de vida das baterias ao laço de controle; e
-  \item aplicar a metodologia a uma rede de distribuição real, aproximando a avaliação das condições operacionais efetivas.
 \end{itemize}
