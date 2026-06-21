@@ -7,3 +7,24 @@ A rede de estudo deste trabalho é o alimentador de testes \emph{IEEE 34 Bus Tes
 \label{an:sonda}
 
 Os perfis de irradiância empregados na geração de cenários (Seção~\ref{sec:irradiancia}) baseiam-se em medições do Sistema de Organização Nacional de Dados Ambientais (SONDA), operado pelo Instituto Nacional de Pesquisas Espaciais (INPE)~\cite{inpe_sonda}. Utilizaram-se as séries de irradiância global horizontal da estação de Cachoeira Paulista (SP), referentes ao período de janeiro de 2023 a dezembro de 2025. Os dados originais são de domínio público e estão disponíveis no portal da rede SONDA.
+
+\chapter{Sobretensão no caso base por tipo de dia}
+\label{an:base_sobretensao}
+
+Este anexo detalha a sobretensão ($V > 1{,}05$~p.u.) do caso de referência (Seção~\ref{sec:res_base}), discriminando os dias de céu aberto e os dias nublados. As Figuras~\ref{fig:an_box_sobre_aberto} e~\ref{fig:an_box_sobre_nublado} apresentam o número de barras consumidoras com sobretensão por faixa horária, para cada nível de penetração. Em dias de céu aberto, os eventos de sobretensão surgem com maior número de barras afetadas para um mesmo nível de penetração: na faixa da manhã, em 100\% de penetração, a mediana é de 21 barras, contra cerca de 6 barras em dias nublados. Nota-se ainda que, em ambos os tipos de dia, as faixas diurnas (manhã e tarde) concentram as violações, com onset entre 30\% e 40\% de penetração e saturação da rede acima de 70\%, enquanto a madrugada permanece praticamente sem ocorrências.
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Número de barras com sobretensão por faixa horária no caso sem controle --- dias de céu aberto.}
+  \label{fig:an_box_sobre_aberto}
+  \includegraphics[width=0.92\textwidth]{an_boxplot_sobre_ceuaberto.png}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Número de barras com sobretensão por faixa horária no caso sem controle --- dias nublados.}
+  \label{fig:an_box_sobre_nublado}
+  \includegraphics[width=0.92\textwidth]{an_boxplot_sobre_nublado.png}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{figure}
