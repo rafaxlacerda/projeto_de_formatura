@@ -1,0 +1,35 @@
+# Arquivos de build do LaTeX (gerados automaticamente — não versionar)
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.glg
+*.acn
+*.acr
+*.alg
+*.nav
+*.snm
+*.vrb
+*.xdv
+*.figlist
+*.makefile
+*.fls
+
+# Mantém o PDF final versionado (relatorio.pdf).
+# Para deixar de versioná-lo também, descomente a linha abaixo:
+# *.pdf
