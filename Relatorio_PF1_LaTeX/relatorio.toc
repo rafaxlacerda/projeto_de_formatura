@@ -30,16 +30,16 @@
 \contentsline {chapter}{\numberline {6}Resultados e discussão}{24}{}%
 \contentsline {section}{\numberline {6.1}Arquitetura computacional e métrica de desempenho}{24}{}%
 \contentsline {section}{\numberline {6.2}Validação em cenário único: controle primário}{24}{}%
-\contentsline {section}{\numberline {6.3}Validação em cenário único: controle duplo}{26}{}%
-\contentsline {section}{\numberline {6.4}Análise probabilística por Monte Carlo}{29}{}%
-\contentsline {subsection}{\numberline {6.4.1}Caso de referência}{29}{}%
-\contentsline {subsection}{\numberline {6.4.2}Efeito do controle primário}{31}{}%
-\contentsline {subsection}{\numberline {6.4.3}Efeito do controle duplo por consenso}{33}{}%
-\contentsline {chapter}{\numberline {7}Conclusão}{35}{}%
-\contentsline {section}{\numberline {7.1}Trabalhos futuros}{36}{}%
-\contentsline {chapter}{Referências}{37}{}%
-\contentsline {chapter}{Apêndice{} A{} -- Resultados do fluxo de potência na rede IEEE~33 barras}{40}{}%
-\contentsline {chapter}{Apêndice{} B{} -- Fluxogramas dos algoritmos e da arquitetura computacional}{41}{}%
-\contentsline {chapter}{Anexo{} A{} -- Dados do alimentador IEEE~34 barras}{44}{}%
-\contentsline {chapter}{Anexo{} B{} -- Base de dados de irradiância SONDA/INPE}{45}{}%
-\contentsline {chapter}{Anexo{} C{} -- Sobretensão no caso base por tipo de dia}{46}{}%
+\contentsline {section}{\numberline {6.3}Validação em cenário único: controle duplo}{25}{}%
+\contentsline {section}{\numberline {6.4}Análise probabilística por Monte Carlo}{27}{}%
+\contentsline {subsection}{\numberline {6.4.1}Caso de referência}{28}{}%
+\contentsline {subsection}{\numberline {6.4.2}Efeito do controle primário}{30}{}%
+\contentsline {subsection}{\numberline {6.4.3}Efeito do controle duplo por consenso}{31}{}%
+\contentsline {chapter}{\numberline {7}Conclusão}{33}{}%
+\contentsline {section}{\numberline {7.1}Trabalhos futuros}{34}{}%
+\contentsline {chapter}{Referências}{35}{}%
+\contentsline {chapter}{Apêndice{} A{} -- Resultados do fluxo de potência na rede IEEE~33 barras}{38}{}%
+\contentsline {chapter}{Apêndice{} B{} -- Fluxogramas dos algoritmos e da arquitetura computacional}{39}{}%
+\contentsline {chapter}{Anexo{} A{} -- Dados do alimentador IEEE~34 barras}{42}{}%
+\contentsline {chapter}{Anexo{} B{} -- Base de dados de irradiância SONDA/INPE}{43}{}%
+\contentsline {chapter}{Anexo{} C{} -- Sobretensão no caso base por tipo de dia}{44}{}%

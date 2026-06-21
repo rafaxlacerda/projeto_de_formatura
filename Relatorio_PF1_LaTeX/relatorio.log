@@ -1,63 +1,58 @@
-<<<<<<< HEAD
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.6.20)  20 JUN 2026 23:44
-=======
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  20 JUN 2026 23:48
->>>>>>> 2b0f6f8e1be3fda2d32eaa0287cfe45311f0096f
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  21 JUN 2026 00:01
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**./relatorio.tex
-(relatorio.tex
-LaTeX2e <2025-11-01>
-L3 programming layer <2025-12-24>
-(politex.cls
+**/Users/rafaelalacerda/Documents/PF/projeto_de_formatura/Relatorio_PF1_LaTeX/relatorio
+(/Users/rafaelalacerda/Documents/PF/projeto_de_formatura/Relatorio_PF1_LaTeX/relatorio.tex
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-02-20>
+(./politex.cls
 Document Class: politex 2013/12/29 POLI-USP LaTeX Class
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
-Package: inputenc 2024/02/08 v1.3d Input encoding file
+(/usr/local/texlive/2024/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks17
 \inpenc@posthook=\toks18
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
-Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
-Package: calc 2025/03/01 v4.3b Infix arithmetic (KKT,FJ)
-\calc@Acount=\count275
-\calc@Bcount=\count276
-\calc@Adimen=\dimen148
-\calc@Bdimen=\dimen149
-\calc@Askip=\skip49
-\calc@Bskip=\skip50
-LaTeX Info: Redefining \setlength on input line 86.
-LaTeX Info: Redefining \addtolength on input line 87.
-\calc@Ccount=\count277
-\calc@Cskip=\skip51
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/tools\multicol.sty
-Package: multicol 2025/10/21 v2.0b multicolumn formatting (FMi)
-\c@tracingmulticols=\count278
-\mult@box=\box53
-\multicol@leftmargin=\dimen150
-\c@unbalance=\count279
-\c@collectmore=\count280
-\doublecol@number=\count281
-\multicoltolerance=\count282
-\multicolpretolerance=\count283
-\full@width=\dimen151
-\page@free=\dimen152
-\premulticols=\dimen153
-\postmulticols=\dimen154
-\multicolsep=\skip52
-\multicolbaselineskip=\skip53
-\partial@page=\box54
-\last@line=\box55
-\mc@boxedresult=\box56
-\maxbalancingoverflow=\dimen155
-\mult@rightbox=\box57
-\mult@grightbox=\box58
-\mult@firstbox=\box59
-\mult@gfirstbox=\box60
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/calc.sty
+Package: calc 2023/07/08 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count188
+\calc@Bcount=\count189
+\calc@Adimen=\dimen140
+\calc@Bdimen=\dimen141
+\calc@Askip=\skip48
+\calc@Bskip=\skip49
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count190
+\calc@Cskip=\skip50
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/multicol.sty
+Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
+\c@tracingmulticols=\count191
+\mult@box=\box51
+\multicol@leftmargin=\dimen142
+\c@unbalance=\count192
+\c@collectmore=\count193
+\doublecol@number=\count194
+\multicoltolerance=\count195
+\multicolpretolerance=\count196
+\full@width=\dimen143
+\page@free=\dimen144
+\premulticols=\dimen145
+\postmulticols=\dimen146
+\multicolsep=\skip51
+\multicolbaselineskip=\skip52
+\partial@page=\box52
+\last@line=\box53
+\mc@boxedresult=\box54
+\maxbalancingoverflow=\dimen147
+\mult@rightbox=\box55
+\mult@grightbox=\box56
+\mult@firstbox=\box57
+\mult@gfirstbox=\box58
+\@tempa=\box59
+\@tempa=\box60
 \@tempa=\box61
 \@tempa=\box62
 \@tempa=\box63
@@ -92,84 +87,66 @@ Package: multicol 2025/10/21 v2.0b multicolumn formatting (FMi)
 \@tempa=\box92
 \@tempa=\box93
 \@tempa=\box94
-\@tempa=\box95
-\@tempa=\box96
-\c@minrows=\count284
-\c@columnbadness=\count285
-\c@finalcolumnbadness=\count286
-\last@try=\dimen156
-\multicolovershoot=\dimen157
-\multicolundershoot=\dimen158
-\mult@nat@firstbox=\box97
-\colbreak@box=\box98
-\mc@col@check@num=\count287
-\g__mc_curr_col_int=\count288
+\c@minrows=\count197
+\c@columnbadness=\count198
+\c@finalcolumnbadness=\count199
+\last@try=\dimen148
+\multicolovershoot=\dimen149
+\multicolundershoot=\dimen150
+\mult@nat@firstbox=\box95
+\colbreak@box=\box96
+\mc@col@check@num=\count266
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/report.cls
+Document Class: report 2023/05/17 v1.4n Standard LaTeX document class
+(/usr/local/texlive/2024/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
 )
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/base\report.cls
-Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo
-File: size12.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
-)
-\c@part=\count289
-\c@chapter=\count290
-\c@section=\count291
-\c@subsection=\count292
-\c@subsubsection=\count293
-\c@paragraph=\count294
-\c@subparagraph=\count295
-\c@figure=\count296
-\c@table=\count297
-\abovecaptionskip=\skip54
-\belowcaptionskip=\skip55
-\bibindent=\dimen159
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
-Package: geometry 2026/03/07 v6.0 Page Geometry
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+\c@part=\count267
+\c@chapter=\count268
+\c@section=\count269
+\c@subsection=\count270
+\c@subsubsection=\count271
+\c@paragraph=\count272
+\c@subparagraph=\count273
+\c@figure=\count274
+\c@table=\count275
+\abovecaptionskip=\skip53
+\belowcaptionskip=\skip54
+\bibindent=\dimen151
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks19
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+) (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
-Package: iftex 2024/12/12 v1.0g TeX engine tests
+ (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2022/02/03 v1.0f TeX engine tests
 ))
-\Gm@cnth=\count298
-\Gm@cntv=\count299
-\c@Gm@tempcnt=\count300
-\Gm@bindingoffset=\dimen160
-\Gm@wd@mp=\dimen161
-\Gm@odd@mp=\dimen162
-\Gm@even@mp=\dimen163
-\Gm@layoutwidth=\dimen164
-\Gm@layoutheight=\dimen165
-\Gm@layouthoffset=\dimen166
-\Gm@layoutvoffset=\dimen167
+\Gm@cnth=\count276
+\Gm@cntv=\count277
+\c@Gm@tempcnt=\count278
+\Gm@bindingoffset=\dimen152
+\Gm@wd@mp=\dimen153
+\Gm@odd@mp=\dimen154
+\Gm@even@mp=\dimen155
+\Gm@layoutwidth=\dimen156
+\Gm@layoutheight=\dimen157
+\Gm@layouthoffset=\dimen158
+\Gm@layoutvoffset=\dimen159
 \Gm@dimlist=\toks20
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/fancyhdr\fancyhdr.sty
-Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
-
-\f@nch@headwidth=\skip56
-\f@nch@offset@elh=\skip57
-\f@nch@offset@erh=\skip58
-\f@nch@offset@olh=\skip59
-\f@nch@offset@orh=\skip60
-\f@nch@offset@elf=\skip61
-\f@nch@offset@erf=\skip62
-\f@nch@offset@olf=\skip63
-\f@nch@offset@orf=\skip64
-\f@nch@height=\skip65
-\f@nch@footalignment=\skip66
-\f@nch@widthL=\skip67
-\f@nch@widthC=\skip68
-\f@nch@widthR=\skip69
-\@temptokenb=\toks21
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/setspace\setspace.sty
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2022/11/09 v4.1 Extensive control of page headers and footers
+\f@nch@headwidth=\skip55
+\f@nch@O@elh=\skip56
+\f@nch@O@erh=\skip57
+\f@nch@O@olh=\skip58
+\f@nch@O@orh=\skip59
+\f@nch@O@elf=\skip60
+\f@nch@O@erf=\skip61
+\f@nch@O@olf=\skip62
+\f@nch@O@orf=\skip63
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2022/12/04 v6.7b set line spacing
 )
 *geometry* verbose mode - [ newgeometry ] result:
@@ -204,13 +181,12 @@ Package: setspace 2022/12/04 v6.7b set line spacing
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-\ABNTanapindent=\skip70
-\authorTitleLength=\skip71
-\ABNTsignwidth=\skip72
-\ABNTsignthickness=\skip73
-\ABNTsignskip=\skip74
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\mathptmx.sty
+\ABNTanapindent=\skip64
+\authorTitleLength=\skip65
+\ABNTsignwidth=\skip66
+\ABNTsignthickness=\skip67
+\ABNTsignskip=\skip68
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/mathptmx.sty
 Package: mathptmx 2020/03/25 PSNFSS-v9.3 Times w/ Math, improved (SPQR, WaS) 
 LaTeX Font Info:    Redeclaring symbol font `operators' on input line 28.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
@@ -245,284 +221,209 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/ptm/m/it on input line 35.
 LaTeX Info: Redefining \hbar on input line 50.
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\helvet.sty
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/helvet.sty
 Package: helvet 2020/03/25 PSNFSS-v9.3 (WaS) 
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/tools\indentfirst.sty
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/indentfirst.sty
 Package: indentfirst 2023/07/02 v1.03 Indent first paragraph (DPC)
-)) (C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
-Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
-LaTeX Font Info:    Trying to load font information for T1+ptm on input line 11
-6.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1ptm.fd
+)) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+LaTeX Font Info:    Trying to load font information for T1+ptm on input line 112.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/t1ptm.fd
 File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
-))
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
-Package: babel 2025/12/11 v25.17 The multilingual framework for LuaLaTeX, pdfLa
-TeX and XeLaTeX
-\babel@savecnt=\count301
-LaTeX Encoding Info:    Redeclaring text command \ij (encoding OT1) on input li
-ne 2068.
-LaTeX Encoding Info:    Redeclaring text command \IJ (encoding OT1) on input li
-ne 2070.
-LaTeX Encoding Info:    Redeclaring text command \ij (encoding T1) on input lin
-e 2072.
-LaTeX Encoding Info:    Redeclaring text command \IJ (encoding T1) on input lin
-e 2073.
-LaTeX Encoding Info:    Ignoring declaration for text command \ij (encoding ?) 
-on input line 2074.
-LaTeX Encoding Info:    Ignoring declaration for text command \IJ (encoding ?) 
-on input line 2076.
-LaTeX Encoding Info:    Ignoring declaration for text command \SS (encoding ?) 
-on input line 2101.
-\U@D=\dimen168
-\l@unhyphenated=\language79
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/generic/babel\txtbabel.def)
+)) (/usr/local/texlive/2024/texmf-dist/tex/generic/babel/babel.sty
+Package: babel 2024/02/07 v24.2 The Babel package
+\babel@savecnt=\count279
+\U@D=\dimen160
+\l@unhyphenated=\language89
+ (/usr/local/texlive/2024/texmf-dist/tex/generic/babel/txtbabel.def)
 \bbl@readstream=\read2
-\bbl@dirlevel=\count302
-Package babel Info: Configuration files are deprecated, as
-(babel)             they can break document portability.
-(babel)             Reported on input line 4196.
-
-*************************************
-* Local config file bblopts.cfg used
-*
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/arabi\bblopts.cfg
-File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of
- babel
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/invalid\
-babel-brazil.tex)
-
-Package babel Warning: Name 'brazil' is deprecated.
-(babel)                Use 'brazilian' instead.
-(babel)                Reported on input line 4320.
-
-Package babel Info: Importing font and identification data for brazil
-(babel)             from babel-pt-BR.ini. Reported on input line 4320.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/babel-portuges\brazilia
-n.ldf
-Language: portuges 2026/01/24 v1.2u Portuguese support from the babel system
+\bbl@dirlevel=\count280
+ (/usr/local/texlive/2024/texmf-dist/tex/generic/babel-portuges/brazil.ldf
+Language: portuges 2021/07/09 v1.2t Portuguese support from the babel system
 Package babel Info: Hyphen rules for 'brazil' set to \l@portuguese
-(babel)             (\language56). Reported on input line 100.
-Package babel Info: Making " an active character on input line 132.
-))
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
-Package: amsmath 2025/07/09 v2.17z AMS math features
-\@mathmargin=\skip75
+(babel)             (\language72). Reported on input line 111.
+Package babel Info: Making " an active character on input line 143.
+)) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2023/05/13 v2.17o AMS math features
+\@mathmargin=\skip69
 
 For additional information on amsmath, use the `?' option.
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
-Package: amstext 2024/11/17 v2.01 AMS text
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
+(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2021/08/26 v2.01 AMS text
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks22
-\ex@=\dimen169
-))
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+\@emptytoks=\toks21
+\ex@=\dimen161
+)) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen170
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+\pmbraise@=\dimen162
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
-\inf@bad=\count303
-LaTeX Info: Redefining \frac on input line 233.
-\uproot@=\count304
-\leftroot@=\count305
-LaTeX Info: Redefining \overline on input line 398.
-LaTeX Info: Redefining \colon on input line 409.
-\classnum@=\count306
-\DOTSCASE@=\count307
-LaTeX Info: Redefining \ldots on input line 495.
-LaTeX Info: Redefining \dots on input line 498.
-LaTeX Info: Redefining \cdots on input line 619.
-\Mathstrutbox@=\box99
-\strutbox@=\box100
-LaTeX Info: Redefining \big on input line 721.
-LaTeX Info: Redefining \Big on input line 722.
-LaTeX Info: Redefining \bigg on input line 723.
-LaTeX Info: Redefining \Bigg on input line 724.
-\big@size=\dimen171
-LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
-LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
-\macc@depth=\count308
-LaTeX Info: Redefining \bmod on input line 904.
-LaTeX Info: Redefining \pmod on input line 909.
-LaTeX Info: Redefining \smash on input line 939.
-LaTeX Info: Redefining \relbar on input line 969.
-LaTeX Info: Redefining \Relbar on input line 970.
-\c@MaxMatrixCols=\count309
-\dotsspace@=\muskip17
-\c@parentequation=\count310
-\dspbrk@lvl=\count311
-\tag@help=\toks23
-\row@=\count312
-\column@=\count313
-\maxfields@=\count314
-\andhelp@=\toks24
-\eqnshift@=\dimen172
-\alignsep@=\dimen173
-\tagshift@=\dimen174
-\tagwidth@=\dimen175
-\totwidth@=\dimen176
-\lineht@=\dimen177
-\@envbody=\toks25
-\multlinegap=\skip76
-\multlinetaggap=\skip77
-\mathdisplay@stack=\toks26
-LaTeX Info: Redefining \[ on input line 2950.
-LaTeX Info: Redefining \] on input line 2951.
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+\inf@bad=\count281
+LaTeX Info: Redefining \frac on input line 234.
+\uproot@=\count282
+\leftroot@=\count283
+LaTeX Info: Redefining \overline on input line 399.
+LaTeX Info: Redefining \colon on input line 410.
+\classnum@=\count284
+\DOTSCASE@=\count285
+LaTeX Info: Redefining \ldots on input line 496.
+LaTeX Info: Redefining \dots on input line 499.
+LaTeX Info: Redefining \cdots on input line 620.
+\Mathstrutbox@=\box97
+\strutbox@=\box98
+LaTeX Info: Redefining \big on input line 722.
+LaTeX Info: Redefining \Big on input line 723.
+LaTeX Info: Redefining \bigg on input line 724.
+LaTeX Info: Redefining \Bigg on input line 725.
+\big@size=\dimen163
+LaTeX Font Info:    Redeclaring font encoding OML on input line 743.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
+\macc@depth=\count286
+LaTeX Info: Redefining \bmod on input line 905.
+LaTeX Info: Redefining \pmod on input line 910.
+LaTeX Info: Redefining \smash on input line 940.
+LaTeX Info: Redefining \relbar on input line 970.
+LaTeX Info: Redefining \Relbar on input line 971.
+\c@MaxMatrixCols=\count287
+\dotsspace@=\muskip16
+\c@parentequation=\count288
+\dspbrk@lvl=\count289
+\tag@help=\toks22
+\row@=\count290
+\column@=\count291
+\maxfields@=\count292
+\andhelp@=\toks23
+\eqnshift@=\dimen164
+\alignsep@=\dimen165
+\tagshift@=\dimen166
+\tagwidth@=\dimen167
+\totwidth@=\dimen168
+\lineht@=\dimen169
+\@envbody=\toks24
+\multlinegap=\skip70
+\multlinetaggap=\skip71
+\mathdisplay@stack=\toks25
+LaTeX Info: Redefining \[ on input line 2953.
+LaTeX Info: Redefining \] on input line 2954.
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \symAMSa=\mathgroup6
 \symAMSb=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-)) (C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/amscls\amsthm.sty
+)) (/usr/local/texlive/2024/texmf-dist/tex/latex/amscls/amsthm.sty
 Package: amsthm 2020/05/29 v2.20.6
-\thm@style=\toks27
-\thm@bodyfont=\toks28
-\thm@headfont=\toks29
-\thm@notefont=\toks30
-\thm@headpunct=\toks31
-\thm@preskip=\skip78
-\thm@postskip=\skip79
-\thm@headsep=\skip80
-\dth@everypar=\toks32
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
-Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
-Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
-Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
-fg
+\thm@style=\toks26
+\thm@bodyfont=\toks27
+\thm@headfont=\toks28
+\thm@notefont=\toks29
+\thm@headpunct=\toks30
+\thm@preskip=\skip72
+\thm@postskip=\skip73
+\thm@headsep=\skip74
+\dth@everypar=\toks31
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
-Package graphics Info: Driver file: pdftex.def on input line 106.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
-File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+Package graphics Info: Driver file: pdftex.def on input line 107.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
 ))
-\Gin@req@height=\dimen178
-\Gin@req@width=\dimen179
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+\Gin@req@height=\dimen170
+\Gin@req@width=\dimen171
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/booktabs/booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen180
-\lightrulewidth=\dimen181
-\cmidrulewidth=\dimen182
-\belowrulesep=\dimen183
-\belowbottomsep=\dimen184
-\aboverulesep=\dimen185
-\abovetopsep=\dimen186
-\cmidrulesep=\dimen187
-\cmidrulekern=\dimen188
-\defaultaddspace=\dimen189
-\@cmidla=\count315
-\@cmidlb=\count316
-\@aboverulesep=\dimen190
-\@belowrulesep=\dimen191
-\@thisruleclass=\count317
-\@lastruleclass=\count318
-\@thisrulewidth=\dimen192
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
-Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
-\col@sep=\dimen193
-\ar@mcellbox=\box101
-\extrarowheight=\dimen194
-\NC@list=\toks33
-\extratabsurround=\skip81
-\backup@length=\skip82
-\ar@cellbox=\box102
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/multirow\multirow.sty
-Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
-\multirow@colwidth=\skip83
-\multirow@cntb=\count319
-\multirow@dima=\skip84
-\bigstrutjot=\dimen195
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
+\heavyrulewidth=\dimen172
+\lightrulewidth=\dimen173
+\cmidrulewidth=\dimen174
+\belowrulesep=\dimen175
+\belowbottomsep=\dimen176
+\aboverulesep=\dimen177
+\abovetopsep=\dimen178
+\cmidrulesep=\dimen179
+\cmidrulekern=\dimen180
+\defaultaddspace=\dimen181
+\@cmidla=\count293
+\@cmidlb=\count294
+\@aboverulesep=\dimen182
+\@belowrulesep=\dimen183
+\@thisruleclass=\count295
+\@lastruleclass=\count296
+\@thisrulewidth=\dimen184
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/array.sty
+Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
+\col@sep=\dimen185
+\ar@mcellbox=\box99
+\extrarowheight=\dimen186
+\NC@list=\toks32
+\extratabsurround=\skip75
+\backup@length=\skip76
+\ar@cellbox=\box100
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
+\multirow@colwidth=\skip77
+\multirow@cntb=\count297
+\multirow@dima=\skip78
+\bigstrutjot=\dimen187
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count320
-\float@exts=\toks34
-\float@box=\box103
-\@float@everytoks=\toks35
-\@floatcapt=\box104
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
-Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+\c@float@type=\count298
+\float@exts=\toks33
+\float@box=\box101
+\@float@everytoks=\toks34
+\@floatcapt=\box102
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 274.
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
-Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
-Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
-Package xcolor Info: Model `RGB' extended on input line 1365.
-Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
-Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
-Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
-Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
-Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
-Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/abntex2\abntex2cite.sty
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1350.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1354.
+Package xcolor Info: Model `RGB' extended on input line 1366.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1368.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/abntex2/abntex2cite.sty
 Package: abntex2cite 2018/11/24 v-1.9.7 abnTeX2
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/abntex2\abntex2abrev.st
-y) (C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
-\Urlmuskip=\muskip18
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/abntex2/abntex2abrev.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
-\minimumbiblabelwidth=\skip85
-\ABCIauxlen=\skip86
-\c@ABCIaux=\count321
-\c@ABCImax=\count322
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifpdf.sty
+\minimumbiblabelwidth=\skip79
+\ABCIauxlen=\skip80
+\c@ABCIaux=\count299
+\c@ABCImax=\count300
+ (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifpdf.sty
 Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifxetex.sty
+) (/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifxetex.sty
 Package: ifxetex 2019/10/25 v0.7 ifxetex legacy package. Use iftex instead.
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/relsize\relsize.sty
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/relsize/relsize.sty
 Package: relsize 2013/03/29 ver 4.1
 )
-\biblabelsep=\skip87
+\biblabelsep=\skip81
 LaTeX Info: Redefining \newblock on input line 591.
 LaTeX Info: Redefining \cite on input line 862.
-\ABCItoken=\toks36
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
-tex.def
-File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count323
-) (relatorio.aux
-Package babel Info: 'brazil' activates 'portuges' shorthands.
-(babel)             Reported on input line 6.
- (capitulos/01-introducao.aux)
-(capitulos/02-fundamentacao.aux) (capitulos/03-ambiente.aux)
-(capitulos/04-cenarios.aux) (capitulos/05-controle.aux)
-(capitulos/06-resultados.aux) (capitulos/07-conclusao.aux) (apendices.aux)
-(anexos.aux))
+\ABCItoken=\toks35
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-02-20 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count301
+\l__pdf_internal_box=\box103
+) (./relatorio.aux (./capitulos/01-introducao.aux) (./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux) (./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux) (./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux) (./anexos.aux))
 \openout1 = `relatorio.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
@@ -574,64 +475,46 @@ LaTeX Font Info:    ... okay on input line 56.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
-ii
+(/usr/local/texlive/2024/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count324
-\scratchdimen=\dimen196
-\scratchbox=\box105
-\nofMPsegments=\count325
-\nofMParguments=\count326
-\everyMPshowfont=\toks37
-\MPscratchCnt=\count327
-\MPscratchDim=\dimen197
-\MPnumerator=\count328
-\makeMPintoPDFobject=\count329
-\everyMPtoPDFconversion=\toks38
-)
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
-ase.sty
+\scratchcounter=\count302
+\scratchdimen=\dimen188
+\scratchbox=\box104
+\nofMPsegments=\count303
+\nofMParguments=\count304
+\everyMPshowfont=\toks36
+\MPscratchCnt=\count305
+\MPscratchDim=\dimen189
+\MPnumerator=\count306
+\makeMPintoPDFobject=\count307
+\everyMPtoPDFconversion=\toks37
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
-Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
-85.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
-fg
-File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 )) [1
 
 
-{C:/Users/anajm/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/anaj
-m/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line
- 60.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ztmcm.fd
+{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}]
+LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 60.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line
- 60.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omlztmcm.fd
+LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 60.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line
- 60.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omsztmcm.fd
+LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 60.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line
- 60.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omxztmcm.fd
+LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 60.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 6
-0.
-
-(C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ptm.fd
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 60.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
@@ -640,8 +523,7 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 60.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 60.
-
-[1
+ [1
 
 ] [1
 
@@ -650,25 +532,23 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
 
 ] [3
 
-] (relatorio.lof
+] (./relatorio.lof
 Overfull \hbox (28.66519pt too wide) in paragraph at lines 9--9
- [][] []\T1/ptm/m/n/12 Curva volt-var ado-tada para o con-trole pri-má-rio, con
--forme a ABNT NBR 16149:2013. [][]  
+ [][] []\T1/ptm/m/n/12 Curva volt-var ado-tada para o con-trole pri-má-rio, con-forme a ABNT NBR 16149:2013. [][]  
  []
 
 [4
 
 ]
-Overfull \hbox (14.408pt too wide) in paragraph at lines 24--24
- \T1/ptm/m/n/12 ção de ce-ná-rios, a si-mu-la-ção sob cada es-tra-té-gia de con
--trole e o pós-processamento. [][]  
+Overfull \hbox (14.408pt too wide) in paragraph at lines 23--23
+ \T1/ptm/m/n/12 ção de ce-ná-rios, a si-mu-la-ção sob cada es-tra-té-gia de con-trole e o pós-processamento. [][]  
  []
 
 )
 \tf@lof=\write3
 \openout3 = `relatorio.lof'.
 
- [5] (relatorio.lot)
+ [5] (./relatorio.lot)
 \tf@lot=\write4
 \openout4 = `relatorio.lot'.
 
@@ -676,7 +556,7 @@ Overfull \hbox (14.408pt too wide) in paragraph at lines 24--24
 
 ] [7
 
-] (relatorio.toc [8
+] (./relatorio.toc [8
 
 ])
 \tf@toc=\write5
@@ -685,31 +565,25 @@ Overfull \hbox (14.408pt too wide) in paragraph at lines 24--24
  [9]
 \openout2 = `capitulos/01-introducao.aux'.
 
-
-(capitulos/01-introducao.tex
+ (./capitulos/01-introducao.tex
 Cap\'{\i }tulo 1.
 [1
 
 
 
 ]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 6
-0.
- (C:\Users\anajm\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 60.
+ (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
-[2]) [3]
+) [2]) [3]
 \openout2 = `capitulos/02-fundamentacao.aux'.
 
- (capitulos/02-fundamentacao.tex
+ (./capitulos/02-fundamentacao.tex
 Cap\'{\i }tulo 2.
-<figuras/arquiteturas_de_controle_distribuidos.png, id=54, 456.615pt x 283.824p
-t>
+<figuras/arquiteturas_de_controle_distribuidos.png, id=55, 456.615pt x 283.824pt>
 File: figuras/arquiteturas_de_controle_distribuidos.png Graphic file (type png)
-
 <use figuras/arquiteturas_de_controle_distribuidos.png>
-Package pdftex.def Info: figuras/arquiteturas_de_controle_distribuidos.png  use
-d on input line 25.
+Package pdftex.def Info: figuras/arquiteturas_de_controle_distribuidos.png  used on input line 25.
 (pdftex.def)             Requested size: 386.96027pt x 240.53696pt.
 [4
 
@@ -726,13 +600,11 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
  [6] [7]) [8]
 \openout2 = `capitulos/03-ambiente.aux'.
 
-
-(capitulos/03-ambiente.tex
+ (./capitulos/03-ambiente.tex
 Cap\'{\i }tulo 3.
 
 Overfull \hbox (4.4347pt too wide) in paragraph at lines 26--34
-\T1/ptm/m/n/12 zando es-tu-dos de con-tro-la-do-res de BESS em di-fe-ren-tes ce
--ná-rios. Para essa in-te-gra-ção, avaliaram-
+\T1/ptm/m/n/12 zando es-tu-dos de con-tro-la-do-res de BESS em di-fe-ren-tes ce-ná-rios. Para essa in-te-gra-ção, avaliaram-
  []
 
 [9
@@ -741,27 +613,24 @@ Overfull \hbox (4.4347pt too wide) in paragraph at lines 26--34
 
 
 ]
-<figuras/diagrama_unifilar_33_barras.jpg, id=76, 911.405pt x 347.2975pt>
+<figuras/diagrama_unifilar_33_barras.jpg, id=77, 911.405pt x 347.2975pt>
 File: figuras/diagrama_unifilar_33_barras.jpg Graphic file (type jpg)
 <use figuras/diagrama_unifilar_33_barras.jpg>
-Package pdftex.def Info: figuras/diagrama_unifilar_33_barras.jpg  used on input
- line 57.
+Package pdftex.def Info: figuras/diagrama_unifilar_33_barras.jpg  used on input line 57.
 (pdftex.def)             Requested size: 418.82375pt x 159.59981pt.
 
 Overfull \hbox (8.02113pt too wide) in paragraph at lines 61--72
-[]\T1/ptm/m/n/12 Para va-li-dar o am-bi-ente, executou-se o fluxo de po-tên-cia
- da rede em modo es-tá-tico (\T1/ptm/m/it/12 snapshot\T1/ptm/m/n/12 ),
+[]\T1/ptm/m/n/12 Para va-li-dar o am-bi-ente, executou-se o fluxo de po-tên-cia da rede em modo es-tá-tico (\T1/ptm/m/it/12 snapshot\T1/ptm/m/n/12 ),
  []
 
 [10 <./figuras/diagrama_unifilar_33_barras.jpg>]
-<figuras/diagrama_unifilar_34_barras.png, id=80, 490.779pt x 216.81pt>
+<figuras/diagrama_unifilar_34_barras.png, id=81, 490.779pt x 216.81pt>
 File: figuras/diagrama_unifilar_34_barras.png Graphic file (type png)
 <use figuras/diagrama_unifilar_34_barras.png>
-Package pdftex.def Info: figuras/diagrama_unifilar_34_barras.png  used on input
- line 85.
+Package pdftex.def Info: figuras/diagrama_unifilar_34_barras.png  used on input line 85.
 (pdftex.def)             Requested size: 455.24411pt x 201.12173pt.
  [11 <./figuras/diagrama_unifilar_34_barras.png>]
-<figuras/curvas_carga.png, id=85, 722.7pt x 433.62pt>
+<figuras/curvas_carga.png, id=86, 722.7pt x 433.62pt>
 File: figuras/curvas_carga.png Graphic file (type png)
 <use figuras/curvas_carga.png>
 Package pdftex.def Info: figuras/curvas_carga.png  used on input line 127.
@@ -769,8 +638,7 @@ Package pdftex.def Info: figuras/curvas_carga.png  used on input line 127.
 ) [12] [13 <./figuras/curvas_carga.png>]
 \openout2 = `capitulos/04-cenarios.aux'.
 
-
-(capitulos/04-cenarios.tex
+ (./capitulos/04-cenarios.tex
 Cap\'{\i }tulo 4.
 [14
 
@@ -778,39 +646,30 @@ Cap\'{\i }tulo 4.
 
 
 ] [15]
-<figuras/perfil_bess.png, id=101, 722.7pt x 361.35pt>
+<figuras/perfil_bess.png, id=102, 722.7pt x 361.35pt>
 File: figuras/perfil_bess.png Graphic file (type png)
 <use figuras/perfil_bess.png>
 Package pdftex.def Info: figuras/perfil_bess.png  used on input line 61.
 (pdftex.def)             Requested size: 327.7763pt x 163.88518pt.
  [16 <./figuras/perfil_bess.png>]
-<figuras/sonda_classificacao_kt.png, id=107, 643.203pt x 352.1958pt>
+<figuras/sonda_classificacao_kt.png, id=108, 643.203pt x 352.1958pt>
 File: figuras/sonda_classificacao_kt.png Graphic file (type png)
 <use figuras/sonda_classificacao_kt.png>
-Package pdftex.def Info: figuras/sonda_classificacao_kt.png  used on input line
- 97.
+Package pdftex.def Info: figuras/sonda_classificacao_kt.png  used on input line 97.
 (pdftex.def)             Requested size: 318.66948pt x 174.49599pt.
-<figuras/sonda_perfis_irradiancia.png, id=108, 959.2638pt x 358.941pt>
+<figuras/sonda_perfis_irradiancia.png, id=109, 959.2638pt x 358.941pt>
 File: figuras/sonda_perfis_irradiancia.png Graphic file (type png)
 <use figuras/sonda_perfis_irradiancia.png>
-Package pdftex.def Info: figuras/sonda_perfis_irradiancia.png  used on input li
-ne 107.
+Package pdftex.def Info: figuras/sonda_perfis_irradiancia.png  used on input line 107.
 (pdftex.def)             Requested size: 318.66948pt x 119.23958pt.
- [17 <./figuras/sonda_classificacao_kt.png>]) [18 <./figuras/sonda_perfis_irrad
-iancia.png>]
+ [17 <./figuras/sonda_classificacao_kt.png>]) [18 <./figuras/sonda_perfis_irradiancia.png>]
 \openout2 = `capitulos/05-controle.aux'.
 
-
-(capitulos/05-controle.tex
+ (./capitulos/05-controle.tex
 Cap\'{\i }tulo 5.
 
 Overfull \hbox (28.64853pt too wide) in paragraph at lines 14--15
-<<<<<<< HEAD
-[]\T1/ptm/m/n/12 A ca-mada pri-má-ria baseia-se na curva volt-var de-fi-nida pe
-la norma ABNT NBR 16149:2013  [35],
-=======
 []\T1/ptm/m/n/12 A ca-mada pri-má-ria baseia-se na curva volt-var de-fi-nida pela norma ABNT NBR 16149:2013  [35],
->>>>>>> 2b0f6f8e1be3fda2d32eaa0287cfe45311f0096f
  []
 
 [19
@@ -820,11 +679,10 @@ la norma ABNT NBR 16149:2013  [35],
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 25--25
-[]\T1/ptm/m/n/12 Figura 5.1: Curva volt-var ado-tada para o con-trole pri-má-ri
-o, con-forme a
+[]\T1/ptm/m/n/12 Figura 5.1: Curva volt-var ado-tada para o con-trole pri-má-rio, con-forme a
  []
 
-<figuras/volt_var_curve.png, id=120, 514.5624pt x 345.4506pt>
+<figuras/volt_var_curve.png, id=121, 514.5624pt x 345.4506pt>
 File: figuras/volt_var_curve.png Graphic file (type png)
 <use figuras/volt_var_curve.png>
 Package pdftex.def Info: figuras/volt_var_curve.png  used on input line 27.
@@ -832,174 +690,108 @@ Package pdftex.def Info: figuras/volt_var_curve.png  used on input line 27.
 [20 <./figuras/volt_var_curve.png>] [21]) [22] [23]
 \openout2 = `capitulos/06-resultados.aux'.
 
-
-(capitulos/06-resultados.tex
+ (./capitulos/06-resultados.tex
 Cap\'{\i }tulo 6.
+<figuras/prim_violations_consumer.png, id=136, 835.923pt x 420.6114pt>
+File: figuras/prim_violations_consumer.png Graphic file (type png)
+<use figuras/prim_violations_consumer.png>
+Package pdftex.def Info: figuras/prim_violations_consumer.png  used on input line 22.
+(pdftex.def)             Requested size: 364.19667pt x 183.2533pt.
 [24
 
 
 
 
 ]
-<figuras/prim_violations_consumer.png, id=138, 835.923pt x 420.6114pt>
-File: figuras/prim_violations_consumer.png Graphic file (type png)
-<use figuras/prim_violations_consumer.png>
-Package pdftex.def Info: figuras/prim_violations_consumer.png  used on input li
-ne 22.
-(pdftex.def)             Requested size: 364.19667pt x 183.2533pt.
-<figuras/prim_q_activation.png, id=139, 910.1202pt x 670.1838pt>
+<figuras/prim_q_activation.png, id=140, 910.1202pt x 670.1838pt>
 File: figuras/prim_q_activation.png Graphic file (type png)
 <use figuras/prim_q_activation.png>
 Package pdftex.def Info: figuras/prim_q_activation.png  used on input line 32.
 (pdftex.def)             Requested size: 364.19667pt x 268.18126pt.
-<figuras/prim_vmax.png, id=140, 953.964pt x 420.6114pt>
+<figuras/prim_vmax.png, id=141, 953.964pt x 420.6114pt>
 File: figuras/prim_vmax.png Graphic file (type png)
 <use figuras/prim_vmax.png>
 Package pdftex.def Info: figuras/prim_vmax.png  used on input line 42.
 (pdftex.def)             Requested size: 364.19667pt x 160.57848pt.
- [25 <./figuras/prim_violations_consumer.png>] [26 <./figuras/prim_q_activation
-.png> <./figuras/prim_vmax.png>]
-<figuras/sec_violations_3way.png, id=151, 948.1824pt x 421.0932pt>
+ [25 <./figuras/prim_violations_consumer.png>]
+<figuras/sec_violations_3way.png, id=146, 948.1824pt x 421.0932pt>
 File: figuras/sec_violations_3way.png Graphic file (type png)
 <use figuras/sec_violations_3way.png>
-Package pdftex.def Info: figuras/sec_violations_3way.png  used on input line 55
-.
+Package pdftex.def Info: figuras/sec_violations_3way.png  used on input line 55.
 (pdftex.def)             Requested size: 364.19667pt x 161.7455pt.
-<figuras/sec_bess_kw_profile.png, id=152, 1004.0712pt x 1260.8706pt>
+ [26 <./figuras/prim_q_activation.png> <./figuras/prim_vmax.png>]
+<figuras/sec_bess_kw_profile.png, id=153, 1004.0712pt x 1260.8706pt>
 File: figuras/sec_bess_kw_profile.png Graphic file (type png)
 <use figuras/sec_bess_kw_profile.png>
-Package pdftex.def Info: figuras/sec_bess_kw_profile.png  used on input line 65
-.
+Package pdftex.def Info: figuras/sec_bess_kw_profile.png  used on input line 65.
 (pdftex.def)             Requested size: 364.19667pt x 457.33768pt.
- [27 <./figuras/sec_violations_3way.png>]
-<figuras/sec_all_bus_vmin.png, id=157, 959.2638pt x 420.6114pt>
-File: figuras/sec_all_bus_vmin.png Graphic file (type png)
-<use figuras/sec_all_bus_vmin.png>
-Package pdftex.def Info: figuras/sec_all_bus_vmin.png  used on input line 75.
-(pdftex.def)             Requested size: 373.3035pt x 163.6848pt.
-<figuras/sec_all_bus_vmax.png, id=158, 961.191pt x 420.6114pt>
-File: figuras/sec_all_bus_vmax.png Graphic file (type png)
-<use figuras/sec_all_bus_vmax.png>
-Package pdftex.def Info: figuras/sec_all_bus_vmax.png  used on input line 76.
-(pdftex.def)             Requested size: 373.3035pt x 163.35106pt.
-
-[28 <./figuras/sec_bess_kw_profile.png>] [29 <./figuras/sec_all_bus_vmin.png> <
-./figuras/sec_all_bus_vmax.png>]
-<figuras/mc_3d_prob_sobre_base.png, id=168, 671.74965pt x 559.73116pt>
-File: figuras/mc_3d_prob_sobre_base.png Graphic file (type png)
-<use figuras/mc_3d_prob_sobre_base.png>
-Package pdftex.def Info: figuras/mc_3d_prob_sobre_base.png  used on input line 
-98.
-(pdftex.def)             Requested size: 327.7763pt x 273.12619pt.
-<figuras/mc_heatmap_base_100.png, id=169, 931.19894pt x 500.1084pt>
+<figuras/sec_bess_delta_p_heatmap.png, id=154, 886.0302pt x 308.8338pt>
+File: figuras/sec_bess_delta_p_heatmap.png Graphic file (type png)
+<use figuras/sec_bess_delta_p_heatmap.png>
+Package pdftex.def Info: figuras/sec_bess_delta_p_heatmap.png  used on input line 73.
+(pdftex.def)             Requested size: 364.19667pt x 126.94783pt.
+ [27 <./figuras/sec_violations_3way.png>] [28 <./figuras/sec_bess_kw_profile.png>]
+<figuras/mc_curva_mestre_base.png, id=163, 859.65166pt x 426.393pt>
+File: figuras/mc_curva_mestre_base.png Graphic file (type png)
+<use figuras/mc_curva_mestre_base.png>
+Package pdftex.def Info: figuras/mc_curva_mestre_base.png  used on input line 95.
+(pdftex.def)             Requested size: 355.08984pt x 176.13pt.
+<figuras/mc_heatmap_base_100.png, id=164, 931.19894pt x 500.1084pt>
 File: figuras/mc_heatmap_base_100.png Graphic file (type png)
 <use figuras/mc_heatmap_base_100.png>
-Package pdftex.def Info: figuras/mc_heatmap_base_100.png  used on input line 10
-6.
+Package pdftex.def Info: figuras/mc_heatmap_base_100.png  used on input line 103.
 (pdftex.def)             Requested size: 355.08984pt x 190.69943pt.
- [30 <./figuras/mc_3d_prob_sobre_base.png>]
-<figuras/mc_envelope_manha.png, id=174, 937.70325pt x 427.1157pt>
-File: figuras/mc_envelope_manha.png Graphic file (type png)
-<use figuras/mc_envelope_manha.png>
-Package pdftex.def Info: figuras/mc_envelope_manha.png  used on input line 118.
-
-(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
-<figuras/mc_envelope_tarde.png, id=175, 937.70325pt x 427.1157pt>
-File: figuras/mc_envelope_tarde.png Graphic file (type png)
-<use figuras/mc_envelope_tarde.png>
-Package pdftex.def Info: figuras/mc_envelope_tarde.png  used on input line 119.
-
-(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
-<figuras/mc_envelope_noite.png, id=176, 937.70325pt x 427.1157pt>
-File: figuras/mc_envelope_noite.png Graphic file (type png)
-<use figuras/mc_envelope_noite.png>
-Package pdftex.def Info: figuras/mc_envelope_noite.png  used on input line 120.
-
-(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
-<figuras/mc_envelope_madrugada.png, id=177, 937.70325pt x 427.1157pt>
-File: figuras/mc_envelope_madrugada.png Graphic file (type png)
-<use figuras/mc_envelope_madrugada.png>
-Package pdftex.def Info: figuras/mc_envelope_madrugada.png  used on input line 
-121.
-(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
-<figuras/mc_barras_erro_primario.png, id=178, 859.2903pt x 426.03165pt>
+ [29 <./figuras/sec_bess_delta_p_heatmap.png> <./figuras/mc_curva_mestre_base.png>]
+<figuras/mc_barras_erro_primario.png, id=170, 859.2903pt x 426.03165pt>
 File: figuras/mc_barras_erro_primario.png Graphic file (type png)
 <use figuras/mc_barras_erro_primario.png>
-Package pdftex.def Info: figuras/mc_barras_erro_primario.png  used on input lin
-e 134.
+Package pdftex.def Info: figuras/mc_barras_erro_primario.png  used on input line 118.
 (pdftex.def)             Requested size: 355.08984pt x 176.05225pt.
-
-[31 <./figuras/mc_heatmap_base_100.png>]
-<figuras/mc_boxplot_primario_100.png, id=183, 1582.35165pt x 425.6703pt>
+ [30 <./figuras/mc_heatmap_base_100.png> <./figuras/mc_barras_erro_primario.png>]
+<figuras/mc_boxplot_primario_100.png, id=176, 1582.35165pt x 425.6703pt>
 File: figuras/mc_boxplot_primario_100.png Graphic file (type png)
 <use figuras/mc_boxplot_primario_100.png>
-Package pdftex.def Info: figuras/mc_boxplot_primario_100.png  used on input lin
-e 144.
+Package pdftex.def Info: figuras/mc_boxplot_primario_100.png  used on input line 128.
 (pdftex.def)             Requested size: 355.08984pt x 95.51836pt.
-<figuras/mc_heatmap_dif_primario_100.png, id=184, 930.8376pt x 498.30165pt>
+<figuras/mc_heatmap_dif_primario_100.png, id=177, 930.8376pt x 498.30165pt>
 File: figuras/mc_heatmap_dif_primario_100.png Graphic file (type png)
 <use figuras/mc_heatmap_dif_primario_100.png>
-Package pdftex.def Info: figuras/mc_heatmap_dif_primario_100.png  used on input
- line 152.
+Package pdftex.def Info: figuras/mc_heatmap_dif_primario_100.png  used on input line 136.
 (pdftex.def)             Requested size: 355.08984pt x 190.08652pt.
- [32 <./figuras/mc_envelope_manha.png> <./figuras/mc_envelope_tarde.png> <./fig
-uras/mc_envelope_noite.png> <./figuras/mc_envelope_madrugada.png> <./figuras/mc
-_barras_erro_primario.png>]
-<figuras/mc_barras_erro_tres.png, id=194, 859.2903pt x 426.03165pt>
-File: figuras/mc_barras_erro_tres.png Graphic file (type png)
-<use figuras/mc_barras_erro_tres.png>
-Package pdftex.def Info: figuras/mc_barras_erro_tres.png  used on input line 16
-5.
-(pdftex.def)             Requested size: 355.08984pt x 176.05225pt.
-) [33 <./figuras/mc_boxplot_primario_100.png> <./figuras/mc_heatmap_dif_primari
-o_100.png>]
-[34 <./figuras/mc_barras_erro_tres.png>]
+ [31 <./figuras/mc_boxplot_primario_100.png> <./figuras/mc_heatmap_dif_primario_100.png>]
+<figuras/mc_curva_mestre_tres.png, id=183, 859.65166pt x 426.393pt>
+File: figuras/mc_curva_mestre_tres.png Graphic file (type png)
+<use figuras/mc_curva_mestre_tres.png>
+Package pdftex.def Info: figuras/mc_curva_mestre_tres.png  used on input line 149.
+(pdftex.def)             Requested size: 355.08984pt x 176.13pt.
+) [32 <./figuras/mc_curva_mestre_tres.png>]
 \openout2 = `capitulos/07-conclusao.aux'.
 
- (capitulos/07-conclusao.tex
+ (./capitulos/07-conclusao.tex
 Cap\'{\i }tulo 7.
-[35
+[33
 
 
 
 
-]) [36] (relatorio.bbl [37
+]) [34] (./relatorio.bbl [35
 
 
 
 
-] [38]) [39]
+] [36]) [37]
 \openout2 = `apendices.aux'.
 
- (apendices.tex
+ (./apendices.tex
 Apendice A.
-[40
+[38
 
 
 ]
 Apendice B.
-<figuras/fluxograma-consenso.png, id=223, 329.23pt x 570.13pt>
+<figuras/fluxograma-consenso.png, id=208, 329.23pt x 570.13pt>
 File: figuras/fluxograma-consenso.png Graphic file (type png)
 <use figuras/fluxograma-consenso.png>
-<<<<<<< HEAD
-Package pdftex.def Info: figuras/fluxograma-consenso.png  used on input line 48
-.
-(pdftex.def)             Requested size: 332.78592pt x 576.28726pt.
-<figuras/fluxograma-monte_carlo-primario-consenso.png, id=224, 455.7025pt x 496
-.85625pt>
-File: figuras/fluxograma-monte_carlo-primario-consenso.png Graphic file (type p
-ng)
-<use figuras/fluxograma-monte_carlo-primario-consenso.png>
-Package pdftex.def Info: figuras/fluxograma-monte_carlo-primario-consenso.png  
-used on input line 56.
-(pdftex.def)             Requested size: 528.59439pt x 576.28726pt.
-
-Overfull \hbox (73.35028pt too wide) in paragraph at lines 56--57
- [][] 
- []
-
-) [41
-=======
 Package pdftex.def Info: figuras/fluxograma-consenso.png  used on input line 48.
 (pdftex.def)             Requested size: 344.95819pt x 597.36665pt.
 <figuras/fluxograma-monte_carlo-primario-consenso.png, id=209, 455.7025pt x 496.85625pt>
@@ -1008,79 +800,57 @@ File: figuras/fluxograma-monte_carlo-primario-consenso.png Graphic file (type pn
 Package pdftex.def Info: figuras/fluxograma-monte_carlo-primario-consenso.png  used on input line 56.
 (pdftex.def)             Requested size: 455.25635pt x 496.36981pt.
 ) [39
->>>>>>> 2b0f6f8e1be3fda2d32eaa0287cfe45311f0096f
 
-] [42 <./figuras/fluxograma-consenso.png>] [43 <./figuras/fluxograma-monte_carl
-o-primario-consenso.png>]
+] [40 <./figuras/fluxograma-consenso.png>] [41 <./figuras/fluxograma-monte_carlo-primario-consenso.png>]
 \openout2 = `anexos.aux'.
 
- (anexos.tex
+ (./anexos.tex
 Anexo A.
-[44
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 4.
+(/usr/local/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+) [42
 
 
 
 
-]
+{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
 Anexo B.
-[45
+[43
 
 ]
 Anexo C.
-<figuras/an_boxplot_sobre_ceuaberto.png, id=244, 1309.17105pt x 731.01105pt>
+<figuras/an_boxplot_sobre_ceuaberto.png, id=229, 1309.17105pt x 731.01105pt>
 File: figuras/an_boxplot_sobre_ceuaberto.png Graphic file (type png)
 <use figuras/an_boxplot_sobre_ceuaberto.png>
-Package pdftex.def Info: figuras/an_boxplot_sobre_ceuaberto.png  used on input 
-line 20.
+Package pdftex.def Info: figuras/an_boxplot_sobre_ceuaberto.png  used on input line 20.
 (pdftex.def)             Requested size: 418.82375pt x 233.86139pt.
-<figuras/an_boxplot_sobre_nublado.png, id=245, 1309.17105pt x 731.01105pt>
+<figuras/an_boxplot_sobre_nublado.png, id=230, 1309.17105pt x 731.01105pt>
 File: figuras/an_boxplot_sobre_nublado.png Graphic file (type png)
 <use figuras/an_boxplot_sobre_nublado.png>
-Package pdftex.def Info: figuras/an_boxplot_sobre_nublado.png  used on input li
-ne 28.
+Package pdftex.def Info: figuras/an_boxplot_sobre_nublado.png  used on input line 28.
 (pdftex.def)             Requested size: 418.82375pt x 233.86139pt.
-) [46
+) [44
 
- <./figuras/an_boxplot_sobre_ceuaberto.png>] [47 <./figuras/an_boxplot_sobre_nu
-blado.png>] (relatorio.aux (capitulos/01-introducao.aux)
-(capitulos/02-fundamentacao.aux) (capitulos/03-ambiente.aux)
-(capitulos/04-cenarios.aux) (capitulos/05-controle.aux)
-(capitulos/06-resultados.aux) (capitulos/07-conclusao.aux) (apendices.aux)
-(anexos.aux))
+ <./figuras/an_boxplot_sobre_ceuaberto.png>] [45 <./figuras/an_boxplot_sobre_nublado.png>] (./relatorio.aux (./capitulos/01-introducao.aux) (./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux) (./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux) (./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux) (./anexos.aux))
  ***********
-LaTeX2e <2025-11-01>
-L3 programming layer <2025-12-24>
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-02-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 7778 strings out of 467871
- 136050 string characters out of 5418376
- 547491 words of memory out of 5000000
- 36423 multiletter control sequences out of 15000+600000
- 694305 words of font info for 137 fonts, out of 8000000 for 9000
+ 7444 strings out of 474116
+ 123843 string characters out of 5743682
+ 1936187 words of memory out of 5000000
+ 29577 multiletter control sequences out of 15000+600000
+ 624653 words of font info for 133 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
-<<<<<<< HEAD
- 72i,13n,79p,1506b,618s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\anajm\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt
-1200.pk><C:/Users/anajm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
-ts/cm/cmex10.pfb><C:/Users/anajm/AppData/Local/Programs/MiKTeX/fonts/type1/publ
-ic/amsfonts/cm/cmmi10.pfb><C:/Users/anajm/AppData/Local/Programs/MiKTeX/fonts/t
-ype1/public/amsfonts/cm/cmr10.pfb><C:/Users/anajm/AppData/Local/Programs/MiKTeX
-/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/anajm/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/public/rsfs/rsfs10.pfb><C:/Users/anajm/AppData/Local/Prog
-rams/MiKTeX/fonts/type1/urw/symbol/usyr.pfb><C:/Users/anajm/AppData/Local/Progr
-ams/MiKTeX/fonts/type1/urw/symbol/usyr.pfb><C:/Users/anajm/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/anajm/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/anajm/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on relatorio.pdf (58 pages, 5323752 bytes).
-=======
  72i,13n,79p,1576b,536s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on relatorio.pdf (54 pages, 3043584 bytes).
->>>>>>> 2b0f6f8e1be3fda2d32eaa0287cfe45311f0096f
+Output written on relatorio.pdf (56 pages, 3420398 bytes).
 PDF statistics:
- 305 PDF objects out of 1000 (max. 8388607)
+ 291 PDF objects out of 1000 (max. 8388607)
+ 162 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 146 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 121 words of extra memory for PDF output out of 10000 (max. 10000000)
 
