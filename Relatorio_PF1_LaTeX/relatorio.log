@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  20 JUN 2026 20:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  20 JUN 2026 21:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -583,7 +583,7 @@ Cap\'{\i }tulo 2.
 <figuras/arquiteturas_de_controle_distribuidos.png, id=55, 456.615pt x 283.824pt>
 File: figuras/arquiteturas_de_controle_distribuidos.png Graphic file (type png)
 <use figuras/arquiteturas_de_controle_distribuidos.png>
-Package pdftex.def Info: figuras/arquiteturas_de_controle_distribuidos.png  used on input line 15.
+Package pdftex.def Info: figuras/arquiteturas_de_controle_distribuidos.png  used on input line 25.
 (pdftex.def)             Requested size: 386.96027pt x 240.53696pt.
 [4
 
@@ -592,11 +592,11 @@ Package pdftex.def Info: figuras/arquiteturas_de_controle_distribuidos.png  used
 
 ] [5 <./figuras/arquiteturas_de_controle_distribuidos.png>]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 37.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 37.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 37.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
  [6] [7]) [8]
 \openout2 = `capitulos/03-ambiente.aux'.
 
