@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  21 JUN 2026 00:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.22)  21 JUN 2026 00:24
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -692,17 +692,17 @@ Package pdftex.def Info: figuras/volt_var_curve.png  used on input line 27.
 
  (./capitulos/06-resultados.tex
 Cap\'{\i }tulo 6.
-<figuras/prim_violations_consumer.png, id=136, 835.923pt x 420.6114pt>
-File: figuras/prim_violations_consumer.png Graphic file (type png)
-<use figuras/prim_violations_consumer.png>
-Package pdftex.def Info: figuras/prim_violations_consumer.png  used on input line 22.
-(pdftex.def)             Requested size: 364.19667pt x 183.2533pt.
 [24
 
 
 
 
 ]
+<figuras/prim_violations_consumer.png, id=139, 835.923pt x 420.6114pt>
+File: figuras/prim_violations_consumer.png Graphic file (type png)
+<use figuras/prim_violations_consumer.png>
+Package pdftex.def Info: figuras/prim_violations_consumer.png  used on input line 22.
+(pdftex.def)             Requested size: 364.19667pt x 183.2533pt.
 <figuras/prim_q_activation.png, id=140, 910.1202pt x 670.1838pt>
 File: figuras/prim_q_activation.png Graphic file (type png)
 <use figuras/prim_q_activation.png>
@@ -713,95 +713,130 @@ File: figuras/prim_vmax.png Graphic file (type png)
 <use figuras/prim_vmax.png>
 Package pdftex.def Info: figuras/prim_vmax.png  used on input line 42.
 (pdftex.def)             Requested size: 364.19667pt x 160.57848pt.
- [25 <./figuras/prim_violations_consumer.png>]
-<figuras/sec_violations_3way.png, id=146, 948.1824pt x 421.0932pt>
+ [25 <./figuras/prim_violations_consumer.png>] [26 <./figuras/prim_q_activation.png> <./figuras/prim_vmax.png>]
+<figuras/sec_violations_3way.png, id=152, 948.1824pt x 421.0932pt>
 File: figuras/sec_violations_3way.png Graphic file (type png)
 <use figuras/sec_violations_3way.png>
 Package pdftex.def Info: figuras/sec_violations_3way.png  used on input line 55.
 (pdftex.def)             Requested size: 364.19667pt x 161.7455pt.
- [26 <./figuras/prim_q_activation.png> <./figuras/prim_vmax.png>]
 <figuras/sec_bess_kw_profile.png, id=153, 1004.0712pt x 1260.8706pt>
 File: figuras/sec_bess_kw_profile.png Graphic file (type png)
 <use figuras/sec_bess_kw_profile.png>
 Package pdftex.def Info: figuras/sec_bess_kw_profile.png  used on input line 65.
 (pdftex.def)             Requested size: 364.19667pt x 457.33768pt.
-<figuras/sec_bess_delta_p_heatmap.png, id=154, 886.0302pt x 308.8338pt>
-File: figuras/sec_bess_delta_p_heatmap.png Graphic file (type png)
-<use figuras/sec_bess_delta_p_heatmap.png>
-Package pdftex.def Info: figuras/sec_bess_delta_p_heatmap.png  used on input line 73.
-(pdftex.def)             Requested size: 364.19667pt x 126.94783pt.
- [27 <./figuras/sec_violations_3way.png>] [28 <./figuras/sec_bess_kw_profile.png>]
-<figuras/mc_curva_mestre_base.png, id=163, 859.65166pt x 426.393pt>
-File: figuras/mc_curva_mestre_base.png Graphic file (type png)
-<use figuras/mc_curva_mestre_base.png>
-Package pdftex.def Info: figuras/mc_curva_mestre_base.png  used on input line 95.
-(pdftex.def)             Requested size: 355.08984pt x 176.13pt.
-<figuras/mc_heatmap_base_100.png, id=164, 931.19894pt x 500.1084pt>
+
+
+LaTeX Warning: Reference `fig:sec_envelopes' on page 27 undefined on input line 69.
+
+[27 <./figuras/sec_violations_3way.png>]
+<figuras/sec_all_bus_vmin.png, id=158, 959.2638pt x 420.6114pt>
+File: figuras/sec_all_bus_vmin.png Graphic file (type png)
+<use figuras/sec_all_bus_vmin.png>
+Package pdftex.def Info: figuras/sec_all_bus_vmin.png  used on input line 75.
+(pdftex.def)             Requested size: 373.3035pt x 163.6848pt.
+<figuras/sec_all_bus_vmax.png, id=159, 961.191pt x 420.6114pt>
+File: figuras/sec_all_bus_vmax.png Graphic file (type png)
+<use figuras/sec_all_bus_vmax.png>
+Package pdftex.def Info: figuras/sec_all_bus_vmax.png  used on input line 76.
+(pdftex.def)             Requested size: 373.3035pt x 163.35106pt.
+ [28 <./figuras/sec_bess_kw_profile.png>] [29 <./figuras/sec_all_bus_vmin.png> <./figuras/sec_all_bus_vmax.png>]
+
+LaTeX Warning: Reference `fig:mc_3d_base' on page 30 undefined on input line 92.
+
+<figuras/mc_3d_prob_sobre_base.png, id=169, 671.74965pt x 559.73116pt>
+File: figuras/mc_3d_prob_sobre_base.png Graphic file (type png)
+<use figuras/mc_3d_prob_sobre_base.png>
+Package pdftex.def Info: figuras/mc_3d_prob_sobre_base.png  used on input line 98.
+(pdftex.def)             Requested size: 327.7763pt x 273.12619pt.
+<figuras/mc_heatmap_base_100.png, id=170, 931.19894pt x 500.1084pt>
 File: figuras/mc_heatmap_base_100.png Graphic file (type png)
 <use figuras/mc_heatmap_base_100.png>
-Package pdftex.def Info: figuras/mc_heatmap_base_100.png  used on input line 103.
+Package pdftex.def Info: figuras/mc_heatmap_base_100.png  used on input line 106.
 (pdftex.def)             Requested size: 355.08984pt x 190.69943pt.
- [29 <./figuras/sec_bess_delta_p_heatmap.png> <./figuras/mc_curva_mestre_base.png>]
-<figuras/mc_barras_erro_primario.png, id=170, 859.2903pt x 426.03165pt>
+
+LaTeX Warning: Reference `fig:mc_envelopes_base' on page 30 undefined on input line 112.
+
+[30 <./figuras/mc_3d_prob_sobre_base.png>]
+<figuras/mc_envelope_manha.png, id=175, 937.70325pt x 427.1157pt>
+File: figuras/mc_envelope_manha.png Graphic file (type png)
+<use figuras/mc_envelope_manha.png>
+Package pdftex.def Info: figuras/mc_envelope_manha.png  used on input line 118.
+(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
+<figuras/mc_envelope_tarde.png, id=176, 937.70325pt x 427.1157pt>
+File: figuras/mc_envelope_tarde.png Graphic file (type png)
+<use figuras/mc_envelope_tarde.png>
+Package pdftex.def Info: figuras/mc_envelope_tarde.png  used on input line 119.
+(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
+<figuras/mc_envelope_noite.png, id=177, 937.70325pt x 427.1157pt>
+File: figuras/mc_envelope_noite.png Graphic file (type png)
+<use figuras/mc_envelope_noite.png>
+Package pdftex.def Info: figuras/mc_envelope_noite.png  used on input line 120.
+(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
+<figuras/mc_envelope_madrugada.png, id=178, 937.70325pt x 427.1157pt>
+File: figuras/mc_envelope_madrugada.png Graphic file (type png)
+<use figuras/mc_envelope_madrugada.png>
+Package pdftex.def Info: figuras/mc_envelope_madrugada.png  used on input line 121.
+(pdftex.def)             Requested size: 223.07211pt x 101.60396pt.
+<figuras/mc_barras_erro_primario.png, id=179, 859.2903pt x 426.03165pt>
 File: figuras/mc_barras_erro_primario.png Graphic file (type png)
 <use figuras/mc_barras_erro_primario.png>
-Package pdftex.def Info: figuras/mc_barras_erro_primario.png  used on input line 118.
+Package pdftex.def Info: figuras/mc_barras_erro_primario.png  used on input line 134.
 (pdftex.def)             Requested size: 355.08984pt x 176.05225pt.
- [30 <./figuras/mc_heatmap_base_100.png> <./figuras/mc_barras_erro_primario.png>]
-<figuras/mc_boxplot_primario_100.png, id=176, 1582.35165pt x 425.6703pt>
+ [31 <./figuras/mc_heatmap_base_100.png>]
+<figuras/mc_boxplot_primario_100.png, id=184, 1582.35165pt x 425.6703pt>
 File: figuras/mc_boxplot_primario_100.png Graphic file (type png)
 <use figuras/mc_boxplot_primario_100.png>
-Package pdftex.def Info: figuras/mc_boxplot_primario_100.png  used on input line 128.
+Package pdftex.def Info: figuras/mc_boxplot_primario_100.png  used on input line 144.
 (pdftex.def)             Requested size: 355.08984pt x 95.51836pt.
-<figuras/mc_heatmap_dif_primario_100.png, id=177, 930.8376pt x 498.30165pt>
+<figuras/mc_heatmap_dif_primario_100.png, id=185, 930.8376pt x 498.30165pt>
 File: figuras/mc_heatmap_dif_primario_100.png Graphic file (type png)
 <use figuras/mc_heatmap_dif_primario_100.png>
-Package pdftex.def Info: figuras/mc_heatmap_dif_primario_100.png  used on input line 136.
+Package pdftex.def Info: figuras/mc_heatmap_dif_primario_100.png  used on input line 152.
 (pdftex.def)             Requested size: 355.08984pt x 190.08652pt.
- [31 <./figuras/mc_boxplot_primario_100.png> <./figuras/mc_heatmap_dif_primario_100.png>]
-<figuras/mc_curva_mestre_tres.png, id=183, 859.65166pt x 426.393pt>
-File: figuras/mc_curva_mestre_tres.png Graphic file (type png)
-<use figuras/mc_curva_mestre_tres.png>
-Package pdftex.def Info: figuras/mc_curva_mestre_tres.png  used on input line 149.
-(pdftex.def)             Requested size: 355.08984pt x 176.13pt.
-) [32 <./figuras/mc_curva_mestre_tres.png>]
+ [32 <./figuras/mc_envelope_manha.png> <./figuras/mc_envelope_tarde.png> <./figuras/mc_envelope_noite.png> <./figuras/mc_envelope_madrugada.png> <./figuras/mc_barras_erro_primario.png>]
+<figuras/mc_barras_erro_tres.png, id=195, 859.2903pt x 426.03165pt>
+File: figuras/mc_barras_erro_tres.png Graphic file (type png)
+<use figuras/mc_barras_erro_tres.png>
+Package pdftex.def Info: figuras/mc_barras_erro_tres.png  used on input line 165.
+(pdftex.def)             Requested size: 355.08984pt x 176.05225pt.
+) [33 <./figuras/mc_boxplot_primario_100.png> <./figuras/mc_heatmap_dif_primario_100.png>] [34 <./figuras/mc_barras_erro_tres.png>]
 \openout2 = `capitulos/07-conclusao.aux'.
 
  (./capitulos/07-conclusao.tex
 Cap\'{\i }tulo 7.
-[33
+[35
 
 
 
 
-]) [34] (./relatorio.bbl [35
+]) [36] (./relatorio.bbl [37
 
 
 
 
-] [36]) [37]
+] [38]) [39]
 \openout2 = `apendices.aux'.
 
  (./apendices.tex
 Apendice A.
-[38
+[40
 
 
 ]
 Apendice B.
-<figuras/fluxograma-consenso.png, id=208, 329.23pt x 570.13pt>
+<figuras/fluxograma-consenso.png, id=225, 329.23pt x 570.13pt>
 File: figuras/fluxograma-consenso.png Graphic file (type png)
 <use figuras/fluxograma-consenso.png>
 Package pdftex.def Info: figuras/fluxograma-consenso.png  used on input line 48.
 (pdftex.def)             Requested size: 344.95819pt x 597.36665pt.
-<figuras/fluxograma-monte_carlo-primario-consenso.png, id=209, 455.7025pt x 496.85625pt>
+<figuras/fluxograma-monte_carlo-primario-consenso.png, id=226, 455.7025pt x 496.85625pt>
 File: figuras/fluxograma-monte_carlo-primario-consenso.png Graphic file (type png)
 <use figuras/fluxograma-monte_carlo-primario-consenso.png>
 Package pdftex.def Info: figuras/fluxograma-monte_carlo-primario-consenso.png  used on input line 56.
 (pdftex.def)             Requested size: 455.25635pt x 496.36981pt.
-) [39
+) [41
 
-] [40 <./figuras/fluxograma-consenso.png>] [41 <./figuras/fluxograma-monte_carlo-primario-consenso.png>]
+] [42 <./figuras/fluxograma-consenso.png>] [43 <./figuras/fluxograma-monte_carlo-primario-consenso.png>]
 \openout2 = `anexos.aux'.
 
  (./anexos.tex
@@ -809,48 +844,55 @@ Anexo A.
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 4.
 (/usr/local/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) [42
+) [44
 
 
 
 
 {/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
 Anexo B.
-[43
+[45
 
 ]
 Anexo C.
-<figuras/an_boxplot_sobre_ceuaberto.png, id=229, 1309.17105pt x 731.01105pt>
+<figuras/an_boxplot_sobre_ceuaberto.png, id=246, 1309.17105pt x 731.01105pt>
 File: figuras/an_boxplot_sobre_ceuaberto.png Graphic file (type png)
 <use figuras/an_boxplot_sobre_ceuaberto.png>
 Package pdftex.def Info: figuras/an_boxplot_sobre_ceuaberto.png  used on input line 20.
 (pdftex.def)             Requested size: 418.82375pt x 233.86139pt.
-<figuras/an_boxplot_sobre_nublado.png, id=230, 1309.17105pt x 731.01105pt>
+<figuras/an_boxplot_sobre_nublado.png, id=247, 1309.17105pt x 731.01105pt>
 File: figuras/an_boxplot_sobre_nublado.png Graphic file (type png)
 <use figuras/an_boxplot_sobre_nublado.png>
 Package pdftex.def Info: figuras/an_boxplot_sobre_nublado.png  used on input line 28.
 (pdftex.def)             Requested size: 418.82375pt x 233.86139pt.
-) [44
+) [46
 
- <./figuras/an_boxplot_sobre_ceuaberto.png>] [45 <./figuras/an_boxplot_sobre_nublado.png>] (./relatorio.aux (./capitulos/01-introducao.aux) (./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux) (./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux) (./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux) (./anexos.aux))
+ <./figuras/an_boxplot_sobre_ceuaberto.png>] [47 <./figuras/an_boxplot_sobre_nublado.png>] (./relatorio.aux (./capitulos/01-introducao.aux) (./capitulos/02-fundamentacao.aux) (./capitulos/03-ambiente.aux) (./capitulos/04-cenarios.aux) (./capitulos/05-controle.aux) (./capitulos/06-resultados.aux) (./capitulos/07-conclusao.aux) (./apendices.aux) (./anexos.aux))
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 7444 strings out of 474116
- 123843 string characters out of 5743682
+ 7492 strings out of 474116
+ 125381 string characters out of 5743682
  1936187 words of memory out of 5000000
- 29577 multiletter control sequences out of 15000+600000
+ 29625 multiletter control sequences out of 15000+600000
  624653 words of font info for 133 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  72i,13n,79p,1576b,536s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on relatorio.pdf (56 pages, 3420398 bytes).
+Output written on relatorio.pdf (58 pages, 5317357 bytes).
 PDF statistics:
- 291 PDF objects out of 1000 (max. 8388607)
- 162 compressed objects within 2 object streams
+ 307 PDF objects out of 1000 (max. 8388607)
+ 166 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 121 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 146 words of extra memory for PDF output out of 10000 (max. 10000000)
 

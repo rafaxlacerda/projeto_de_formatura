@@ -13,7 +13,7 @@ A métrica de desempenho adotada é o número de barras consumidoras que, em ao 
 \section{Validação em cenário único: controle primário}
 \label{sec:res_primario}
 
-O controle primário foi inicialmente avaliado em um cenário único, correspondente a um nível de penetração de 90\% na rede IEEE~34 barras (realização~1). A Figura~\ref{fig:prim_violations} compara, por hora, o número de barras com violação de tensão por sobretensão com e sem o controle. O controle volt-var reduz o número de violações, com efeito mais expressivo nas barras consumidoras: na hora~9, dez barras consumidoras deixaram de violar; na hora~10, oito.
+O controle primário foi inicialmente avaliado em um cenário único, correspondente a um nível de penetração de 90\% na rede IEEE~34 barras (realização~1). A Figura~\ref{fig:prim_violations} compara, por hora, o número de barras com violação de tensão com e sem o controle. O controle volt-var reduz o número de violações, com efeito mais expressivo nas barras consumidoras: na hora~9, dez barras consumidoras deixaram de violar; na hora~10, oito. Observa-se que, em alguns horários, uma barra não consumidora passa a violar, compensando parte da melhora --- na hora~10, por exemplo, a redução total é de sete barras, ainda que a melhora em barras consumidoras seja de oito.
 
 \begin{figure}[!htb]
   \centering
@@ -46,7 +46,7 @@ A Figura~\ref{fig:prim_vmax} apresenta a tensão máxima entre as fases de cada 
 \section{Validação em cenário único: controle duplo}
 \label{sec:res_secundario}
 
-Sobre o mesmo cenário, avaliou-se a atuação do controle secundário por consenso como camada complementar ao primário. A Figura~\ref{fig:sec_violations} compara o número de barras com violação nos três casos: sem controle, com primário isolado e com primário e secundário. O efeito predominante do secundário é corretivo nas horas 18 a 21, período de descarga programada dos BESS e de pico de demanda noturna, em que o número de barras violadas cai de cinco (apenas com o primário) para quatro. Entretanto, observa-se um efeito adverso pontual nas horas 11 e 13, em que o número de barras violadas aumenta de cinco para sete. Esse comportamento decorre da própria natureza da parcela de consenso Laplaciana, que redistribui potência ativa entre os BESS para equalizar seus estados de carregamento, podendo introduzir desequilíbrios de tensão pontuais em barras que, sob a ação isolada do primário, encontravam-se dentro dos limites.
+Sobre o mesmo cenário, avaliou-se a atuação do controle secundário por consenso (em modo sempre ativo) como camada complementar ao primário. A Figura~\ref{fig:sec_violations} compara o número de barras com violação nos três casos: sem controle, com primário isolado e com primário e secundário. O efeito predominante do secundário é corretivo nas horas 18 a 21, período de descarga programada dos BESS e de pico de demanda noturna, em que o número de barras violadas cai de cinco (apenas com o primário) para quatro --- indicado na figura pelas setas verdes descendentes. Entretanto, observa-se um efeito adverso pontual nas horas 11 e 13, assinalado pelas setas vermelhas ascendentes, em que o número de barras violadas aumenta de cinco para sete. Esse comportamento decorre da própria natureza da parcela de consenso Laplaciana, que redistribui potência ativa entre os BESS para equalizar seus estados de carregamento, podendo introduzir desequilíbrios de tensão pontuais em barras que, sob a ação isolada do primário, encontravam-se dentro dos limites.
 
 \begin{figure}[!htb]
   \centering
@@ -56,7 +56,7 @@ Sobre o mesmo cenário, avaliou-se a atuação do controle secundário por conse
   \par\vspace{2pt}\fonte{autoria própria}
 \end{figure}
 
-A Figura~\ref{fig:sec_bess_kw} compara, para cada BESS, o perfil de potência ativa de referência com o efetivamente aplicado após o consenso. Os BESS das barras 860, 840 e 844 apresentam desvios pequenos, de modo que o consenso praticamente preserva o despacho original; em contraste, os das barras 848 e, sobretudo, 890 apresentam desvios acentuados, com a unidade da barra~890 chegando a inverter sua operação em parte da janela diurna. Esse comportamento, detalhado pelo mapa de correções da Figura~\ref{fig:sec_deltap}, é coerente com a subtensão estrutural da barra~890: o consenso concentra nela a maior parte da correção. Ainda assim, a tensão mínima dessa barra (cerca de 0,876~p.u. na hora~9) permanece próxima à obtida apenas com o primário, indicando que a elevada impedância do alimentador lateral continua limitando a eficácia da regulação nesse ponto específico.
+A Figura~\ref{fig:sec_bess_kw} compara, para cada BESS, o perfil de potência ativa de referência com o efetivamente aplicado após o consenso; a área sombreada entre as curvas representa a magnitude da correção em cada hora. Os BESS das barras 860, 840 e 844 apresentam desvios pequenos, de modo que o consenso praticamente preserva o despacho original. Em contraste, os das barras 848 e, sobretudo, 890 apresentam desvios acentuados: a unidade da barra~848 tem a potência de carga reduzida de 100~kW para cerca de 12~kW na hora~10 e a descarga ampliada de $-100$~kW para aproximadamente $-142$~kW nas horas 19 a 21; já a da barra~890 chega a inverter sua operação na janela diurna, revertendo a referência de carga de cerca de 120~kW para uma injeção de até $-365$~kW, e amplia a descarga noturna de $-120$~kW para cerca de $-460$~kW nas horas 18 a 21. Esse comportamento é coerente com a subtensão estrutural da barra~890, sobre a qual o consenso concentra a maior parte da correção.
 
 \begin{figure}[!htb]
   \centering
@@ -66,15 +66,18 @@ A Figura~\ref{fig:sec_bess_kw} compara, para cada BESS, o perfil de potência at
   \par\vspace{2pt}\fonte{autoria própria}
 \end{figure}
 
+Os envelopes de tensão da Figura~\ref{fig:sec_envelopes} apresentam, já com as duas camadas ativas, as tensões mínima e máxima entre as fases de cada barra ao longo do dia. A barra~890 permanece em subtensão estrutural durante quase todo o dia, com mínimo de aproximadamente 0,876~p.u. na hora~9 --- valor próximo ao obtido apenas com o primário ---, confirmando que, mesmo com a correção concentrada de potência ativa, a elevada impedância do alimentador lateral continua limitando a regulação nesse ponto. As barras de cabeceira (802, 806, 808 e 810) seguem excedendo 1,05~p.u. no pico de geração (horas 8--16), atingindo valores próximos de 1,075~p.u. entre as horas 10 e 13, comportamento muito semelhante ao observado apenas com o controle primário.
+
 \begin{figure}[!htb]
   \centering
-  \caption{Mapa das correções de potência ativa ($\Delta P$) impostas pelo controle secundário por barra e por hora.}
-  \label{fig:sec_deltap}
-  \includegraphics[width=0.8\textwidth]{sec_bess_delta_p_heatmap.png}
+  \caption{Envelopes de tensão por barra ao longo do dia, com controle primário e secundário ativos (cenário de 90\% de penetração): (a) tensão mínima e (b) tensão máxima entre as fases.}
+  \label{fig:sec_envelopes}
+  \begin{minipage}{\textwidth}\centering (a)\\[2pt]\includegraphics[width=0.82\textwidth]{sec_all_bus_vmin.png}\end{minipage}\par\vspace{4pt}
+  \begin{minipage}{\textwidth}\centering (b)\\[2pt]\includegraphics[width=0.82\textwidth]{sec_all_bus_vmax.png}\end{minipage}
   \par\vspace{2pt}\fonte{autoria própria}
 \end{figure}
 
-A limitação espacial observada é coerente com a propriedade de soma nula da parcela Laplaciana: como a sobretensão nas horas centrais decorre de um excesso de geração distribuído ao longo do alimentador, e os BESS não estão instalados nas barras de cabeceira, a redistribuição de potência entre unidades tem alcance limitado para corrigir violações em barras eletricamente distantes dos pontos de instalação dos BESS.
+A limitação espacial observada é coerente com a propriedade de soma nula da parcela Laplaciana: como a sobretensão nas horas centrais decorre de um excesso de geração distribuído ao longo do alimentador, e os BESS não estão instalados nas barras de cabeceira, a redistribuição de potência entre unidades --- mesmo com a parcela de \emph{droop} --- tem alcance limitado para corrigir violações em barras eletricamente distantes dos pontos de instalação dos BESS.
 
 \section{Análise probabilística por Monte Carlo}
 \label{sec:res_montecarlo}
@@ -86,13 +89,13 @@ A avaliação foi então estendida a todos os 5500~cenários, confrontando de fo
 
 Os resultados do caso base permitem três constatações. Primeiro, a subtensão não constitui o desafio dominante nesta rede: em todos os níveis de penetração e faixas horárias, o número de barras com subtensão permanece próximo de zero, à exceção da barra~890, cuja subtensão estrutural independe do nível de penetração. Os reguladores automáticos e os bancos de capacitores já mitigam de forma satisfatória os problemas de subtensão.
 
-Segundo, a sobretensão provocada pela injeção fotovoltaica é o fenômeno dominante e cresce sistematicamente com o nível de penetração, como mostra a curva-mestre da Figura~\ref{fig:mc_base}. O comportamento é mais enfático nas barras próximas à subestação e, para dias de céu aberto, o limiar crítico situa-se entre 20\% e 30\% de penetração, acima do qual a probabilidade de violação deixa de ser desprezível. Em alta penetração, a rede satura: nas faixas diurnas, a mediana do número de barras em violação chega a cerca de 20 barras em 100\% de penetração. A Figura~\ref{fig:mc_heatmap_base} localiza esse fenômeno no espaço e no tempo, evidenciando que, em 100\%, a sobretensão deixa de ser localizada nas barras próximas à subestação e passa a comprometer extensões significativas do alimentador.
+Segundo, a sobretensão provocada pela injeção fotovoltaica é o fenômeno dominante e cresce sistematicamente com o nível de penetração. O mapa de probabilidade da Figura~\ref{fig:mc_3d_base} mostra essa evolução por barra e por nível de penetração: o fenômeno é mais enfático nas barras próximas à subestação (802--816), nas quais, já em 30\% de penetração, a probabilidade de violação cresce cerca de 25\% em relação ao caso sem fotovoltaico, ao passo que nas demais barras o impacto só se torna relevante a partir de 60\%. Para dias de céu aberto, o limiar crítico situa-se entre 20\% e 30\% de penetração, acima do qual a probabilidade de violação deixa de ser desprezível. Em alta penetração, a rede satura: nas faixas diurnas, a mediana do número de barras em violação chega a cerca de 20 barras em 100\% de penetração, conforme detalhado pelos boxplots por faixa horária do Anexo~\ref{an:base_sobretensao}. A Figura~\ref{fig:mc_heatmap_base} localiza esse fenômeno no espaço e no tempo, evidenciando que, em 100\%, a sobretensão deixa de ser localizada nas barras próximas à subestação e passa a comprometer extensões significativas do alimentador.
 
 \begin{figure}[!htb]
   \centering
-  \caption{Sobretensão no caso base: média e desvio padrão do número de barras com violação por nível de penetração.}
-  \label{fig:mc_base}
-  \includegraphics[width=0.78\textwidth]{mc_curva_mestre_base.png}
+  \caption{Probabilidade de sobretensão no caso sem controle, por barra e por nível de penetração fotovoltaica.}
+  \label{fig:mc_3d_base}
+  \includegraphics[width=0.72\textwidth]{mc_3d_prob_sobre_base.png}
   \par\vspace{2pt}\fonte{autoria própria}
 \end{figure}
 
@@ -105,6 +108,19 @@ Segundo, a sobretensão provocada pela injeção fotovoltaica é o fenômeno dom
 \end{figure}
 
 Terceiro, o BESS no regime de operação fixo adotado atenua a sobretensão durante o carregamento e contribui para o suporte de tensão noturno, mas sua eficácia é limitada para penetrações acima de 70\%, evidenciando que a simples presença de armazenamento, sem controle otimizado, é insuficiente em cenários de alta penetração.
+
+Os envelopes de tensão ao longo do alimentador, na Figura~\ref{fig:mc_envelopes_base}, localizam as regiões mais vulneráveis. Nas faixas da manhã e da tarde, a tensão se eleva nos primeiros trechos do alimentador em alta penetração --- na barra~808, por exemplo, a mediana passa de 1,032~p.u. no caso base para 1,085~p.u. em 100\% ---, e as barras de 828 a 856 passam a violar a partir de 70\%, enquanto as barras 818, 820 e 822 permanecem próximas ao caso base mesmo em níveis elevados. Na faixa da noite, o envelope evidencia o efeito da descarga dos BESS, com tensões mais altas nos níveis de maior penetração nas proximidades da subestação; na madrugada, os perfis de todos os níveis praticamente se sobrepõem, à exceção da queda da barra~890, reforçando que os dispositivos passivos da rede são suficientes na ausência de geração diurna.
+
+\begin{figure}[!htb]
+  \centering
+  \caption{Envelopes de tensão ao longo do alimentador (mediana e intervalo P5--P95 por nível de penetração) no caso sem controle, por faixa horária.}
+  \label{fig:mc_envelopes_base}
+  \begin{minipage}{0.49\textwidth}\centering\includegraphics[width=\textwidth]{mc_envelope_manha.png}\end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}\centering\includegraphics[width=\textwidth]{mc_envelope_tarde.png}\end{minipage}\par\vspace{3pt}
+  \begin{minipage}{0.49\textwidth}\centering\includegraphics[width=\textwidth]{mc_envelope_noite.png}\end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}\centering\includegraphics[width=\textwidth]{mc_envelope_madrugada.png}\end{minipage}
+  \par\vspace{2pt}\fonte{autoria própria}
+\end{figure}
 
 \subsection{Efeito do controle primário}
 \label{sec:res_mc_primario}
@@ -140,13 +156,13 @@ O detalhamento horário, na Figura~\ref{fig:mc_boxplot_primario}, mostra que, em
 \subsection{Efeito do controle duplo por consenso}
 \label{sec:res_mc_duplo}
 
-O controle duplo foi avaliado com o secundário atuando condicionalmente ao primário, isto é, apenas nas horas em que ainda restam violações após a ação do controle primário. A Figura~\ref{fig:mc_tres} sintetiza os três casos. Diferentemente do esperado, o controle duplo \emph{não} cumpriu o objetivo de reduzir as violações de sobretensão remanescentes ao primário. Ao contrário, para os níveis de 90\% e 100\% de penetração observou-se uma mediana de cerca de duas barras a mais em violação do que no caso com apenas controle primário, além de efetividade altamente variável, oscilando entre 2 e 12 barras em violação para 100\% de penetração.
+O controle duplo foi avaliado com o secundário atuando condicionalmente ao primário, isto é, apenas nas horas em que ainda restam violações após a ação do controle primário. A Figura~\ref{fig:mc_tres} confronta os três casos por meio da média e do desvio padrão do número de barras em violação por nível de penetração. Diferentemente do esperado, o controle duplo \emph{não} cumpriu o objetivo de reduzir as violações de sobretensão remanescentes ao primário. Ao contrário, para os níveis de 90\% e 100\% de penetração observou-se, em média, cerca de duas barras a mais em violação do que no caso com apenas controle primário, além de efetividade altamente variável: em 100\% de penetração, o desvio padrão elevado indica oscilação aproximada entre 2 e 12 barras em violação.
 
 \begin{figure}[!htb]
   \centering
-  \caption{Curva-mestre comparativa da sobretensão para os três casos: sem controle, controle primário e controle duplo.}
+  \caption{Sobretensão por nível de penetração nos três casos --- sem controle, controle primário e controle duplo (condicional) ---: média e desvio padrão ($\pm 1$~DP) do número de barras com violação.}
   \label{fig:mc_tres}
-  \includegraphics[width=0.78\textwidth]{mc_curva_mestre_tres.png}
+  \includegraphics[width=0.78\textwidth]{mc_barras_erro_tres.png}
   \par\vspace{2pt}\fonte{autoria própria}
 \end{figure}
 

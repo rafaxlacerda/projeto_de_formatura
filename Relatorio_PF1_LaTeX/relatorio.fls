@@ -450,6 +450,14 @@ INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/base/t1cmtt.fd
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/ectt1200.tfm
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc
+INPUT ./figuras/an_boxplot_sobre_ceuaberto.png
+INPUT ./figuras/an_boxplot_sobre_ceuaberto.png
+INPUT ./figuras/an_boxplot_sobre_ceuaberto.png
+INPUT ./figuras/an_boxplot_sobre_ceuaberto.png
+INPUT ./figuras/an_boxplot_sobre_nublado.png
+INPUT ./figuras/an_boxplot_sobre_nublado.png
+INPUT ./figuras/an_boxplot_sobre_nublado.png
+INPUT ./figuras/an_boxplot_sobre_nublado.png
 INPUT relatorio.aux
 INPUT ./capitulos/01-introducao.aux
 INPUT ./capitulos/01-introducao.aux
